@@ -1,0 +1,150 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Unified Toolbar (Material Top App Bar & Extended FAB)
+ */
+
+#unifiedToolbarContainer {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-bottom: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  min-height: 50px !important;
+}
+
+#unifiedToolbar {
+  background-color: transparent !important;
+  padding: 4px 12px !important;
+  min-height: 50px !important;
+}
+
+/* Window Caption Control Buttons (Min, Max, Close) - prevent squished close button */
+.titlebar-buttonbox-container {
+  margin-inline-end: 6px !important;
+}
+
+.titlebar-buttonbox {
+  margin-inline-end: 2px !important;
+}
+
+.titlebar-button {
+  padding: 0 12px !important;
+}
+
+/* Material 3 Extended FAB - New Message Button */
+#unifiedToolbar button.button-primary,
+#unifiedToolbar .toolbarbutton-1#button-newmsg,
+#unifiedToolbar button[aria-label*="Write"],
+#unifiedToolbar button[aria-label*="Écrire"],
+#unifiedToolbar button[id*="write"],
+#button-newmsg {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  padding: 8px 18px !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  cursor: pointer !important;
+  transition: box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#unifiedToolbar button.button-primary:hover,
+#unifiedToolbar .toolbarbutton-1#button-newmsg:hover,
+#button-newmsg:hover {
+  background-color: var(--md-sys-color-primary) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+  transform: translateY(-1px) !important;
+}
+
+#unifiedToolbar button.button-primary:active,
+#button-newmsg:active {
+  box-shadow: var(--md-sys-elevation-1) !important;
+  transform: translateY(0) !important;
+}
+
+#unifiedToolbar button.button-primary image,
+#unifiedToolbar button.button-primary .toolbarbutton-icon,
+#button-newmsg image,
+#button-newmsg .toolbarbutton-icon {
+  fill: var(--md-sys-color-on-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  margin-inline-end: 6px !important;
+}
+
+/* Material 3 Search Bar Pill Container */
+search-bar,
+#unifiedToolbar search-bar,
+#search-bar,
+#unifiedToolbar .search-bar {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 3px 12px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+  --focus-outline-color: transparent !important;
+  --windows-accent-outline-color: transparent !important;
+  --search-outline-offset: 0 !important;
+}
+
+/* Focus State: White pill background only, no blue borders/outlines */
+search-bar:focus-within,
+#unifiedToolbar search-bar:focus-within,
+#search-bar:focus-within,
+#unifiedToolbar .search-bar:focus-within {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Classic Inner Input: 100% borderless, shadowless, and outlineless */
+search-bar input,
+search-bar input:focus,
+search-bar input:focus-visible,
+#unifiedToolbar search-bar input,
+#unifiedToolbar search-bar input:focus,
+#unifiedToolbar search-bar input:focus-visible,
+#unifiedToolbar input[type="search"],
+#unifiedToolbar input[type="text"],
+#searchInput,
+#searchInput:focus {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  outline-color: transparent !important;
+  outline-style: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-size: 13px !important;
+}
+
+/* Secondary Action Toolbar Buttons (Icon Buttons) */
+#unifiedToolbar .toolbarbutton-1:not(.button-primary):not(#button-newmsg),
+#unifiedToolbar button:not(.button-primary):not(#button-newmsg) {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  padding: 6px 10px !important;
+  margin: 0 2px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#unifiedToolbar .toolbarbutton-1:hover:not(.button-primary):not(#button-newmsg),
+#unifiedToolbar button:hover:not(.button-primary):not(#button-newmsg) {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#unifiedToolbar .toolbarbutton-1 image,
+#unifiedToolbar button image,
+#unifiedToolbar .toolbarbutton-icon {
+  fill: currentColor !important;
+}

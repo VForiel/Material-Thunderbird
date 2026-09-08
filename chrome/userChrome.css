@@ -1,0 +1,48 @@
+/**
+ * Material-Thunderbird
+ * Material You (Material Design 3) Theme for Mozilla Thunderbird
+ * Compatible with Thunderbird 115+ Supernova & 128+ Nebula
+ *
+ * Author: Material-Thunderbird Community
+ * Repository: https://github.com/VForiel/Material-Thunderbird
+ * License: MIT
+ */
+
+/* ==========================================================================
+   Import Design Tokens
+   ========================================================================== */
+@import "tokens/shapes.css";
+@import "tokens/colors-light.css";
+@import "tokens/colors-dark.css";
+
+/* ==========================================================================
+   Import Components
+   ========================================================================== */
+@import "components/spaces-toolbar.css";
+@import "components/unified-toolbar.css";
+@import "components/folder-pane.css";
+@import "components/thread-tree.css";
+@import "components/message-header.css";
+@import "components/tabs-and-dialogs.css";
+@import "components/calendar.css";
+@import "components/addressbook.css";
+
+/* ==========================================================================
+   Global Material Application Overrides
+   ========================================================================== */
+window,
+#messengerWindow,
+body {
+  font-family: var(--md-sys-font-family) !important;
+  background-color: var(--md-sys-color-surface) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* Smooth transitions globally for interactive elements */
+button,
+input,
+select,
+a {
+  font-family: inherit !important;
+}

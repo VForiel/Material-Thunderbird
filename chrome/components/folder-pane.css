@@ -1,0 +1,192 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Folder Pane (Material Navigation Drawer)
+ * Reference: chrome/classic/skin/classic/messenger/about3Pane.css
+ */
+
+div#folderPane,
+#folderTree {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  border-right: none !important;
+  border-inline-end: none !important;
+}
+
+/* Eliminate native 4px pseudo-elements that create an unwanted white horizontal strip */
+.sidebar-panel-scroll::before,
+.sidebar-panel-scroll::after,
+#folderTree::before,
+#folderTree::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* ==========================================================================
+   Folder Pane Header Bar (Header with "+ Nouveau message" button)
+   ========================================================================== */
+#folderPaneHeaderBar {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Ensure folder tree mode headers don't have borders or white gaps */
+#folderTree > li.unselectable,
+#folderTree > li.unselectable > .mode-container {
+  border: none !important;
+  border-block-start: none !important;
+  background: transparent !important;
+}
+
+/* Extended FAB - Write Message Button in Folder Pane (Full text visibility) */
+#folderPaneWriteMessage {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  padding-block: 7px !important;
+  padding-inline-start: 32px !important;
+  padding-inline-end: 12px !important;
+  background-position: 10px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 15px 15px !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border: none !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  flex: 1 1 auto !important;
+  max-width: 100% !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#folderPaneWriteMessage:hover {
+  background-color: var(--md-sys-color-primary) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+  transform: translateY(-1px) !important;
+}
+
+#folderPaneWriteMessage:active {
+  box-shadow: var(--md-sys-elevation-1) !important;
+  transform: translateY(0) !important;
+}
+
+/* Icon inside New Message button */
+#folderPaneWriteMessage::before,
+#folderPaneWriteMessage .button-icon {
+  fill: var(--md-sys-color-on-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+}
+
+/* Secondary header buttons (Get Messages, More menu) */
+#folderPaneMoreButton,
+#folderPaneGetMessages {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+  -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#folderPaneMoreButton:hover,
+#folderPaneGetMessages:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+/* ==========================================================================
+   Folder Tree Rows (Material 3 Navigation Drawer Items)
+   ========================================================================== */
+
+#folderTree li > .container {
+  margin-inline: 8px !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding-block: 4px !important;
+  padding-inline-end: 8px !important;
+  border: none !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Hover State */
+#folderTree li:hover:not(.selected) > .container {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+/* Selected State (Always active with MD3 Secondary Container Pill) */
+#folderTree li.selected > .container,
+#folderTree:focus-within li.selected > .container,
+#folderTree li[aria-selected="true"] > .container {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+#folderTree li.selected > .container .name,
+#folderTree:focus-within li.selected > .container .name,
+#folderTree li[aria-selected="true"] > .container .name {
+  color: var(--md-sys-color-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+
+
+/* Server / Account Header Row */
+#folderTree li[data-server-type] > .container {
+  font-weight: 600 !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* Unread Count Badge (Material 3 Tonal Pill Badge: Gentle & Elegant) */
+.folder-count-badge,
+.unread-count,
+#folderTree .unread-count {
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  padding: 3px 8px !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  margin-inline-start: auto !important;
+  border: none !important;
+}
+
+/* Total count badge */
+.total-count,
+#folderTree .total-count {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 10.5px !important;
+  padding: 2px 6px !important;
+  border-radius: var(--md-shape-corner-full) !important;
+}
+
+/* Highlight unread folder text with gentle primary blue */
+li[is="folder-tree-row"]:is(.unread) > .container > .name,
+#folderTree li.unread > .container > .name {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-primary) !important;
+}

@@ -1,0 +1,54 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Spaces Toolbar (Material Navigation Rail)
+ * Reference: chrome/classic/skin/classic/messenger/shared/spacesToolbar.css
+ */
+
+.spaces-toolbar {
+  background-color: var(--md-sys-color-surface-container) !important;
+  background-image: none !important;
+  border-inline-end: none !important;
+  border-right: none !important;
+}
+
+/* Individual Navigation Rail Buttons */
+.spaces-toolbar-button,
+.spaces-toolbar-pinned-button {
+  border-radius: var(--md-shape-corner-full) !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Hover State */
+.spaces-toolbar-button:hover:not(.current),
+.spaces-toolbar-pinned-button:hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+/* Active Space (Material 3 Active Pill Indicator) */
+.spaces-toolbar-button.current {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+}
+
+/* Default Space Button Text/Icon Color */
+.spaces-toolbar-button,
+.spaces-toolbar-pinned-button {
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+.spaces-toolbar-button:hover:not(.current),
+.spaces-toolbar-pinned-button:hover {
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Spaces Icons (Maintain two-tone outline and soft fill without creating solid silhouettes) */
+.spaces-toolbar-button > img,
+.spaces-toolbar-pinned-button > img {
+  -moz-context-properties: fill, stroke, stroke-opacity !important;
+  fill: color-mix(in srgb, currentColor 22%, transparent) !important;
+  stroke: currentColor !important;
+  transition: fill var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              stroke var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}

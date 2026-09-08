@@ -1,0 +1,140 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Light Theme Tonal Color Palette (Dynamic Google Blue / Indigo)
+ * Reference: https://m3.material.io/styles/color/the-color-system/tokens
+ */
+
+:root,
+:root[lwt-theme-brighttext="false"],
+:root:not([lwt-theme-brighttext="true"]) {
+  /* Primary & Containers */
+  --md-sys-color-primary: #1a73e8;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #d3e3fd;
+  --md-sys-color-on-primary-container: #041e49;
+
+  /* Secondary & Containers */
+  --md-sys-color-secondary: #006399;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #c2e7ff;
+  --md-sys-color-on-secondary-container: #001d35;
+
+  /* Tertiary & Containers */
+  --md-sys-color-tertiary: #6b5778;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #f2daff;
+  --md-sys-color-on-tertiary-container: #251431;
+
+  /* Error */
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  /* Surface Hierarchy (MD3 Tonal Surfaces) */
+  --md-sys-color-surface: #f0f4fa;
+  --md-sys-color-surface-dim: #ded8e1;
+  --md-sys-color-surface-bright: #fdf8fd;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #edf2fa;
+  --md-sys-color-surface-container: #e2e8f0;
+  --md-sys-color-surface-container-high: #dbe3f0;
+  --md-sys-color-surface-container-highest: #cfd8e8;
+
+  /* Content & Text */
+  --md-sys-color-on-surface: #1f1f1f;
+  --md-sys-color-on-surface-variant: #444746;
+  --md-sys-color-outline: #747775;
+  --md-sys-color-outline-variant: #c4c7c5;
+  --md-sys-color-inverse-surface: #303030;
+  --md-sys-color-inverse-on-surface: #f2f2f2;
+  --md-sys-color-inverse-primary: #a8c7fa;
+
+  /* State Overlays */
+  --md-sys-state-hover: rgba(26, 115, 232, 0.08);
+  --md-sys-state-focus: rgba(26, 115, 232, 0.12);
+  --md-sys-state-pressed: rgba(26, 115, 232, 0.16);
+  --md-sys-state-dragged: rgba(26, 115, 232, 0.20);
+
+  /* ==========================================================================
+     Thunderbird Native Override Bridges (Border elimination & tonal separation)
+     ========================================================================== */
+  --toolbar-bgcolor: var(--md-sys-color-surface-container-low) !important;
+  --toolbar-color: var(--md-sys-color-on-surface) !important;
+  --tabs-toolbar-bgcolor: var(--md-sys-color-surface-container-low) !important;
+  --tab-selected-bgcolor: var(--md-sys-color-surface-container-lowest) !important;
+  --tab-selected-textcolor: var(--md-sys-color-on-surface) !important;
+  --sidebar-bgcolor: var(--md-sys-color-surface-container-low) !important;
+  --sidebar-background: var(--md-sys-color-surface-container-low) !important;
+  --sidebar-text-color: var(--md-sys-color-on-surface) !important;
+  --message-header-background: var(--md-sys-color-surface-container-lowest) !important;
+  --messagepane-background: var(--md-sys-color-surface-container-low) !important;
+  --layout-background-1: var(--md-sys-color-surface-container-low) !important;
+
+  /* Native Borders Suppressed */
+  --sidebar-border-color: transparent !important;
+  --sidebar-border: transparent !important;
+  --toolbar-border-color: transparent !important;
+  --tabs-toolbar-border-color: transparent !important;
+  --splitter-border: transparent !important;
+  --button-border-color: transparent !important;
+  --toolbarbutton-header-bordercolor: transparent !important;
+  --toolbarbutton-active-bordercolor: transparent !important;
+
+  /* Native Cards View Variables (from threadCard.css / tree-listbox.css) */
+  --tree-card-background: var(--md-sys-color-surface-container-lowest) !important;
+  --tree-card-border: transparent !important;
+  --tree-card-background-current: var(--md-sys-color-surface-container-lowest) !important;
+  --tree-card-border-hover: transparent !important;
+  --tree-card-background-selected: var(--md-sys-color-secondary-container) !important;
+  --tree-card-background-selected-current: var(--md-sys-color-secondary-container) !important;
+  --tree-card-border-selected: transparent !important;
+  --tree-card-border-focus: transparent !important;
+  --listbox-border-radius: var(--md-shape-corner-medium) !important;
+
+  /* Native Folder Pane Variables (from about3Pane.css) */
+  --treeitem-background-selected: var(--md-sys-color-secondary-container) !important;
+  --treeitem-background-hover: var(--md-sys-state-hover) !important;
+  --treeitem-background-active: var(--md-sys-color-secondary-container) !important;
+  --treeitem-text-active: var(--md-sys-color-on-secondary-container) !important;
+  --folderpane-unread-count-background: var(--md-sys-color-primary-container) !important;
+  --folderpane-unread-count-text: var(--md-sys-color-on-primary-container) !important;
+  --folderpane-unread-new-count-background: var(--md-sys-color-primary-container) !important;
+
+  /* Native Spaces Toolbar Variables (from spacesToolbar.css) */
+  --spaces-bg-color: var(--md-sys-color-surface-container) !important;
+  --spaces-button-active-bg-color: var(--md-sys-color-secondary-container) !important;
+  --spaces-button-active-text-color: var(--md-sys-color-on-secondary-container) !important;
+
+  /* Native Search Bar Variables (from search_bar_native.css) */
+  --search-bar-background: transparent !important;
+  --search-bar-focus-background: transparent !important;
+  --search-bar-border-color: transparent !important;
+  --search-bar-color: var(--md-sys-color-on-surface) !important;
+  --search-field-placeholder: var(--md-sys-color-on-surface-variant) !important;
+  --focus-outline-color: transparent !important;
+  --windows-accent-outline-color: transparent !important;
+  --search-outline-offset: 0 !important;
+
+  /* Native Calendar & Today Pane Variables (from cal_views_native.css & minimonth.css) */
+  --viewColor: var(--md-sys-color-on-surface) !important;
+  --viewBackground: var(--md-sys-color-surface) !important;
+  --viewBorderColor: var(--md-sys-color-outline-variant) !important;
+  --viewCalendarHeaderBackground: var(--md-sys-color-surface-container-low) !important;
+  --viewHighlightBorderColor: var(--md-sys-color-primary) !important;
+  --viewTodayBackground: var(--md-sys-color-surface-container-lowest) !important;
+  --viewTodayLabelBackground: var(--md-sys-color-primary) !important;
+  --viewTodayLabelColor: var(--md-sys-color-on-primary) !important;
+  --viewDayBoxSelectedBackground: var(--md-sys-color-secondary-container) !important;
+  --viewWeekendBackground: var(--md-sys-color-surface-container-low) !important;
+  --calendar-view-toggle-background: var(--md-sys-color-surface-container-high) !important;
+  --calendar-view-toggle-selected-background: var(--md-sys-color-secondary-container) !important;
+  --mmMainBackground: var(--md-sys-color-surface-container-lowest) !important;
+  --mmMainBorderColor: var(--md-sys-color-outline-variant) !important;
+  --mmHighlightBackground: var(--md-sys-color-primary) !important;
+  --mmHighlightColor: var(--md-sys-color-on-primary) !important;
+  --mmDayTodayBackground: var(--md-sys-color-primary) !important;
+  --mmDayTodayColor: var(--md-sys-color-on-primary) !important;
+  --mmDaySelectedBackground: var(--md-sys-color-secondary-container) !important;
+  --mmDaySelectedColor: var(--md-sys-color-on-secondary-container) !important;
+}

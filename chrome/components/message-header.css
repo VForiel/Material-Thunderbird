@@ -1,0 +1,275 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Message Header (Elevated Card & Tonal Action Buttons)
+ * Reference: chrome/classic/skin/classic/messenger/shared/messageHeader.css
+ */
+
+/* Header Area Container */
+#messageHeader,
+#headingWrapper,
+.main-header-area {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+#msgHeaderView {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 10px 14px 12px 14px !important;
+  padding: 16px 20px !important;
+  border: none !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+/* Email Subject Title */
+#msgHeaderView #expandedsubjectBox,
+#msgHeaderView .subject {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  line-height: 1.3 !important;
+}
+
+/* Header Action Buttons (Material 3 Seamless Tonal Pills - Soft blue-tinted base) */
+.message-header-view-button,
+#messageHeader .toolbarbutton-1.message-header-view-button,
+#headingWrapper .toolbarbutton-1.message-header-view-button {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  margin: 0 3px !important;
+  cursor: pointer !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Header Action Split Buttons with Dropdowns ("Répondre à tous", "Répondre à la liste") */
+.message-header-view-button[is="toolbarbutton-menu-button"],
+toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
+#messageHeader .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"] {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Eliminate native interior borders and make only inner buttons transparent */
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button,
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker,
+#messageHeader .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
+#messageHeader .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
+  border: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button {
+  padding-block: 5px !important;
+  padding-inline-start: 12px !important;
+  padding-inline-end: 4px !important;
+  color: inherit !important;
+}
+
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker {
+  padding-block: 5px !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 8px !important;
+  min-inline-size: 18px !important;
+  color: inherit !important;
+}
+
+.message-header-view-button:hover,
+.message-header-view-button[is="toolbarbutton-menu-button"]:hover,
+#messageHeader .toolbarbutton-1.message-header-view-button:hover,
+#headingWrapper .toolbarbutton-1.message-header-view-button:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Primary Actions: Reply, Reply All & Forward Buttons (Distinct Light Blue Tonal Pill) */
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton) {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover {
+  background-color: #b9dcf7 !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* Action Icons (Two-tone Material Outline) */
+.message-header-view-button image,
+.message-header-view-button .button-icon {
+  -moz-context-properties: fill, stroke, stroke-opacity !important;
+  fill: color-mix(in srgb, currentColor 20%, transparent) !important;
+  stroke: currentColor !important;
+  margin-inline-end: 4px !important;
+}
+
+/* ==========================================================================
+   Sender & Recipient Chips (Material 3 Touch Targets & Soft Hover State)
+   ========================================================================== */
+.header-recipient,
+.header-newsgroup,
+.header-message-id,
+.emailRecipient {
+  border-radius: var(--md-shape-corner-medium) !important;
+  padding: 4px 10px !important;
+  margin: 1px 2px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+.recipient-avatar {
+  border-radius: var(--md-shape-corner-full) !important;
+}
+
+.header-recipient:hover,
+.header-newsgroup:hover,
+.header-message-id:hover,
+.emailRecipient:hover,
+#expandedfromBox .header-recipient:hover,
+#expandedtoBox .header-recipient:hover,
+#expandedccBox .header-recipient:hover,
+#expandedbccBox .header-recipient:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  outline: none !important;
+  border: none !important;
+}
+
+.header-recipient:hover .recipient-multi-line-name,
+.header-recipient:hover .recipient-multi-line-address {
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* ==========================================================================
+   Notification Banners / Warning Bars (Material 3 Tonal Alert Cards)
+   ========================================================================== */
+#mail-notification-top {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+#mail-notification-top > .notificationbox-stack[notificationside="top"],
+.notificationbox-stack {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+notification-message,
+:host(notification-message) {
+  margin: 6px 14px 10px 14px !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  --panel-border-radius: var(--md-shape-corner-medium) !important;
+}
+
+notification-message div.container,
+.notificationbox-stack notification-message div.container {
+  border-radius: var(--md-shape-corner-medium) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 10px 16px !important;
+  min-height: 42px !important;
+}
+
+/* Warning & Remote Content Banner (Material 3 Amber Tonal Container) */
+notification-message[type="warning"],
+:host(notification-message[type="warning"]),
+notification-message[value="remoteContent"],
+:host(notification-message[value="remoteContent"]) {
+  --message-bar-background-color: #fef7da !important;
+  --message-bar-text-color: #494518 !important;
+}
+
+notification-message[type="warning"] div.container,
+notification-message[value="remoteContent"] div.container {
+  background-color: #fef7da !important;
+  color: #494518 !important;
+}
+
+/* Info Banner */
+notification-message[type="info"] div.container,
+:host(notification-message[type="info"]) div.container {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* Critical / Error Banner */
+notification-message:is([type="error"], [type="critical"]) div.container,
+:host(notification-message:is([type="error"], [type="critical"])) div.container {
+  background-color: var(--md-sys-color-error-container) !important;
+  color: var(--md-sys-color-on-error-container) !important;
+}
+
+/* Action Buttons & Dropdowns inside Notification (Material Pills) */
+notification-message button,
+notification-message .button,
+notification-message menulist,
+notification-message moz-button {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
+  color: inherit !important;
+  padding-block: 4px !important;
+  padding-inline-start: 14px !important;
+  padding-inline-end: 10px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  margin-inline: 4px !important;
+  cursor: pointer !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* "Options ▾" dropdown-list button: ensure label and dropdown arrow have breathing room */
+notification-message button.button-menu-list,
+notification-message .button-menu-list {
+  padding-inline-end: 24px !important; /* room for the ~12px icon + gap */
+  background-size: 10px !important;
+  background-position: right 6px center !important;
+}
+
+notification-message button:hover,
+notification-message .button:hover,
+notification-message menulist:hover,
+notification-message moz-button:hover {
+  background-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+/* Close icon */
+notification-message .close button,
+notification-message moz-button::part(button) {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+notification-message .close button:hover,
+notification-message moz-button::part(button):hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+

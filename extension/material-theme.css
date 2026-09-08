@@ -1,0 +1,1449 @@
+/**
+ * Material-Thunderbird - WebExtension Theme Stylesheet
+ * Injected into Thunderbird via theme_experiment
+ */
+
+/* ==========================================================================
+   Tokens & Bridge Variables
+   ========================================================================== */
+:root {
+  --md-sys-font-family: -apple-system, BlinkMacSystemFont, "Google Sans", "Roboto", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --md-sys-font-family-mono: "Roboto Mono", "Cascadia Code", "Consolas", monospace;
+
+  --md-shape-small: 8px;
+  --md-shape-medium: 12px;
+  --md-shape-large: 16px;
+  --md-shape-extra-large: 28px;
+  --md-shape-full: 9999px;
+
+  --md-motion-short: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --md-elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.14);
+  --md-elevation-2: 0 2px 6px 2px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.14);
+
+  /* Light colors (default) */
+  --md-primary: #1a73e8;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #d3e3fd;
+  --md-on-primary-container: #041e49;
+  --md-secondary-container: #c2e7ff;
+  --md-on-secondary-container: #001d35;
+
+  --md-surface: #f0f4fa;
+  --md-surface-low: #edf2fa;
+  --md-surface-container: #e2e8f0;
+  --md-surface-high: #dbe3f0;
+  --md-surface-lowest: #ffffff;
+
+  --md-on-surface: #1f1f1f;
+  --md-on-surface-variant: #444746;
+  --md-outline: #747775;
+  --md-outline-variant: #c4c7c5;
+  --md-state-hover: rgba(26, 115, 232, 0.08);
+
+  /* Native Variables Bridge */
+  --tree-card-background: var(--md-surface-lowest);
+  --tree-card-border: transparent;
+  --tree-card-background-current: var(--md-surface-lowest);
+  --tree-card-border-hover: transparent;
+  --tree-card-background-selected: var(--md-secondary-container);
+  --tree-card-border-selected: transparent;
+  --listbox-border-radius: var(--md-shape-medium);
+  --treeitem-background-selected: var(--md-secondary-container);
+  --treeitem-background-hover: var(--md-state-hover);
+  --treeitem-background-active: var(--md-secondary-container);
+  --treeitem-text-active: var(--md-on-secondary-container);
+  --spaces-bg-color: var(--md-surface-container);
+  --spaces-button-active-bg-color: var(--md-secondary-container);
+  --spaces-button-active-text-color: var(--md-on-secondary-container);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-primary: #a8c7fa;
+    --md-on-primary: #00315b;
+    --md-primary-container: #004a77;
+    --md-on-primary-container: #c2e7ff;
+    --md-secondary-container: #004b72;
+    --md-on-secondary-container: #c7e7ff;
+
+    --md-surface: #111315;
+    --md-surface-low: #191c1e;
+    --md-surface-container: #1d2023;
+    --md-surface-high: #272a2d;
+    --md-surface-lowest: #0c0e10;
+
+    --md-on-surface: #e2e2e5;
+    --md-on-surface-variant: #c4c7c5;
+    --md-outline: #8e918f;
+    --md-outline-variant: #444746;
+    --md-state-hover: rgba(168, 199, 250, 0.08);
+
+    --tree-card-background: var(--md-surface-lowest);
+    --tree-card-border: var(--md-outline-variant);
+    --tree-card-background-current: var(--md-surface-high);
+    --tree-card-border-hover: var(--md-outline);
+    --tree-card-background-selected: var(--md-secondary-container);
+    --tree-card-border-selected: var(--md-primary);
+    --treeitem-background-selected: var(--md-secondary-container);
+    --treeitem-background-hover: var(--md-state-hover);
+    --treeitem-background-active: var(--md-secondary-container);
+    --treeitem-text-active: var(--md-on-secondary-container);
+    --spaces-bg-color: var(--md-surface-container);
+    --spaces-button-active-bg-color: var(--md-secondary-container);
+    --spaces-button-active-text-color: var(--md-on-secondary-container);
+  }
+}
+
+/* Global Font & Surface */
+window, #messengerWindow, body {
+  font-family: var(--md-sys-font-family) !important;
+  background-color: var(--md-surface) !important;
+  color: var(--md-on-surface) !important;
+}
+
+/* Spaces Toolbar (Navigation Rail) */
+.spaces-toolbar {
+  background-color: var(--md-surface-container) !important;
+  border-inline-end: none !important;
+  border-right: none !important;
+  background-image: none !important;
+}
+
+.spaces-toolbar-button,
+.spaces-toolbar-pinned-button {
+  border-radius: var(--md-shape-full) !important;
+  transition: background-color var(--md-motion-short) !important;
+}
+
+.spaces-toolbar-button:hover:not(.current),
+.spaces-toolbar-pinned-button:hover {
+  background-color: var(--md-state-hover) !important;
+}
+
+.spaces-toolbar-button,
+.spaces-toolbar-pinned-button {
+  color: var(--md-on-surface-variant) !important;
+}
+
+.spaces-toolbar-button.current {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+}
+
+.spaces-toolbar-button > img,
+.spaces-toolbar-pinned-button > img {
+  -moz-context-properties: fill, stroke, stroke-opacity !important;
+  fill: color-mix(in srgb, currentColor 22%, transparent) !important;
+  stroke: currentColor !important;
+}
+
+/* Folder Tree & Header */
+#folderPaneHeaderBar {
+  background-color: var(--md-surface-low) !important;
+  border-bottom: none !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#folderPaneWriteMessage {
+  background-color: var(--md-primary) !important;
+  color: var(--md-on-primary) !important;
+  border-radius: var(--md-shape-large) !important;
+  padding-block: 7px !important;
+  padding-inline-start: 32px !important;
+  padding-inline-end: 12px !important;
+  background-position: 10px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 15px 15px !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border: none !important;
+  box-shadow: var(--md-elevation-1) !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+/* Secondary header buttons (Get Messages, More menu) */
+#folderPaneMoreButton,
+#folderPaneGetMessages {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--md-on-surface-variant) !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+  -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+#folderPaneMoreButton:hover,
+#folderPaneGetMessages:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-primary) !important;
+}
+
+/* Eliminate native 4px pseudo-elements causing white strip */
+.sidebar-panel-scroll::before,
+.sidebar-panel-scroll::after,
+#folderTree::before,
+#folderTree::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+#folderPane, #folderTree {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+  border-right: none !important;
+  border-inline-end: none !important;
+}
+
+#folderTree li > .container {
+  margin-inline: 8px !important;
+  padding-block: 4px !important;
+  border-radius: var(--md-shape-full) !important;
+  transition: background-color var(--md-motion-short) !important;
+}
+
+#folderTree li:hover:not(.selected) > .container {
+  background-color: var(--md-state-hover) !important;
+}
+
+#folderTree li.selected > .container,
+#folderTree:focus-within li.selected > .container,
+#folderTree li[aria-selected="true"] > .container {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+}
+
+#folderTree li.selected > .container :is(.name) {
+  color: var(--md-on-secondary-container) !important;
+}
+
+.folder-count-badge, .unread-count {
+  background-color: var(--md-primary-container) !important;
+  color: var(--md-on-primary-container) !important;
+  border-radius: var(--md-shape-full) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  padding: 3px 8px !important;
+}
+
+/* Thread Tree (Message List Cards) */
+#threadPane,
+#threadTree,
+#threadTree tbody,
+#quickFilterBar,
+#threadPaneHeaderBar {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+  border-right: none !important;
+  border-inline-end: none !important;
+}
+
+/* Quick Filter & Display Options Buttons in Thread Header (Material Pills) */
+.list-header-bar-container-end .button,
+#threadPaneQuickFilterButton,
+#threadPaneDisplayButton {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  color: var(--md-on-surface-variant) !important;
+  padding: 4px 10px !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+.list-header-bar-container-end .button:hover,
+#threadPaneQuickFilterButton:hover,
+#threadPaneDisplayButton:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+}
+
+#threadPaneQuickFilterButton[aria-pressed="true"],
+#threadPaneQuickFilterButton.checked {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+}
+
+#threadTree .card-container {
+  border-radius: var(--md-shape-medium) !important;
+  background-color: var(--md-surface-lowest) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  margin: 3px 6px !important;
+  transition: background-color var(--md-motion-short), box-shadow var(--md-motion-short) !important;
+}
+
+#threadTree tr.card-layout:hover:not(.selected) .card-container {
+  background-color: var(--md-surface-lowest) !important;
+  border: none !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container,
+#threadTree tr.card-layout[aria-selected="true"] .card-container {
+  background-color: var(--md-secondary-container) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+#threadTree .card-container .sender {
+  color: var(--md-on-surface) !important;
+  font-weight: 600 !important;
+}
+
+#threadTree .card-container .subject {
+  color: var(--md-on-surface-variant) !important;
+}
+
+#threadTree .card-container .date {
+  color: var(--md-outline) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container :is(.sender, .subject) {
+  color: var(--md-on-secondary-container) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container .date {
+  color: var(--md-on-secondary-container) !important;
+  opacity: 0.8 !important;
+}
+
+/* Unread Messages Styling: Bold dark sender on first line, primary blue for subject */
+#threadTree tr.card-layout[data-properties~="unread"]:not(.selected) .card-container .sender {
+  font-weight: 700 !important;
+  color: var(--md-on-surface) !important;
+}
+
+#threadTree tr.card-layout[data-properties~="unread"]:not(.selected) .card-container .subject {
+  font-weight: 600 !important;
+  color: var(--md-primary) !important;
+}
+
+#threadTree tr.card-layout[data-properties~="unread"] .read-status {
+  fill: var(--md-primary) !important;
+  stroke: var(--md-primary) !important;
+}
+
+/* Message Header Card */
+#messageHeader,
+#headingWrapper,
+.main-header-area {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+#msgHeaderView {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-large) !important;
+  margin: 10px 14px 12px 14px !important;
+  padding: 16px 20px !important;
+  border: none !important;
+  box-shadow: var(--md-elevation-1) !important;
+}
+
+.message-header-view-button,
+#messageHeader .toolbarbutton-1.message-header-view-button,
+#headingWrapper .toolbarbutton-1.message-header-view-button {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-surface-low) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  margin: 0 3px !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+/* Split Buttons with Dropdown ("Répondre à tous", "Répondre à la liste") */
+.message-header-view-button[is="toolbarbutton-menu-button"],
+toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
+#messageHeader .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"] {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-surface-low) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button,
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker,
+#messageHeader .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
+#messageHeader .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
+  border: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button {
+  padding-block: 5px !important;
+  padding-inline-start: 12px !important;
+  padding-inline-end: 4px !important;
+  color: inherit !important;
+}
+
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker {
+  padding-block: 5px !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 8px !important;
+  min-inline-size: 18px !important;
+  color: inherit !important;
+}
+
+.message-header-view-button image,
+.message-header-view-button .button-icon {
+  -moz-context-properties: fill, stroke, stroke-opacity !important;
+  fill: color-mix(in srgb, currentColor 20%, transparent) !important;
+  stroke: currentColor !important;
+  margin-inline-end: 4px !important;
+}
+
+.message-header-view-button:hover,
+.message-header-view-button[is="toolbarbutton-menu-button"]:hover,
+#messageHeader .toolbarbutton-1.message-header-view-button:hover,
+#headingWrapper .toolbarbutton-1.message-header-view-button:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-on-surface) !important;
+}
+
+/* Primary Actions: Reply, Reply All & Forward Buttons (Distinct Light Blue Tonal Pill) */
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton) {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+  border-color: transparent !important;
+  font-weight: 600 !important;
+}
+
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover {
+  background-color: #b9dcf7 !important;
+  color: var(--md-on-secondary-container) !important;
+}
+
+/* Sender & Recipient Chips */
+.header-recipient,
+.header-newsgroup,
+.header-message-id,
+.emailRecipient {
+  border-radius: var(--md-shape-medium) !important;
+  padding: 4px 10px !important;
+  margin: 1px 2px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: background-color var(--md-motion-short) !important;
+}
+
+.recipient-avatar {
+  border-radius: var(--md-shape-full) !important;
+}
+
+.header-recipient:hover,
+.header-newsgroup:hover,
+.header-message-id:hover,
+.emailRecipient:hover,
+#expandedfromBox .header-recipient:hover,
+#expandedtoBox .header-recipient:hover,
+#expandedccBox .header-recipient:hover,
+#expandedbccBox .header-recipient:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-on-surface) !important;
+  border-radius: var(--md-shape-medium) !important;
+  outline: none !important;
+  border: none !important;
+}
+
+.header-recipient:hover .recipient-multi-line-name,
+.header-recipient:hover .recipient-multi-line-address {
+  color: var(--md-on-surface) !important;
+}
+
+/* Material You Notification Banners */
+#mail-notification-top,
+.notificationbox-stack {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+notification-message,
+:host(notification-message) {
+  margin: 6px 14px 10px 14px !important;
+  border-radius: var(--md-shape-medium) !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  --panel-border-radius: var(--md-shape-medium) !important;
+}
+
+notification-message div.container,
+.notificationbox-stack notification-message div.container {
+  border-radius: var(--md-shape-medium) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 10px 16px !important;
+}
+
+notification-message[type="warning"],
+:host(notification-message[type="warning"]),
+notification-message[value="remoteContent"],
+:host(notification-message[value="remoteContent"]) {
+  --message-bar-background-color: #fef7da !important;
+  --message-bar-text-color: #494518 !important;
+}
+
+notification-message[type="warning"] div.container,
+notification-message[value="remoteContent"] div.container {
+  background-color: #fef7da !important;
+  color: #494518 !important;
+}
+
+notification-message button,
+notification-message .button,
+notification-message menulist,
+notification-message moz-button {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
+  color: inherit !important;
+  padding: 4px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  margin-inline: 4px !important;
+}
+
+notification-message button:hover,
+notification-message .button:hover,
+notification-message menulist:hover,
+notification-message moz-button:hover {
+  background-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+menupopup,
+panel {
+  --panel-background-color: var(--md-surface-lowest) !important;
+  --panel-text-color: var(--md-on-surface) !important;
+  --panel-border-color: color-mix(in srgb, var(--md-outline-variant) 50%, transparent) !important;
+  --panel-border-radius: var(--md-shape-medium) !important;
+  --panel-box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  --panel-padding: 4px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+menupopup::part(content),
+panel::part(content),
+.panel-arrowcontent {
+  background-color: var(--md-surface-lowest) !important;
+  color: var(--md-on-surface) !important;
+  border: 1px solid color-mix(in srgb, var(--md-outline-variant) 50%, transparent) !important;
+  border-radius: var(--md-shape-medium) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  padding: 4px !important;
+  margin: 0 !important;
+}
+
+menupopup menuseparator,
+menuseparator {
+  appearance: none !important;
+  border: none !important;
+  border-top: 1px solid color-mix(in srgb, var(--md-outline-variant) 40%, transparent) !important;
+  background: transparent !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 4px 8px !important;
+  padding: 0 !important;
+  opacity: 0.7 !important;
+}
+
+/* Unified Toolbar Container & Window Controls */
+#unifiedToolbarContainer {
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  border-bottom: none !important;
+}
+
+.titlebar-buttonbox-container {
+  margin-inline-end: 6px !important;
+}
+
+.titlebar-buttonbox {
+  margin-inline-end: 2px !important;
+}
+
+.titlebar-button {
+  padding: 0 12px !important;
+}
+
+/* Material 3 Search Bar (Full Pill Container & Transparent Classic Input) */
+search-bar,
+#unifiedToolbar search-bar,
+#search-bar,
+#unifiedToolbar .search-bar {
+  background-color: var(--md-surface-high) !important;
+  color: var(--md-on-surface) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-full) !important;
+  padding: 3px 12px !important;
+  --focus-outline-color: transparent !important;
+  --windows-accent-outline-color: transparent !important;
+  --search-outline-offset: 0 !important;
+}
+
+/* Focus State: White background only, no blue borders/outlines */
+search-bar:focus-within,
+#unifiedToolbar search-bar:focus-within,
+#search-bar:focus-within {
+  background-color: var(--md-surface-lowest) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+search-bar input,
+search-bar input:focus,
+search-bar input:focus-visible,
+#unifiedToolbar search-bar input,
+#unifiedToolbar search-bar input:focus,
+#unifiedToolbar search-bar input:focus-visible,
+#unifiedToolbar input[type="search"],
+#unifiedToolbar input[type="text"],
+#searchInput,
+#searchInput:focus {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  outline-color: transparent !important;
+  outline-style: none !important;
+  color: var(--md-on-surface) !important;
+}
+
+/* Tabs */
+.tab-line {
+  display: none !important;
+}
+
+#tabs-toolbar,
+#tabmail-tabs {
+  background-color: var(--md-surface-low) !important;
+  border-bottom: none !important;
+}
+
+.tabmail-tab {
+  margin: 2px 2px 0 2px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--md-on-surface-variant) !important;
+}
+
+.tab-content,
+.tab-label-container,
+.tab-label {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.tab-background {
+  border-radius: var(--md-shape-medium) var(--md-shape-medium) 0 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.tabmail-tab:hover .tab-background:not([selected]) {
+  background-color: var(--md-state-hover) !important;
+}
+
+.tabmail-tab[selected] {
+  color: var(--md-on-surface) !important;
+  font-weight: 600 !important;
+}
+
+.tab-background[selected],
+.tabmail-tab[selected] .tab-background {
+  background-color: var(--md-surface-lowest) !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: inset 0 -3px 3px -1px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Scrollbars (100% Invisible when Idle / Smooth Fade-in on Hover) */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+  transition: scrollbar-color var(--md-motion-short) !important;
+}
+
+*:hover {
+  scrollbar-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent) transparent !important;
+}
+
+::-webkit-scrollbar {
+  width: 7px !important;
+  height: 7px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent !important;
+  border-radius: var(--md-shape-full) !important;
+  transition: background-color var(--md-motion-short) !important;
+}
+
+*:hover::-webkit-scrollbar-thumb,
+::-webkit-scrollbar:hover::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent) !important;
+}
+
+scrollbar {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+scrollbar thumb {
+  opacity: 0 !important;
+  background-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent) !important;
+  border-radius: var(--md-shape-full) !important;
+  transition: opacity var(--md-motion-short) !important;
+}
+
+*:hover > scrollbar thumb,
+scrollbar:hover thumb,
+scrollbar thumb:hover {
+  opacity: 1 !important;
+}
+
+/* Unifinder Event Filter & Search ("Événements des 7 prochains jours...") */
+#unifinder-searchBox {
+  background-color: var(--md-surface-low) !important;
+  border-bottom: none !important;
+  padding: 6px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+#event-filter-menulist {
+  appearance: none !important;
+  background-color: var(--md-surface-high) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+  border-radius: var(--md-shape-full) !important;
+  padding: 5px 14px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+#event-filter-menulist:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-primary) !important;
+}
+
+#unifinder-search-field {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-surface-high) !important;
+  border: 1px solid transparent !important;
+  color: var(--md-on-surface) !important;
+  padding: 4px 12px !important;
+}
+
+/* Calendar Navigation (<, today, >) - Button-Group Border Removal */
+#calendarControls,
+.navigation-inner-box,
+#calendarControls .button-group,
+.navigation-inner-box .button-group,
+.button-group:has(#previousViewButton),
+.button-group:has(#todayViewButton),
+.button-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+#calendarControls .button-group > button,
+.navigation-inner-box .button-group > button {
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 2px !important;
+}
+
+#previousViewButton,
+#nextViewButton,
+.today-navigation-button:not(#todayViewButton),
+#calendarControlBarMenu {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-surface-high) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-width: 32px !important;
+  min-height: 30px !important;
+  padding: 4px 10px !important;
+  margin: 0 2px !important;
+  cursor: pointer !important;
+}
+
+#previousViewButton:hover,
+#nextViewButton:hover,
+.today-navigation-button:not(#todayViewButton):hover,
+#calendarControlBarMenu:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-primary) !important;
+}
+
+#todayViewButton,
+.today-navigation-button#todayViewButton {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-primary-container) !important;
+  color: var(--md-on-primary-container) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-width: 34px !important;
+  min-height: 30px !important;
+  padding: 4px 12px !important;
+  margin: 0 2px !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+}
+
+#todayViewButton:hover,
+.today-navigation-button#todayViewButton:hover {
+  background-color: var(--md-primary) !important;
+  color: var(--md-on-primary) !important;
+}
+
+.view-header {
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--md-on-surface) !important;
+}
+
+/* Calendar, Agenda & Today Pane */
+#calendar-view-box,
+#view-box,
+calendar-month-view,
+calendar-week-view,
+calendar-day-view {
+  background-color: var(--md-surface) !important;
+  color: var(--md-on-surface) !important;
+}
+
+#calendarViewHeader {
+  background-color: var(--md-surface-low) !important;
+  border-bottom: none !important;
+  padding: 6px 14px !important;
+}
+
+.calview-toggle {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-surface-high) !important;
+  border: none !important;
+  padding: 2px !important;
+  box-shadow: none !important;
+}
+
+.calview-toggle-item,
+button.calview-toggle-item {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  padding: 5px 14px !important;
+  font-size: 12px !important;
+  color: var(--md-on-surface-variant) !important;
+  background-color: transparent !important;
+}
+
+.calview-toggle-item[role="tab"][aria-selected="true"],
+.calview-toggle-item.selected {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+calendar-event-box,
+calendar-month-day-box-item,
+.calendar-color-box,
+.calendar-item-container {
+  border-radius: var(--md-shape-small) !important;
+  box-shadow: var(--md-elevation-1) !important;
+  font-family: var(--md-sys-font-family) !important;
+  border: none !important;
+  min-block-size: 24px !important;
+  margin-block: 2px !important;
+  transition: box-shadow var(--md-motion-short) !important;
+}
+
+calendar-event-box:hover,
+calendar-month-day-box-item:hover {
+  box-shadow: var(--md-elevation-2) !important;
+  filter: brightness(0.97);
+}
+
+.calendar-item-flex {
+  padding: 4px 6px !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+.item-time-label,
+.agenda-listitem-time,
+.calendar-item-time {
+  font-weight: 400 !important;
+  font-size: 11px !important;
+  opacity: 0.85 !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+.event-name-label,
+.agenda-listitem-title,
+.calendar-item-summary {
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+.calendar-month-day-box-date-label[relation="today"] {
+  background-color: var(--md-primary) !important;
+  color: var(--md-on-primary) !important;
+  border-radius: var(--md-shape-full) !important;
+  padding: 2px 8px !important;
+  font-weight: 700 !important;
+}
+
+#today-pane-panel {
+  background-color: var(--md-surface-low) !important;
+  border-inline-start: 1px solid color-mix(in srgb, var(--md-outline-variant) 25%, transparent) !important;
+  color: var(--md-on-surface) !important;
+}
+
+#today-pane-panel > .sidebar-header {
+  border-block-end: none !important;
+}
+
+#today-minimonth-box {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-large) !important;
+  box-shadow: var(--md-elevation-1) !important;
+  border: none !important;
+  margin: 8px !important;
+  padding: 8px !important;
+}
+
+#weekdayNameLabel {
+  color: var(--md-primary) !important;
+  font-weight: 600 !important;
+}
+
+.minimonth-day[today="true"] {
+  background-color: var(--md-primary) !important;
+  color: var(--md-on-primary) !important;
+  border-radius: var(--md-shape-full) !important;
+  font-weight: 700 !important;
+}
+
+#agenda {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+  padding: 6px 8px !important;
+}
+
+.agenda-date-header {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+  border-radius: var(--md-shape-full) !important;
+  padding: 4px 12px !important;
+  margin: 8px 4px 4px 4px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  display: inline-block !important;
+}
+
+.agenda-listitem-details {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-medium) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin: 4px 4px !important;
+  padding: 8px 12px !important;
+}
+
+.agenda-listitem-details:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Todolist & Task Management */
+#todo-tab-panel,
+#calendar-task-tree {
+  background-color: var(--md-surface-low) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+}
+
+#task-addition-box {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-medium) !important;
+  border: none !important;
+  margin: 6px 8px !important;
+  padding: 4px 10px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+#task-addition-box input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: var(--md-on-surface) !important;
+}
+
+#task-filter-menulist {
+  background-color: var(--md-surface-high) !important;
+  color: var(--md-on-surface) !important;
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  padding: 4px 10px !important;
+}
+
+#task-text-filter-field {
+  background-color: var(--md-surface-high) !important;
+  border-radius: var(--md-shape-full) !important;
+  border: 1px solid transparent !important;
+  padding: 3px 10px !important;
+}
+
+#calendar-task-details-container,
+#calendar-task-details {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-medium) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin: 6px !important;
+  padding: 8px !important;
+  border: none !important;
+}
+
+/* Address Book (about:addressbook) */
+#booksPane {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+}
+
+#booksPaneHeaderBar {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+}
+
+#booksPaneCreateContact {
+  background-color: var(--md-primary) !important;
+  color: var(--md-on-primary) !important;
+  border-radius: var(--md-shape-large) !important;
+  padding: 7px 16px 7px 32px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: var(--md-elevation-1) !important;
+}
+
+#books .bookRow-container,
+#books .listRow-container {
+  margin-inline: 8px !important;
+  border-radius: var(--md-shape-full) !important;
+}
+
+#books :where(.bookRow, .listRow).selected > div {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+}
+
+#displayButton {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--md-on-surface-variant) !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+  -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+#displayButton:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-primary) !important;
+}
+
+#cardsPane,
+#cardsPaneHeader,
+#cards,
+#cards table[is="tree-view-table"],
+#cards table[is="tree-view-table"] tbody {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+}
+
+#cards table[is="tree-view-table"] {
+  border-collapse: separate !important;
+  border-spacing: 0 4px !important;
+  padding: 4px 6px !important;
+}
+
+tr[is="ab-card-row"] {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+tr[is="ab-card-row"] td {
+  background-color: transparent !important;
+  padding: 0 4px !important;
+  border: none !important;
+}
+
+tr[is="ab-card-row"] td > .card-container,
+#cards .card-container {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-medium) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  padding: 10px 14px !important;
+  margin-block: 2px !important;
+  border: none !important;
+  transition: box-shadow var(--md-motion-short), background-color var(--md-motion-short) !important;
+}
+
+tr[is="ab-card-row"]:hover td > .card-container,
+#cards .card-container:hover {
+  background-color: var(--md-surface-lowest) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+tr[is="ab-card-row"].selected td > .card-container,
+#cards tr.selected .card-container {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+}
+
+tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
+  color: var(--md-on-secondary-container) !important;
+}
+
+#detailsPane {
+  background-color: var(--md-surface-lowest) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+}
+
+.contact-details-scroll {
+  background-color: var(--md-surface-lowest) !important;
+  padding: 24px 32px !important;
+}
+
+#detailsPane header {
+  border-bottom: 1px solid var(--md-surface-high) !important;
+  padding-block-end: 20px !important;
+  margin-block-end: 20px !important;
+}
+
+.contact-photo,
+#viewContactPhoto {
+  border-radius: 100% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  border: 3px solid var(--md-surface-lowest) !important;
+}
+
+.contact-heading-name {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: var(--md-on-surface) !important;
+  letter-spacing: -0.2px !important;
+}
+
+.contact-heading-email {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--md-primary) !important;
+}
+
+#detailsActions {
+  grid-column: 1 / -1 !important;
+  margin-block-end: 16px !important;
+}
+
+#detailsActions button,
+#editButton {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  background-color: var(--md-surface-high) !important;
+  color: var(--md-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  padding-block: 7px !important;
+  padding-inline: 16px 16px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: all var(--md-motion-short) !important;
+}
+
+#detailsActions button.icon-button {
+  padding-inline-start: 34px !important;
+  background-position: 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+}
+
+#detailsActions button:hover,
+#editButton:hover {
+  background-color: var(--md-surface-container) !important;
+  color: var(--md-primary) !important;
+  box-shadow: var(--md-elevation-1) !important;
+}
+
+#detailsWriteButton {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+#detailsWriteButton:hover {
+  background-color: var(--md-primary-container) !important;
+  color: var(--md-on-primary-container) !important;
+}
+
+#detailsBody section:not(#detailsActions) {
+  background-color: var(--md-surface-low) !important;
+  border-radius: 16px !important;
+  border: none !important;
+  padding: 16px 20px !important;
+  margin-block-end: 12px !important;
+}
+
+#detailsBody section:not(#detailsActions) h2 {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: var(--md-primary) !important;
+  letter-spacing: 0.1px !important;
+  margin-block: 0 12px !important;
+}
+
+.entry-type {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  color: var(--md-on-surface-variant) !important;
+  text-transform: uppercase !important;
+  opacity: 0.8 !important;
+}
+
+.entry-value {
+  font-size: 13px !important;
+  color: var(--md-on-surface) !important;
+}
+
+.entry-value a,
+.entry-value a:visited {
+  color: var(--md-primary) !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+/* Splitters & Reading Pane */
+hr[is="pane-splitter"],
+splitter,
+#folderPaneSplitter,
+#messagePaneSplitter,
+#sidebar-splitter,
+#listSplitter,
+#calsidebar_splitter,
+#today-splitter,
+#today-pane-splitter,
+#booksSplitter,
+#sharedSplitter {
+  border: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Message Reading Pane Container & Floating Cards */
+#messagePane,
+#messageBrowser,
+#messagepanebox,
+#singleMessage,
+message-pane,
+body:has(#messagepanebox) {
+  background-color: var(--md-surface-low) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+}
+
+/* Floating Message Body Card (Clean contrast with no outer box-shadow) */
+#messagepane {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-large) !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin-inline: 14px !important;
+  margin-block-end: 14px !important;
+  margin-block-start: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Plain text message padding */
+div.moz-text-plain,
+div.moz-text-flowed {
+  padding: 18px 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Attachments Bar Card */
+#attachmentView {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-medium) !important;
+  margin-inline: 14px !important;
+  margin-block-end: 14px !important;
+  border: none !important;
+  box-shadow: var(--md-elevation-1) !important;
+}
+
+#attachment-splitter {
+  border: none !important;
+  background: transparent !important;
+  min-height: 4px !important;
+}
+
+/* ==========================================================================
+   Address Book (about:addressbook) Modernization
+   ========================================================================== */
+#cards tr:hover:not(.selected) .card-container,
+tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
+  background-color: #f5f8fc !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+#detailsPane,
+.contact-details-scroll {
+  background-color: var(--md-surface-low) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+  padding: 14px 18px !important;
+}
+
+#detailsPane header,
+#viewContact header {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-large) !important;
+  box-shadow: var(--md-elevation-1) !important;
+  border: none !important;
+  padding: 20px 24px !important;
+  margin-block-end: 14px !important;
+}
+
+#detailsActions {
+  grid-column: 1 / -1 !important;
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-large) !important;
+  box-shadow: var(--md-elevation-1) !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  margin-block-end: 14px !important;
+}
+
+#detailsActions button,
+#editButton {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  background-color: #edf2fa !important;
+  color: var(--md-on-surface) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  padding-block: 7px !important;
+  padding-inline: 16px !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color var(--md-motion-short) !important;
+}
+
+#detailsActions button:hover,
+#editButton:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-on-surface) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#detailsWriteButton {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+#detailsWriteButton:hover {
+  background-color: #b9dcf7 !important;
+  color: var(--md-on-secondary-container) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#detailsBody section:not(#detailsActions) {
+  background-color: var(--md-surface-lowest) !important;
+  border-radius: var(--md-shape-large) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 18px 24px !important;
+  margin-block-end: 14px !important;
+}
+
+#detailsBody section:not(#detailsActions) h2 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--md-on-surface) !important;
+  margin-block: 0 12px !important;
+}

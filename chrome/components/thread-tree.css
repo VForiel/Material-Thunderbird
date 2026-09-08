@@ -1,0 +1,286 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Thread Tree (Message List & Cards View)
+ * Reference: chrome/classic/skin/classic/messenger/shared/threadCard.css
+ */
+
+#threadPane,
+#threadTree,
+#threadTree tbody,
+#quickFilterBar,
+#threadPaneHeaderBar {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  border-right: none !important;
+  border-inline-end: none !important;
+}
+
+/* Quick Filter Button - Icon isolated from text via padding-inline-start */
+#threadPaneQuickFilterButton {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  /* Leave room for the 16px filter icon + 8px gap on the start side */
+  padding-block: 5px !important;
+  padding-inline-start: 30px !important;
+  padding-inline-end: 12px !important;
+  /* Freeze the icon at the start of the button area */
+  background-position: 9px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 15px 15px !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#threadPaneQuickFilterButton:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+}
+
+#threadPaneQuickFilterButton[aria-pressed="true"],
+#threadPaneQuickFilterButton.checked {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* Display Options Button (icon-only, round) */
+#threadPaneDisplayButton,
+.list-header-bar-container-end .button {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  padding: 4px 10px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#threadPaneDisplayButton:hover,
+.list-header-bar-container-end .button:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+}
+
+
+/* ==========================================================================
+   Thread Reply Twisty / Expand Button (Material 3 Tonal Pill Chip)
+   Replaces legacy gray bordered XUL box with a soft rounded chip.
+   Reference: chrome/classic/skin/classic/messenger/shared/threadCard.css
+   ========================================================================== */
+button.thread-card-button,
+#threadTree button.thread-card-button,
+tr.card-layout .thread-card-button {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  outline: none !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding-block: 3px !important;
+  padding-inline: 8px !important;
+  gap: 4px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  min-block-size: 20px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+button.thread-card-button:hover,
+#threadTree button.thread-card-button:hover,
+tr.card-layout .thread-card-button:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+}
+
+tr.card-layout.selected button.thread-card-button,
+tr.card-layout[aria-selected="true"] button.thread-card-button {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+tr.card-layout.selected button.thread-card-button:hover,
+tr.card-layout[aria-selected="true"] button.thread-card-button:hover {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Icon color inside the twisty pill */
+button.thread-card-button img,
+tr.card-layout .thread-card-button img {
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  opacity: 0.8 !important;
+}
+
+/* ==========================================================================
+   Cards View Styling (Preserves native table / grid layout)
+   ========================================================================== */
+
+/* Card Container (Inside table cell) - Elevated Pure White Card on Light Blue Surface */
+#threadTree .card-container {
+  border-radius: var(--md-shape-corner-medium) !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  margin: 3px 6px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Card Hover State - Subtle Lift */
+#threadTree tr.card-layout:hover:not(.selected) .card-container {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border: none !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Selected Card (Material 3 Tonal Secondary Container) - Borderless Pill/Card */
+#threadTree tr.card-layout.selected .card-container,
+#threadTree tr.card-layout[aria-selected="true"] .card-container,
+#threadTree tr.card-layout.current.selected .card-container {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Card Typography & Text Colors */
+#threadTree .card-container .sender {
+  color: var(--md-sys-color-on-surface) !important;
+  font-weight: 600 !important;
+}
+
+#threadTree .card-container .subject {
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+#threadTree .card-container .date {
+  color: var(--md-sys-color-outline) !important;
+}
+
+/* Selected Card Text Overrides */
+#threadTree tr.card-layout.selected .card-container :is(.sender, .subject),
+#threadTree tr.card-layout[aria-selected="true"] .card-container :is(.sender, .subject) {
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container .date,
+#threadTree tr.card-layout[aria-selected="true"] .card-container .date {
+  color: var(--md-sys-color-on-secondary-container) !important;
+  opacity: 0.8 !important;
+}
+
+/* Unread Messages Styling: Bold dark sender on first line, primary blue for subject */
+#threadTree tr.card-layout[data-properties~="unread"]:not(.selected) .card-container .sender {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#threadTree tr.card-layout[data-properties~="unread"]:not(.selected) .card-container .subject {
+  font-weight: 600 !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+/* Unread Dot Indicator */
+#threadTree tr.card-layout[data-properties~="unread"] .read-status {
+  fill: var(--md-sys-color-primary) !important;
+  stroke: var(--md-sys-color-primary) !important;
+}
+
+/* ==========================================================================
+   Standard Table View (When cards view is disabled)
+   ========================================================================== */
+#threadTree thead th,
+#threadTree thead tr {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant) !important;
+}
+
+#threadTree tbody tr:not(.card-layout):hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#threadTree tbody tr:not(.card-layout).selected {
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+}
+
+/* ==========================================================================
+   Splitters Between Panes (Zero borders, clean tonal transition)
+   ========================================================================== */
+hr[is="pane-splitter"],
+splitter,
+#folderPaneSplitter,
+#messagePaneSplitter,
+#sidebar-splitter,
+#listSplitter,
+#calsidebar_splitter,
+#today-splitter,
+#today-pane-splitter {
+  border: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   Message Reading Pane Container & Floating Cards
+   Canvas background in soft blue matching folder & thread panes
+   ========================================================================== */
+#messagePane,
+#messageBrowser,
+#messagepanebox,
+#singleMessage,
+message-pane,
+body:has(#messagepanebox) {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+}
+
+/* Floating Message Body Card (Clean contrast with no outer box-shadow) */
+#messagepane {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin-inline: 14px !important;
+  margin-block-end: 14px !important;
+  margin-block-start: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Attachments Bar Card */
+#attachmentView {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  margin-inline: 14px !important;
+  margin-block-end: 14px !important;
+  border: none !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+#attachment-splitter {
+  border: none !important;
+  background: transparent !important;
+  min-height: 4px !important;
+}

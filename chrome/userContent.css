@@ -1,0 +1,49 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * userContent.css - Inner content styling (Message display, internal pages)
+ */
+
+@import "tokens/shapes.css";
+@import "tokens/colors-light.css";
+@import "tokens/colors-dark.css";
+@import "components/addressbook.css";
+
+/* Message Body Container */
+body {
+  font-family: var(--md-sys-font-family) !important;
+}
+
+/* Links inside message content */
+a:link {
+  color: var(--md-sys-color-primary) !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  text-decoration: underline !important;
+}
+
+/* Material 3 Blockquote */
+blockquote {
+  border-left: 3px solid var(--md-sys-color-primary) !important;
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-radius: 0 var(--md-shape-corner-small) var(--md-shape-corner-small) 0 !important;
+  padding: 8px 12px !important;
+  margin: 8px 0 !important;
+}
+
+/* Code & Preformatted Text */
+pre, code {
+  font-family: var(--md-sys-font-family-mono) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  border-radius: var(--md-shape-corner-extra-small) !important;
+  padding: 2px 6px !important;
+}
+
+/* Plain Text Message Padding (Only applies to plain-text emails, leaving HTML emails untouched) */
+div.moz-text-plain,
+div.moz-text-flowed {
+  padding: 18px 24px !important;
+  box-sizing: border-box !important;
+}
+

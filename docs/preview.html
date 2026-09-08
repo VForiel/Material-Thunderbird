@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light" data-palette="blue">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material-Thunderbird — Démonstrateur Interactif Material You</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       CSS Variables: Material You (Material Design 3) Design Tokens
+       ========================================================================== */
+    :root {
+      --font-main: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', sans-serif;
+      
+      /* Shapes */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+      
+      /* Elevations */
+      --elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+      --elevation-2: 0 2px 6px 2px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+      --elevation-3: 0 4px 12px 3px rgba(0, 0, 0, 0.10), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+      
+      --transition: 200ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* Palette: Google Blue (Par défaut) */
+    html[data-palette="blue"] {
+      --md-primary: #1a73e8;
+      --md-on-primary: #ffffff;
+      --md-primary-container: #d3e3fd;
+      --md-on-primary-container: #041e49;
+      --md-secondary-container: #c2e7ff;
+      --md-on-secondary-container: #001d35;
+      --md-surface: #f0f4fa;
+      --md-surface-low: #edf2fa;
+      --md-surface-container: #e2e8f0;
+      --md-surface-high: #dbe3f0;
+      --md-surface-lowest: #ffffff;
+      --md-on-surface: #1f1f1f;
+      --md-on-surface-variant: #444746;
+      --md-outline: #747775;
+      --md-outline-variant: #c4c7c5;
+      --md-state-hover: rgba(26, 115, 232, 0.08);
+      --md-state-active: rgba(26, 115, 232, 0.14);
+    }
+
+    /* Palette: Emerald Green */
+    html[data-palette="emerald"] {
+      --md-primary: #006a60;
+      --md-on-primary: #ffffff;
+      --md-primary-container: #74f8e5;
+      --md-on-primary-container: #00201c;
+      --md-secondary-container: #cce8e3;
+      --md-on-secondary-container: #05201d;
+      --md-surface: #fbfdf9;
+      --md-surface-low: #f4f7f3;
+      --md-surface-container: #eaefea;
+      --md-surface-high: #dfe6df;
+      --md-surface-lowest: #ffffff;
+      --md-on-surface: #191c1b;
+      --md-on-surface-variant: #3f4946;
+      --md-outline: #6f7976;
+      --md-outline-variant: #bec9c5;
+      --md-state-hover: rgba(0, 106, 96, 0.08);
+      --md-state-active: rgba(0, 106, 96, 0.14);
+    }
+
+    /* Palette: Amethyst / Purple */
+    html[data-palette="purple"] {
+      --md-primary: #6750a4;
+      --md-on-primary: #ffffff;
+      --md-primary-container: #eaddff;
+      --md-on-primary-container: #21005d;
+      --md-secondary-container: #e8def8;
+      --md-on-secondary-container: #1d192b;
+      --md-surface: #fef7ff;
+      --md-surface-low: #f7f2fa;
+      --md-surface-container: #f3edf7;
+      --md-surface-high: #ece6f0;
+      --md-surface-lowest: #ffffff;
+      --md-on-surface: #1d1b20;
+      --md-on-surface-variant: #49454f;
+      --md-outline: #79747e;
+      --md-outline-variant: #cac4d0;
+      --md-state-hover: rgba(103, 80, 164, 0.08);
+      --md-state-active: rgba(103, 80, 164, 0.14);
+    }
+
+    /* Palette: Coral / Terracotta */
+    html[data-palette="coral"] {
+      --md-primary: #9c4125;
+      --md-on-primary: #ffffff;
+      --md-primary-container: #ffdbd1;
+      --md-on-primary-container: #3b0900;
+      --md-secondary-container: #f5ddd6;
+      --md-on-secondary-container: #2c150e;
+      --md-surface: #fff8f6;
+      --md-surface-low: #fdf1ed;
+      --md-surface-container: #f7ebe6;
+      --md-surface-high: #f1e5e0;
+      --md-surface-lowest: #ffffff;
+      --md-on-surface: #231917;
+      --md-on-surface-variant: #53433f;
+      --md-outline: #85736e;
+      --md-outline-variant: #d8c2bc;
+      --md-state-hover: rgba(156, 65, 37, 0.08);
+      --md-state-active: rgba(156, 65, 37, 0.14);
+    }
+
+    /* Mode Sombre */
+    html[data-theme="dark"][data-palette="blue"] {
+      --md-primary: #a8c7fa;
+      --md-on-primary: #00315b;
+      --md-primary-container: #004a77;
+      --md-on-primary-container: #c2e7ff;
+      --md-secondary-container: #004b72;
+      --md-on-secondary-container: #c7e7ff;
+      --md-surface: #111315;
+      --md-surface-low: #191c1e;
+      --md-surface-container: #1d2023;
+      --md-surface-high: #272a2d;
+      --md-surface-lowest: #0c0e10;
+      --md-on-surface: #e2e2e5;
+      --md-on-surface-variant: #c4c7c5;
+      --md-outline: #8e918f;
+      --md-outline-variant: #444746;
+      --md-state-hover: rgba(168, 199, 250, 0.08);
+      --md-state-active: rgba(168, 199, 250, 0.16);
+    }
+
+    html[data-theme="dark"][data-palette="emerald"] {
+      --md-primary: #53dbc9;
+      --md-on-primary: #003731;
+      --md-primary-container: #005048;
+      --md-on-primary-container: #74f8e5;
+      --md-secondary-container: #334b46;
+      --md-on-secondary-container: #cce8e3;
+      --md-surface: #101413;
+      --md-surface-low: #181d1c;
+      --md-surface-container: #1c2120;
+      --md-surface-high: #262b2a;
+      --md-surface-lowest: #0b0f0e;
+      --md-on-surface: #e1e3e0;
+      --md-on-surface-variant: #bec9c5;
+      --md-outline: #89938f;
+      --md-outline-variant: #3f4946;
+      --md-state-hover: rgba(83, 219, 201, 0.08);
+      --md-state-active: rgba(83, 219, 201, 0.16);
+    }
+
+    html[data-theme="dark"][data-palette="purple"] {
+      --md-primary: #d0bcff;
+      --md-on-primary: #381e72;
+      --md-primary-container: #4f378b;
+      --md-on-primary-container: #eaddff;
+      --md-secondary-container: #4a4458;
+      --md-on-secondary-container: #e8def8;
+      --md-surface: #141218;
+      --md-surface-low: #1d1b20;
+      --md-surface-container: #211f26;
+      --md-surface-high: #2b2930;
+      --md-surface-lowest: #0f0d13;
+      --md-on-surface: #e6e0e9;
+      --md-on-surface-variant: #cac4d0;
+      --md-outline: #938f99;
+      --md-outline-variant: #49454f;
+      --md-state-hover: rgba(208, 188, 255, 0.08);
+      --md-state-active: rgba(208, 188, 255, 0.16);
+    }
+
+    html[data-theme="dark"][data-palette="coral"] {
+      --md-primary: #ffb59f;
+      --md-on-primary: #5c1800;
+      --md-primary-container: #7d2b11;
+      --md-on-primary-container: #ffdbd1;
+      --md-secondary-container: #5d3f37;
+      --md-on-secondary-container: #f5ddd6;
+      --md-surface: #1a110f;
+      --md-surface-low: #231a17;
+      --md-surface-container: #271e1b;
+      --md-surface-high: #322825;
+      --md-surface-lowest: #140c0a;
+      --md-on-surface: #f1dfda;
+      --md-on-surface-variant: #d8c2bc;
+      --md-outline: #a08c87;
+      --md-outline-variant: #53433f;
+      --md-state-hover: rgba(255, 181, 159, 0.08);
+      --md-state-active: rgba(255, 181, 159, 0.16);
+    }
+
+    /* ==========================================================================
+       Global App Demo Styles
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+      transition: scrollbar-color var(--transition);
+    }
+
+    *:hover {
+      scrollbar-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent) transparent;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: transparent;
+      border-radius: var(--radius-full);
+      transition: background-color var(--transition);
+    }
+
+    *:hover::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar:hover::-webkit-scrollbar-thumb,
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent);
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--md-surface);
+      color: var(--md-on-surface);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color var(--transition), color var(--transition);
+    }
+
+    /* Controls Header (Barre de contrôle de la démo) */
+    .demo-controls-bar {
+      background: var(--md-surface-low);
+      border-bottom: 1px solid var(--md-outline-variant);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 100;
+    }
+
+    .demo-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .demo-logo-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+      box-shadow: var(--elevation-1);
+    }
+
+    .demo-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .demo-subtitle {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .demo-settings {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .color-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-chip {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-full);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform var(--transition);
+    }
+
+    .color-chip:hover {
+      transform: scale(1.15);
+    }
+
+    .color-chip.active {
+      border-color: var(--md-on-surface);
+      box-shadow: var(--elevation-1);
+    }
+
+    .theme-toggle-btn {
+      background: var(--md-surface-high);
+      border: 1px solid var(--md-outline-variant);
+      color: var(--md-on-surface);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition);
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--md-state-hover);
+      border-color: var(--md-primary);
+    }
+
+    /* ==========================================================================
+       Thunderbird Window Mockup Container
+       ========================================================================== */
+    .tb-window-frame {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--md-surface);
+    }
+
+    /* Top Unified Toolbar */
+    .tb-unified-toolbar {
+      height: 56px;
+      background: var(--md-surface-low);
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+    }
+
+    /* Extended FAB "Écrire" */
+    .tb-fab-write {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 10px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--elevation-1);
+      transition: all var(--transition);
+    }
+
+    .tb-fab-write:hover {
+      box-shadow: var(--elevation-2);
+      transform: translateY(-1px);
+    }
+
+    /* Search Bar Pill */
+    .tb-search-container {
+      flex: 1;
+      max-width: 580px;
+      position: relative;
+    }
+
+    .tb-search-input {
+      width: 100%;
+      background: var(--md-surface-high);
+      border: 1px solid transparent;
+      border-radius: var(--radius-full);
+      padding: 8px 18px 8px 42px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--md-on-surface);
+      outline: none;
+      transition: all var(--transition);
+    }
+
+    .tb-search-input:focus {
+      background: var(--md-surface-lowest);
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .tb-search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .tb-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .tb-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 17px;
+      transition: background var(--transition);
+    }
+
+    .tb-icon-btn:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+
+    /* ==========================================================================
+       Main Workspace Layout (Navigation Rail + Drawer + Messages + Reader)
+       ========================================================================== */
+    .tb-workspace {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* 1. Spaces Toolbar (Navigation Rail) */
+    .tb-spaces-rail {
+      width: 68px;
+      background: var(--md-surface-container);
+      border-right: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 8px;
+    }
+
+    .tb-rail-item {
+      width: 52px;
+      height: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      color: var(--md-on-surface-variant);
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .tb-rail-item:hover {
+      background: var(--md-state-hover);
+    }
+
+    /* Active Pill Indicator (MD3 Nav Rail) */
+    .tb-rail-item.active {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      border-radius: var(--radius-full);
+    }
+
+    .tb-rail-icon {
+      font-size: 20px;
+    }
+
+    /* 2. Folder Pane (Navigation Drawer) */
+    .tb-folder-pane {
+      width: 240px;
+      background: var(--md-surface-low);
+      border-right: none;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 6px;
+      overflow-y: auto;
+    }
+
+    .tb-drawer-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--md-outline);
+      padding: 8px 12px 4px 12px;
+    }
+
+    .tb-drawer-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      margin: 1px 0;
+      border-radius: var(--radius-full);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .tb-drawer-item:hover {
+      background: var(--md-state-hover);
+    }
+
+    .tb-drawer-item.active {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      font-weight: 700;
+    }
+
+    .tb-item-badge {
+      margin-left: auto;
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    /* 3. Message List Pane (Cards View) */
+    .tb-thread-pane {
+      width: 340px;
+      background: var(--md-surface-low);
+      border-right: none;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 8px;
+      gap: 6px;
+    }
+
+    .tb-thread-header {
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tb-card-message {
+      background: var(--md-surface-lowest);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      cursor: pointer;
+      box-shadow: var(--elevation-1);
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tb-card-message:hover {
+      background: var(--md-surface-lowest);
+      box-shadow: var(--elevation-2);
+    }
+
+    .tb-card-message.active {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      border: none;
+      box-shadow: var(--elevation-1);
+    }
+
+    .tb-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tb-card-sender {
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: var(--md-primary);
+      display: inline-block;
+    }
+
+    .tb-card-message.unread:not(.active) .tb-card-sender {
+      font-weight: 700;
+      color: var(--md-on-surface);
+    }
+
+    .tb-card-message.unread:not(.active) .tb-card-subject {
+      font-weight: 600;
+      color: var(--md-primary);
+    }
+
+    .tb-filter-btn {
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .tb-filter-btn:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+
+    .tb-card-time {
+      font-size: 11.5px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .tb-card-subject {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tb-card-snippet {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* 4. Message Reader Pane (Soft Blue Canvas with Elevated Floating Cards) */
+    .tb-reader-pane {
+      flex: 1;
+      background: var(--md-surface-low);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 12px 14px;
+      gap: 12px;
+    }
+
+    /* Elevated Card for Message Header */
+    .tb-reader-card {
+      background: var(--md-surface-lowest);
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      box-shadow: var(--elevation-1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tb-reader-subject-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tb-reader-subject {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .tb-reader-sender-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .tb-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-full);
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .tb-sender-details {
+      display: flex;
+      flex-direction: column;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .tb-sender-details:hover {
+      background: var(--md-state-hover);
+    }
+
+    .tb-sender-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .tb-sender-email {
+      font-size: 12.5px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .tb-reader-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .tb-pill-btn {
+      background: var(--md-surface-low);
+      color: var(--md-on-surface);
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition);
+    }
+
+    .tb-pill-btn:hover {
+      background: var(--md-surface-container);
+      color: var(--md-on-surface);
+    }
+
+    .tb-pill-btn.primary {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      font-weight: 600;
+      border-color: transparent;
+    }
+
+    .tb-pill-btn.primary:hover {
+      background: #b9dcf7;
+      color: var(--md-on-secondary-container);
+    }
+
+    /* Material You Warning Banner */
+    .tb-notification-banner {
+      background-color: #fef7da;
+      color: #494518;
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    html[data-theme="dark"] .tb-notification-banner {
+      background-color: #3b3511;
+      color: #fef7da;
+    }
+
+    .tb-notif-text {
+      flex: 1;
+    }
+
+    .tb-notif-btn {
+      background: rgba(0, 0, 0, 0.08);
+      color: inherit;
+      border: none;
+      border-radius: var(--radius-full);
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    html[data-theme="dark"] .tb-notif-btn {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .tb-notif-btn:hover {
+      background: rgba(0, 0, 0, 0.14);
+    }
+
+    .tb-notif-close {
+      background: transparent;
+      border: none;
+      color: inherit;
+      border-radius: var(--radius-full);
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tb-notif-close:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    /* Message Body Card (Pure White Center, Rounded Corners, Clean Separation) */
+    .tb-message-body-card {
+      background: var(--md-surface-lowest);
+      border: none;
+      border-radius: var(--radius-lg);
+      box-shadow: none;
+      padding: 24px 28px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Message Body */
+    .tb-message-body {
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--md-on-surface);
+    }
+
+    .tb-message-body p {
+      margin-bottom: 12px;
+    }
+
+    .tb-callout {
+      background: var(--md-surface-low);
+      border-left: 4px solid var(--md-primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls Header (Pour tester dynamiquement) -->
+  <header class="demo-controls-bar">
+    <div class="demo-branding">
+      <div class="demo-logo-badge">M</div>
+      <div>
+        <div class="demo-title">Material-Thunderbird (Material You M3)</div>
+        <div class="demo-subtitle">Aperçu interactif de l'interface modernisée</div>
+      </div>
+    </div>
+
+    <div class="demo-settings">
+      <!-- Sélecteur de teintes Material You -->
+      <div class="color-picker">
+        <span style="font-size: 12px; font-weight: 500; color: var(--md-on-surface-variant);">Teinte :</span>
+        <div class="color-chip active" style="background: #0b57d0;" data-pal="blue" title="Google Blue / Indigo" onclick="setPalette('blue')"></div>
+        <div class="color-chip" style="background: #006a60;" data-pal="emerald" title="Émeraude / Sarcelle" onclick="setPalette('emerald')"></div>
+        <div class="color-chip" style="background: #6750a4;" data-pal="purple" title="Améthyste / Violet" onclick="setPalette('purple')"></div>
+        <div class="color-chip" style="background: #9c4125;" data-pal="coral" title="Corail / Terracotta" onclick="setPalette('coral')"></div>
+      </div>
+
+      <!-- Bascule Clair / Sombre -->
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Mode Sombre</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Thunderbird Window Simulation -->
+  <main class="tb-window-frame">
+    <!-- Top Unified Toolbar -->
+    <div class="tb-unified-toolbar">
+      <!-- Extended FAB -->
+      <button class="tb-fab-write">
+        <span>✏️</span>
+        <span>Écrire</span>
+      </button>
+
+      <!-- Search Input Pill -->
+      <div class="tb-search-container">
+        <span class="tb-search-icon">🔍</span>
+        <input type="text" class="tb-search-input" placeholder="Rechercher dans les messages, adresses et événements...">
+      </div>
+
+      <!-- Actions -->
+      <div class="tb-toolbar-actions">
+        <button class="tb-icon-btn" title="Relever les courriels">📥</button>
+        <button class="tb-icon-btn" title="Carnet d'adresses">👥</button>
+        <button class="tb-icon-btn" title="Calendrier">📅</button>
+        <button class="tb-icon-btn" title="Paramètres">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="tb-workspace">
+      <!-- 1. Spaces Toolbar (Navigation Rail) -->
+      <nav class="tb-spaces-rail">
+        <div class="tb-rail-item active" title="Courrier">
+          <span class="tb-rail-icon">✉️</span>
+        </div>
+        <div class="tb-rail-item" title="Carnet d'adresses">
+          <span class="tb-rail-icon">📇</span>
+        </div>
+        <div class="tb-rail-item" title="Calendrier">
+          <span class="tb-rail-icon">📆</span>
+        </div>
+        <div class="tb-rail-item" title="Tâches">
+          <span class="tb-rail-icon">✔️</span>
+        </div>
+        <div class="tb-rail-item" title="Discussion">
+          <span class="tb-rail-icon">💬</span>
+        </div>
+      </nav>
+
+      <!-- 2. Folder Pane (Navigation Drawer) -->
+      <aside class="tb-folder-pane">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 4px 6px 12px 6px;">
+          <button style="flex: 1; background: var(--md-primary); color: var(--md-on-primary); border: none; border-radius: var(--radius-lg); padding: 8px 14px; font-weight: 600; font-size: 12.5px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: var(--elevation-1);">
+            <span>✏️</span>
+            <span>Écrire</span>
+          </button>
+          <button title="Relever les nouveaux messages" style="width: 32px; height: 32px; border-radius: var(--radius-full); border: none; background: transparent; color: var(--md-on-surface-variant); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: background var(--transition);" onmouseover="this.style.background='var(--md-state-hover)'; this.style.color='var(--md-primary)';" onmouseout="this.style.background='transparent'; this.style.color='var(--md-on-surface-variant)';">
+            🔄
+          </button>
+          <button title="Options du panneau des dossiers" style="width: 32px; height: 32px; border-radius: var(--radius-full); border: none; background: transparent; color: var(--md-on-surface-variant); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: background var(--transition);" onmouseover="this.style.background='var(--md-state-hover)'; this.style.color='var(--md-primary)';" onmouseout="this.style.background='transparent'; this.style.color='var(--md-on-surface-variant)';">
+            ⋮
+          </button>
+        </div>
+        <div class="tb-drawer-header">Boîtes aux lettres</div>
+        <div class="tb-drawer-item active">
+          <span>📥</span>
+          <span>Boîte de réception</span>
+          <span class="tb-item-badge">4</span>
+        </div>
+        <div class="tb-drawer-item">
+          <span>⭐</span>
+          <span>Messages suivis</span>
+        </div>
+        <div class="tb-drawer-item">
+          <span>📤</span>
+          <span>Messages envoyés</span>
+        </div>
+        <div class="tb-drawer-item">
+          <span>📝</span>
+          <span>Brouillons</span>
+          <span class="tb-item-badge" style="background: var(--md-surface-high); color: var(--md-on-surface);">1</span>
+        </div>
+        <div class="tb-drawer-item">
+          <span>📁</span>
+          <span>Archives</span>
+        </div>
+        <div class="tb-drawer-item">
+          <span>🗑️</span>
+          <span>Corbeille</span>
+        </div>
+
+        <div class="tb-drawer-header" style="margin-top: 16px;">Dossiers personnels</div>
+        <div class="tb-drawer-item">
+          <span>💼</span>
+          <span>Projets 2026</span>
+          <span class="tb-item-badge">2</span>
+        </div>
+        <div class="tb-drawer-item">
+          <span>✈️</span>
+          <span>Voyages</span>
+        </div>
+      </aside>
+
+      <!-- 3. Messages List (Cards View) -->
+      <section class="tb-thread-pane">
+        <div class="tb-thread-header">
+          <span>Courrier entrant <span style="font-size: 11.5px; font-weight: 500; opacity: 0.8;">9 451 messages</span></span>
+          <button class="tb-filter-btn" title="Filtre rapide">
+            <span>🔍</span>
+            <span>Filtre rapide</span>
+          </button>
+        </div>
+
+        <!-- Message Card 1 (Active) -->
+        <div class="tb-card-message active">
+          <div class="tb-card-top">
+            <span class="tb-card-sender">
+              <span class="unread-dot"></span>
+              Mozilla Thunderbird
+            </span>
+            <span class="tb-card-time">10:42</span>
+          </div>
+          <div class="tb-card-subject">Bienvenue sur votre nouvelle interface Material You !</div>
+          <div class="tb-card-snippet">Découvrez la modernité du design Material 3 : arrondis doux, palettes dynamiques et lisibilité accrue...</div>
+        </div>
+
+        <!-- Message Card 2 (Unread) -->
+        <div class="tb-card-message unread">
+          <div class="tb-card-top">
+            <span class="tb-card-sender">
+              <span class="unread-dot"></span>
+              Équipe Design
+            </span>
+            <span class="tb-card-time">09:15</span>
+          </div>
+          <div class="tb-card-subject">Nouvelles spécifications Material Design 3</div>
+          <div class="tb-card-snippet">Voici le compte-rendu des jetons de conception pour les états survolés et les cartes surélevées.</div>
+        </div>
+
+        <!-- Message Card 3 -->
+        <div class="tb-card-message">
+          <div class="tb-card-top">
+            <span class="tb-card-sender">GitHub Notifications</span>
+            <span class="tb-card-time">Hier</span>
+          </div>
+          <div class="tb-card-subject">[VForiel/Material-Thunderbird] Release v1.0.0 prête</div>
+          <div class="tb-card-snippet">La version initiale du thème Material-Thunderbird est désormais disponible pour Supernova & Nebula.</div>
+        </div>
+
+        <!-- Message Card 4 -->
+        <div class="tb-card-message">
+          <div class="tb-card-top">
+            <span class="tb-card-sender">Antigravity Pair</span>
+            <span class="tb-card-time">07 sept.</span>
+          </div>
+          <div class="tb-card-subject">Installation automatisée en 1 clic validée</div>
+          <div class="tb-card-snippet">Le script install.bat détecte parfaitement le profil actif et applique les styles sans manipulation manuelle.</div>
+        </div>
+      </section>
+
+      <!-- 4. Message Reader -->
+      <article class="tb-reader-pane">
+        <!-- Elevated Card for Email Header -->
+        <div class="tb-reader-card">
+          <div class="tb-reader-subject-row">
+            <h1 class="tb-reader-subject">Bienvenue sur votre nouvelle interface Material You !</h1>
+          </div>
+
+          <div class="tb-reader-sender-row">
+            <div class="tb-avatar">MT</div>
+            <div class="tb-sender-details">
+              <span class="tb-sender-name">Mozilla Thunderbird Community</span>
+              <span class="tb-sender-email">&lt;welcome@material-thunderbird.org&gt;</span>
+            </div>
+
+            <!-- Action Buttons Pills -->
+            <div class="tb-reader-actions">
+              <button class="tb-pill-btn primary">
+                <span>↩️</span>
+                <span>Répondre</span>
+              </button>
+              <button class="tb-pill-btn primary">
+                <span>↪️</span>
+                <span>Transférer</span>
+              </button>
+              <button class="tb-pill-btn">
+                <span>📦</span>
+                <span>Archiver</span>
+              </button>
+              <button class="tb-pill-btn">
+                <span>🗑️</span>
+                <span>Supprimer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Material You Warning / Notification Banner -->
+        <div class="tb-notification-banner">
+          <span class="tb-notif-icon">🛡️</span>
+          <span class="tb-notif-text">Pour protéger votre vie privée, Thunderbird a bloqué l'affichage du contenu distant dans ce message.</span>
+          <div class="tb-notif-actions" style="display: flex; align-items: center; gap: 8px;">
+            <button class="tb-notif-btn">Options ▾</button>
+            <button class="tb-notif-close">✕</button>
+          </div>
+        </div>
+
+        <!-- Email Body Card (Pure White Center, Rounded Corners on Soft Blue) -->
+        <div class="tb-message-body-card">
+          <div class="tb-message-body">
+            <p>Bonjour,</p>
+            <p>Félicitations ! Votre client de messagerie <strong>Mozilla Thunderbird</strong> bénéficie désormais de la métamorphose visuelle <strong>Material You (Material Design 3)</strong>.</p>
+            
+            <div class="tb-callout">
+              💡 <strong>Points forts du thème :</strong>
+              <ul style="margin-top: 6px; margin-left: 20px;">
+                <li><strong>Navigation Rail latérale</strong> avec indicateur en pilule ovale sur l'espace actif.</li>
+                <li><strong>Barre de recherche pilule</strong> et bouton "Écrire" conçu comme un Extended Floating Action Button (FAB).</li>
+                <li><strong>Vue en cartes</strong> modernes avec surbrillance tonale dynamique et bordures allégées.</li>
+                <li><strong>Palettes tonales interchangeables</strong> pour s'accorder au mieux avec votre fond d'écran ou système.</li>
+              </ul>
+            </div>
+
+            <p>Vous pouvez tester les différentes ambiances de couleurs en utilisant le sélecteur en haut à droite (Google Blue, Émeraude, Améthyste, Corail) ainsi que le basculement entre les modes clair et sombre.</p>
+            
+            <p>Bonne navigation avec <strong>Material-Thunderbird</strong> !</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    function setPalette(name) {
+      document.documentElement.setAttribute('data-palette', name);
+      document.querySelectorAll('.color-chip').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-pal') === name);
+      });
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      
+      document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+      document.getElementById('themeLabel').textContent = isDark ? 'Mode Sombre' : 'Mode Clair';
+    }
+  </script>
+</body>
+</html>

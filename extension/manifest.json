@@ -1,0 +1,54 @@
+{
+  "manifest_version": 2,
+  "name": "Material You Thunderbird",
+  "description": "Thème moderne Material You (Material Design 3) pour Mozilla Thunderbird avec palettes tonales dynamiques, pilules et élévations soignées.",
+  "version": "1.0.0",
+  "author": "VForiel",
+  "homepage_url": "https://github.com/VForiel/Material-Thunderbird",
+  "applications": {
+    "gecko": {
+      "id": "material-you-thunderbird@vforiel",
+      "strict_min_version": "115.0"
+    }
+  },
+  "icons": {
+    "64": "icons/icon.svg"
+  },
+  "theme_experiment": {
+    "stylesheet": "material-theme.css",
+    "colors": {
+      "exp_primary": "--md-primary",
+      "exp_surface": "--md-surface"
+    }
+  },
+  "theme": {
+    "colors": {
+      "frame": "#F8F9FA",
+      "frame_inactive": "#F3F4F6",
+      "tab_selected": "#FFFFFF",
+      "tab_text": "#0B57D0",
+      "tab_background_text": "#444746",
+      "tab_line": "#0B57D0",
+      "toolbar": "#F3F4F6",
+      "toolbar_text": "#1F1F1F",
+      "toolbar_field": "#E1E6EC",
+      "toolbar_field_text": "#1F1F1F",
+      "toolbar_field_border": "transparent",
+      "toolbar_top_separator": "transparent",
+      "toolbar_bottom_separator": "#C4C7C5",
+      "icons": "#444746",
+      "icons_attention": "#0B57D0",
+      "popup": "#EAEDF1",
+      "popup_text": "#1F1F1F",
+      "popup_border": "#C4C7C5",
+      "popup_highlight": "#D3E3FD",
+      "popup_highlight_text": "#041E49",
+      "sidebar": "#F3F4F6",
+      "sidebar_text": "#1F1F1F",
+      "sidebar_highlight": "#D3E3FD",
+      "sidebar_highlight_text": "#041E49",
+      "button_background_hover": "rgba(11, 87, 208, 0.08)",
+      "button_background_active": "rgba(11, 87, 208, 0.16)"
+    }
+  }
+}

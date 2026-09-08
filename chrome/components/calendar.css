@@ -1,0 +1,604 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Calendar, Agenda & Today Pane
+ * References:
+ *   - chrome/calendar/skin/classic/calendar/calendar-views.css
+ *   - chrome/calendar/skin/classic/calendar/today-pane.css
+ *   - chrome/calendar/skin/classic/calendar/shared/widgets/minimonth.css
+ */
+
+/* ==========================================================================
+   1. Calendar Main Container & Layout
+   ========================================================================== */
+#calendar-view-box,
+#view-box,
+calendar-month-view,
+calendar-multiweek-view,
+calendar-week-view,
+calendar-day-view {
+  background-color: var(--md-sys-color-surface) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+/* Calendar Grid Borders (Ultra-Fine Soft M3 Outlines) */
+.monthtable,
+.multiday-grid,
+.multiday-header-corner,
+.multiday-timebar,
+.day-column-heading,
+calendar-header-container,
+calendar-event-column,
+.multiday-hour-box,
+.multiday-end-border,
+.monthtable :is(td, th),
+.monthtable :is(td, th) > *,
+.calendar-month-day-box {
+  border-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 25%, transparent) !important;
+}
+
+/* ==========================================================================
+   1.5. Unifinder Event Filter & Search Bar ("Événements des 7 prochains jours...")
+   ========================================================================== */
+#unifinder-searchBox {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-bottom: none !important;
+  padding: 6px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* Event Filter Dropdown (Période des prochains événements) */
+#event-filter-menulist {
+  appearance: none !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 5px 14px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#event-filter-menulist:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+#event-filter-menulist:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary) !important;
+  outline-offset: 1px !important;
+}
+
+/* Dropdown Popup */
+#event-filter-menupopup {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  border: 1px solid var(--md-sys-color-outline-variant) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+  padding: 4px !important;
+}
+
+/* Unifinder Search Field ("contenant...") */
+#unifinder-search-field {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  border: 1px solid transparent !important;
+  color: var(--md-sys-color-on-surface) !important;
+  padding: 4px 12px !important;
+  font-size: 13px !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#unifinder-search-field:focus {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-color: var(--md-sys-color-outline-variant) !important;
+  outline: none !important;
+}
+
+/* Unifinder Tree Table Headers (Titre, Début, Fin, Catégorie) */
+#unifinder-search-results-tree treecol,
+#unifinder-search-results-tree treecolpicker {
+  appearance: none !important;
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  border-inline-end: 1px solid var(--md-sys-color-outline-variant) !important;
+  border-block-end: 1px solid var(--md-sys-color-outline-variant) !important;
+  padding: 6px 10px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+}
+
+#unifinder-search-results-tree treecol:hover {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* ==========================================================================
+   2. Calendar View Header & Navigation Bar
+   ========================================================================== */
+#calendarViewHeader {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-bottom: none !important;
+  padding: 6px 14px !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Navigation Controls Container & Button-Group Border Removal */
+#calendarControls,
+.navigation-inner-box,
+#calendarControls .button-group,
+.navigation-inner-box .button-group,
+.button-group:has(#previousViewButton),
+.button-group:has(#todayViewButton),
+.button-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+#calendarControls .button-group > button,
+.navigation-inner-box .button-group > button {
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 2px !important;
+}
+
+/* Navigation Buttons: Previous & Next (< and >) */
+#previousViewButton,
+#nextViewButton,
+.today-navigation-button:not(#todayViewButton),
+#calendarControlBarMenu,
+.calendar-controlbar-button {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-width: 32px !important;
+  min-height: 30px !important;
+  padding: 4px 10px !important;
+  margin: 0 2px !important;
+  cursor: pointer !important;
+  -moz-context-properties: stroke, fill !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#previousViewButton:hover,
+#nextViewButton:hover,
+.today-navigation-button:not(#todayViewButton):hover,
+#calendarControlBarMenu:hover,
+.calendar-controlbar-button:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+/* Today Button (Material 3 Tonal Pill: [Aujourd'hui]) */
+#todayViewButton,
+.today-navigation-button#todayViewButton,
+#today-view-button {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-width: 34px !important;
+  min-height: 30px !important;
+  padding: 4px 12px !important;
+  margin: 0 2px !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  -moz-context-properties: stroke, fill !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#todayViewButton:hover,
+.today-navigation-button#todayViewButton:hover,
+#today-view-button:hover {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+/* Month & Year Title (e.g. "septembre 2026") */
+.view-header,
+#calendarViewHeader .view-header {
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  margin-inline-start: 6px !important;
+}
+
+/* Segmented View Switchers (Day, Week, Multiweek, Month) */
+.calview-toggle {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  border: none !important;
+  padding: 2px !important;
+  box-shadow: none !important;
+}
+
+.calview-toggle-item,
+button.calview-toggle-item {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  padding: 5px 14px !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  background-color: transparent !important;
+  margin: 1px !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+.calview-toggle-item:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Active Segmented Item (M3 Selected Pill) */
+.calview-toggle-item[role="tab"][aria-selected="true"],
+.calview-toggle-item[selected="true"],
+.calview-toggle-item.selected {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  font-weight: 600 !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+/* ==========================================================================
+   3. Calendar Events (Material 3 Cards & Pills)
+   ========================================================================== */
+calendar-event-box,
+calendar-month-day-box-item,
+calendar-editable-item,
+.calendar-color-box,
+.calendar-item-container {
+  border-radius: var(--md-shape-corner-small) !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  font-family: var(--md-sys-font-family) !important;
+  border: none !important;
+  min-block-size: 24px !important;
+  margin-block: 2px !important;
+  transition: box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+calendar-event-box:hover,
+calendar-month-day-box-item:hover {
+  box-shadow: var(--md-sys-elevation-2) !important;
+  filter: brightness(0.97);
+}
+
+/* Selected Event (Material Focused State) */
+calendar-event-box[selected="true"],
+calendar-month-day-box-item[selected="true"],
+calendar-editable-item[selected="true"] {
+  box-shadow: 0 0 0 2px var(--md-sys-color-primary), var(--md-sys-elevation-2) !important;
+}
+
+.calendar-item-flex {
+  padding: 4px 6px !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+/* Event Time: Fine, light typography */
+.item-time-label,
+.agenda-listitem-time,
+.calendar-item-time {
+  font-weight: 400 !important;
+  font-size: 11px !important;
+  opacity: 0.85 !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+/* Event Title / Motif: Light-bold (semi-bold 600) */
+.event-name-label,
+.agenda-listitem-title,
+.calendar-item-summary {
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+/* All Day Events */
+calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box,
+.allday-event-listitem calendar-event-box {
+  border-radius: var(--md-shape-corner-small) !important;
+}
+
+/* ==========================================================================
+   4. Day Cells & Today Highlight
+   ========================================================================== */
+/* Day Column Heading (Mon, Tue, etc.) */
+.day-column-heading {
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  padding: 6px 4px !important;
+}
+
+.day-column-today .day-column-heading {
+  color: var(--md-sys-color-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* Today Pill in Month / Multiweek View */
+.calendar-month-day-box-date-label[relation="today"] {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 2px 8px !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  display: inline-block !important;
+}
+
+/* Weekend / Off-day Background */
+.day-column-weekend :is(calendar-header-container, .multiday-hour-box),
+.calendar-month-day-box-day-off {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+}
+
+/* Today Column / Box Background */
+.day-column-today :is(calendar-header-container, .multiday-hour-box),
+.calendar-month-day-box-current-month[relation="today"] {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+}
+
+/* Current Time Indicator Bar */
+.multiday-grid:not(.multiday-grid-rotated) .timeIndicator,
+.multiday-grid.multiday-grid-rotated .timeIndicator {
+  border-color: var(--md-sys-color-error) !important;
+}
+
+.multiday-timebar-now-indicator {
+  border-color: var(--md-sys-color-error) !important;
+  background-color: var(--md-sys-color-error) !important;
+}
+
+/* ==========================================================================
+   5. Today Pane, Minimonth & Agenda Sidebar (Material You Right Column)
+   ========================================================================== */
+#today-pane-panel {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-inline-start: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 25%, transparent) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#today-pane-panel > .sidebar-header {
+  background-color: transparent !important;
+  border-block-end: none !important;
+  padding: 8px 12px !important;
+}
+
+/* Mini-Month Container (Material 3 Elevated Surface Card) */
+#today-minimonth-box {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 8px !important;
+  padding: 8px !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  border: none !important;
+}
+
+calendar-minimonth {
+  background-color: transparent !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+#weekdayNameLabel {
+  font-family: var(--md-sys-font-family) !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-primary) !important;
+  font-size: 15px !important;
+}
+
+.dateValue {
+  font-family: var(--md-sys-font-family) !important;
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Minimonth Header & Nav Buttons */
+.minimonth-header button,
+.minimonth-header-btn {
+  border-radius: var(--md-shape-corner-full) !important;
+}
+
+.minimonth-header button:hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+/* Minimonth Days */
+.minimonth-day {
+  border-radius: var(--md-shape-corner-full) !important;
+  font-size: 12px !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+.minimonth-day:hover[interactive] {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+/* Minimonth Today Indicator (Primary Pill/Circle) */
+.minimonth-day[today="true"] {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* Minimonth Selected Day */
+.minimonth-day[selected="true"] {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* Agenda List & Events (Floating Cards on Soft Blue Canvas) */
+#agenda {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+  border-block-start: none !important;
+  padding: 6px 8px !important;
+}
+
+/* Agenda Date Chip (Material 3 Tonal Pill Chip) */
+.agenda-date-header {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 4px 12px !important;
+  margin: 8px 4px 4px 4px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  display: inline-block !important;
+}
+
+/* Agenda Event Item Card (Material 3 White Elevated Card) */
+.agenda-listitem-details {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  margin: 4px 4px !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+.agenda-listitem-details:hover {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Now Relative Indicator Pill */
+.agenda-listitem-now .agenda-listitem-relative {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 2px 8px !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+}
+
+/* New Event Button in Today Pane */
+#todaypane-new-event-button {
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 6px 14px !important;
+  font-weight: 500 !important;
+  border: none !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#todaypane-new-event-button:hover {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+}
+
+#todaypane-new-event-button > .toolbarbutton-text {
+  font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   6. Todo List & Task Management (Material 3 Todolist)
+   ========================================================================== */
+#todo-tab-panel,
+#calendar-task-tree {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+}
+
+/* Quick Task Addition Field */
+#task-addition-box {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  border: none !important;
+  margin: 6px 8px !important;
+  padding: 4px 10px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+#task-addition-box input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Task Filter menulist and search input */
+#task-tree-filter-box {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-bottom: none !important;
+  padding: 6px 8px !important;
+  gap: 6px !important;
+}
+
+#task-filter-menulist {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+#task-text-filter-field {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  border: 1px solid transparent !important;
+  padding: 3px 10px !important;
+  font-size: 12px !important;
+}
+
+#task-text-filter-field:focus {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  outline: none !important;
+}
+
+/* Task items in tree */
+#calendar-task-tree treechildren::-moz-tree-row {
+  border-radius: var(--md-shape-corner-small) !important;
+  margin: 2px 4px !important;
+  border: none !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-row(hover) {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-row(selected) {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* Task Details Card */
+#calendar-task-details-container,
+#calendar-task-details {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  margin: 6px !important;
+  padding: 8px !important;
+  border: none !important;
+}

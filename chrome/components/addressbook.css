@@ -1,0 +1,428 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Address Book (Carnet d'adresses - about:addressbook)
+ * References:
+ *   - chrome/messenger/content/messenger/addressbook/aboutAddressBook.xhtml
+ *   - chrome/classic/skin/classic/messenger/aboutAddressBook.css
+ */
+
+/* ==========================================================================
+   1. Left Column: Books Pane (List of Address Books)
+   ========================================================================== */
+#booksPane {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  border-right: none !important;
+  border-inline-end: none !important;
+}
+
+#booksPaneHeaderBar {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+  border-bottom: none !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Material 3 Extended FAB - New Contact Button */
+#booksPaneCreateContact {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  padding-block: 7px !important;
+  padding-inline-start: 32px !important;
+  padding-inline-end: 12px !important;
+  background-position: 10px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 15px 15px !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border: none !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#booksPaneCreateContact:hover {
+  background-color: var(--md-sys-color-primary) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+  transform: translateY(-1px) !important;
+}
+
+#booksPaneCreateContact:active {
+  box-shadow: var(--md-sys-elevation-1) !important;
+  transform: translateY(0) !important;
+}
+
+/* Secondary header icon buttons */
+#booksPaneCreateBook,
+#booksPaneCreateList,
+#booksPaneImport {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#booksPaneCreateBook:hover,
+#booksPaneCreateList:hover,
+#booksPaneImport:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Address Books List Rows (Material 3 Pill Selection) */
+#books {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+}
+
+#books .bookRow-container,
+#books .listRow-container {
+  margin-inline: 8px !important;
+  margin-block: 2px !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding-block: 5px !important;
+  padding-inline: 12px !important;
+  border: none !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#books .bookRow:hover:not(.selected) > .bookRow-container,
+#books .listRow:hover:not(.selected) > .listRow-container {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#books :where(.bookRow, .listRow).selected > div {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+#booksSplitter,
+#sharedSplitter {
+  border: none !important;
+  background-color: transparent !important;
+  inline-size: 3px !important;
+  min-inline-size: 3px !important;
+}
+
+/* ==========================================================================
+   2. Middle Column: Cards Pane (Contacts Cards List)
+   ========================================================================== */
+#cardsPane {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+}
+
+#cardsPaneHeader {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border-bottom: none !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+}
+
+/* Search Bar Pill Container */
+#cardsPaneHeader #searchInput {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  padding: 3px 12px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#cardsPaneHeader #searchInput:focus-within {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+#cardsPaneHeader #searchInput input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#displayButton {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+  -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#displayButton:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+/* Cards View in Tree List */
+#cards,
+#cardsPane,
+#cardsPaneHeader,
+#cards table[is="tree-view-table"],
+#cards table[is="tree-view-table"] tbody {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+}
+
+#cards {
+  border: none !important;
+  border-block-start: none !important;
+  padding: 4px 6px !important;
+}
+
+#cards table[is="tree-view-table"] {
+  border-collapse: separate !important;
+  border-spacing: 0 4px !important;
+  padding: 4px 6px !important;
+}
+
+tr[is="ab-card-row"] {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+tr[is="ab-card-row"] td {
+  background-color: transparent !important;
+  padding: 0 4px !important;
+  border: none !important;
+}
+
+/* Individual Contact Card (Material 3 Elevated Card on Soft Blue Canvas) */
+tr[is="ab-card-row"] td > .card-container,
+#cards .card-container {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-medium) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  padding: 10px 14px !important;
+  margin-block: 2px !important;
+  border: none !important;
+  transition: box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+tr[is="ab-card-row"]:hover:not(.selected) td > .card-container,
+#cards tr:hover:not(.selected) .card-container,
+#cards .card-container:hover:not(.selected) {
+  background-color: #f5f8fc !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+tr[is="ab-card-row"].selected td > .card-container,
+#cards tr.selected .card-container {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* ==========================================================================
+   3. Right Column: Details Pane (Contact Details)
+   ========================================================================== */
+#detailsPane,
+.contact-details-scroll {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  padding: 14px 18px !important;
+}
+
+/* Contact Details Header Area (Elevated White Card) */
+#detailsPane header,
+#viewContact header {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  border: none !important;
+  padding: 20px 24px !important;
+  margin-block-end: 14px !important;
+}
+
+.contact-header {
+  gap: 1.5em !important;
+}
+
+.contact-photo,
+#viewContactPhoto {
+  border-radius: 100% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border: 3px solid var(--md-sys-color-surface-container-lowest) !important;
+}
+
+.contact-heading-name {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  letter-spacing: -0.2px !important;
+}
+
+.contact-heading-nickname {
+  font-size: 13px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+.contact-heading-email {
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+/* Action Buttons Bar in Contact Details (Elevated White Card) */
+#detailsActions {
+  grid-column: 1 / -1 !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  margin-block-end: 14px !important;
+}
+
+#detailsActions .button-block {
+  gap: 10px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+#detailsActions button,
+#editButton {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  padding-block: 7px !important;
+  padding-inline: 16px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Add padding for native icons */
+#detailsActions button.icon-button {
+  padding-inline-start: 34px !important;
+  background-position: 12px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+}
+
+#detailsActions button:hover,
+#editButton:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Primary Action: Écrire (Pencil) in light-blue tonal pill */
+#detailsWriteButton {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+#detailsWriteButton:hover {
+  background-color: #b9dcf7 !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Edit Button (Modifier) */
+#editButton {
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-weight: 600 !important;
+  padding-inline: 20px !important;
+}
+
+#editButton:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Contact Info Sections (Pure White Cards, No Border, No Shadow on Soft Blue) */
+#detailsBody section:not(#detailsActions) {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 18px 24px !important;
+  margin-block-end: 14px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#detailsBody section:not(#detailsActions):hover {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  box-shadow: none !important;
+}
+
+/* Section Titles: Neutral Dark/Black, Not Blue */
+#detailsBody section:not(#detailsActions) h2 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  letter-spacing: 0.1px !important;
+  margin-block: 0 12px !important;
+}
+
+/* Entry Types & Values */
+.entry-type {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  text-transform: uppercase !important;
+  opacity: 0.8 !important;
+}
+
+.entry-value {
+  font-size: 13px !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-weight: 400 !important;
+}
+
+.entry-value a,
+.entry-value a:visited {
+  color: var(--md-sys-color-primary) !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.entry-value a:hover {
+  text-decoration: underline !important;
+}
