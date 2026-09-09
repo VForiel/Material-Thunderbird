@@ -9,6 +9,15 @@
  * colors-light.css (0-1-0) lorsque le systeme est en mode sombre. Un simple `:root`
  * ici serait a egalite et perdrait par ordre de declaration, ce qui rendait tout ce
  * bloc inoperant. Le selecteur ne matche pas quand Thunderbird impose un theme clair.
+ *
+ * Les deux blocs ci-dessous decrivent la meme palette sombre et doivent declarer
+ * exactement les memes jetons : le premier couvre le mode sombre du systeme, le
+ * second le cas ou Thunderbird impose lui-meme un theme sombre. Ils avaient
+ * diverge dans les deux sens -- 32 jetons manquaient au second (tertiaire,
+ * erreur, inverse, surfaces dim/bright et tous les ponts natifs de barre
+ * d outils), 28 au premier (barre de recherche, agenda et minimonth) -- de sorte
+ * que chaque mode sombre gardait des valeurs claires pour ce qui manquait chez
+ * lui. tests/tokens-parity.test.js verifie desormais cette egalite.
  */
 @media (prefers-color-scheme: dark) {
   :root:not([lwt-theme-brighttext="false"]) {
@@ -107,6 +116,38 @@
     --spaces-bg-color: var(--md-sys-color-surface-container) !important;
     --spaces-button-active-bg-color: var(--md-sys-color-secondary-container) !important;
     --spaces-button-active-text-color: var(--md-sys-color-on-secondary-container) !important;
+
+    /* Native Search Bar Variables Dark */
+    --search-bar-background: transparent !important;
+    --search-bar-focus-background: transparent !important;
+    --search-bar-border-color: transparent !important;
+    --search-bar-color: var(--md-sys-color-on-surface) !important;
+    --search-field-placeholder: var(--md-sys-color-on-surface-variant) !important;
+    --focus-outline-color: transparent !important;
+    --windows-accent-outline-color: transparent !important;
+    --search-outline-offset: 0 !important;
+
+    /* Native Calendar & Today Pane Variables Dark */
+    --viewColor: var(--md-sys-color-on-surface) !important;
+    --viewBackground: var(--md-sys-color-surface) !important;
+    --viewBorderColor: var(--md-sys-color-outline-variant) !important;
+    --viewCalendarHeaderBackground: var(--md-sys-color-surface-container-low) !important;
+    --viewHighlightBorderColor: var(--md-sys-color-primary) !important;
+    --viewTodayBackground: var(--md-sys-color-surface-container-low) !important;
+    --viewTodayLabelBackground: var(--md-sys-color-primary) !important;
+    --viewTodayLabelColor: var(--md-sys-color-on-primary) !important;
+    --viewDayBoxSelectedBackground: var(--md-sys-color-secondary-container) !important;
+    --viewWeekendBackground: var(--md-sys-color-surface-container-lowest) !important;
+    --calendar-view-toggle-background: var(--md-sys-color-surface-container-high) !important;
+    --calendar-view-toggle-selected-background: var(--md-sys-color-secondary-container) !important;
+    --mmMainBackground: var(--md-sys-color-surface-container-low) !important;
+    --mmMainBorderColor: var(--md-sys-color-outline-variant) !important;
+    --mmHighlightBackground: var(--md-sys-color-primary) !important;
+    --mmHighlightColor: var(--md-sys-color-on-primary) !important;
+    --mmDayTodayBackground: var(--md-sys-color-primary) !important;
+    --mmDayTodayColor: var(--md-sys-color-on-primary) !important;
+    --mmDaySelectedBackground: var(--md-sys-color-secondary-container) !important;
+    --mmDaySelectedColor: var(--md-sys-color-on-secondary-container) !important;
   }
 }
 
@@ -124,8 +165,22 @@
   --md-sys-color-secondary-container: #004b72;
   --md-sys-color-on-secondary-container: #c7e7ff;
 
+  /* Tertiary & Containers */
+  --md-sys-color-tertiary: #d6bee4;
+  --md-sys-color-on-tertiary: #3b2947;
+  --md-sys-color-tertiary-container: #523f5f;
+  --md-sys-color-on-tertiary-container: #f2daff;
+
+  /* Error */
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+
   /* Surface Hierarchy (MD3 Tonal Surfaces Dark) */
   --md-sys-color-surface: #111315;
+  --md-sys-color-surface-dim: #111315;
+  --md-sys-color-surface-bright: #37393b;
   --md-sys-color-surface-container-lowest: #0c0e10;
   --md-sys-color-surface-container-low: #191c1e;
   --md-sys-color-surface-container: #1d2023;
@@ -137,13 +192,39 @@
   --md-sys-color-on-surface-variant: #c4c7c5;
   --md-sys-color-outline: #8e918f;
   --md-sys-color-outline-variant: #444746;
+  --md-sys-color-inverse-surface: #e2e2e5;
+  --md-sys-color-inverse-on-surface: #2e3133;
+  --md-sys-color-inverse-primary: #0b57d0;
 
   /* State Overlays */
   --md-sys-state-hover: rgba(168, 199, 250, 0.08);
   --md-sys-state-focus: rgba(168, 199, 250, 0.12);
   --md-sys-state-pressed: rgba(168, 199, 250, 0.16);
+  --md-sys-state-dragged: rgba(168, 199, 250, 0.20);
 
-  /* Native Variables Dark */
+  /* Thunderbird Native Override Bridges */
+  --toolbar-bgcolor: var(--md-sys-color-surface-container-low) !important;
+  --toolbar-color: var(--md-sys-color-on-surface) !important;
+  --tabs-toolbar-bgcolor: var(--md-sys-color-surface-container-low) !important;
+  --tab-selected-bgcolor: var(--md-sys-color-surface-container-high) !important;
+  --tab-selected-textcolor: var(--md-sys-color-on-surface) !important;
+  --sidebar-bgcolor: var(--md-sys-color-surface-container-low) !important;
+  --sidebar-text-color: var(--md-sys-color-on-surface) !important;
+  --message-header-background: var(--md-sys-color-surface-container) !important;
+  --messagepane-background: var(--md-sys-color-surface-container-low) !important;
+  --layout-background-1: var(--md-sys-color-surface-container-low) !important;
+
+  /* Native Borders Suppressed Dark */
+  --sidebar-border-color: transparent !important;
+  --sidebar-border: transparent !important;
+  --toolbar-border-color: transparent !important;
+  --tabs-toolbar-border-color: transparent !important;
+  --splitter-border: transparent !important;
+  --button-border-color: transparent !important;
+  --toolbarbutton-header-bordercolor: transparent !important;
+  --toolbarbutton-active-bordercolor: transparent !important;
+
+  /* Native Cards View Variables Dark */
   --tree-card-background: var(--md-sys-color-surface-container-high) !important;
   --tree-card-border: transparent !important;
   --tree-card-background-current: var(--md-sys-color-surface-container-highest) !important;
@@ -153,13 +234,17 @@
   --tree-card-border-selected: transparent !important;
   --tree-card-border-focus: transparent !important;
   --listbox-border-radius: var(--md-shape-corner-medium) !important;
+
+  /* Native Folder Pane Variables Dark */
   --treeitem-background-selected: var(--md-sys-color-secondary-container) !important;
   --treeitem-background-hover: var(--md-sys-state-hover) !important;
   --treeitem-background-active: var(--md-sys-color-secondary-container) !important;
   --treeitem-text-active: var(--md-sys-color-on-secondary-container) !important;
   --folderpane-unread-count-background: var(--md-sys-color-primary) !important;
   --folderpane-unread-count-text: var(--md-sys-color-on-primary) !important;
-  --spaces-bg-color: var(--md-sys-color-surface-container-low) !important;
+
+  /* Native Spaces Toolbar Variables Dark */
+  --spaces-bg-color: var(--md-sys-color-surface-container) !important;
   --spaces-button-active-bg-color: var(--md-sys-color-secondary-container) !important;
   --spaces-button-active-text-color: var(--md-sys-color-on-secondary-container) !important;
 
