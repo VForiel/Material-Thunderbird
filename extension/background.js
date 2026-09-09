@@ -1,136 +1,150 @@
 /**
  * Material-Thunderbird - Background Service
- * Intelligent Unsubscribe Detection & Native Banner Controller
+ * Detection de desinscription et pilotage du bandeau natif.
+ *
+ * Les regles de detection vivent dans shared/unsubscribe-rules.js, charge avant ce
+ * script par manifest.json. Le bandeau lui-meme est rendu une seule fois, dans la
+ * fenetre chrome, par experiment materialAssistant.
  */
 
 (function () {
   "use strict";
 
-  // Keywords for unsubscribe detection
-  const UNSUB_KEYWORDS = /unsubscribe|d[ée]sinscri|d[ée]sabonn|opt-?out|abmelden|annulla.*iscrizione/i;
+  var Rules = globalThis.MaterialUnsubscribeRules;
+  if (!Rules) {
+    console.error("[Material-Thunderbird] shared/unsubscribe-rules.js non charge.");
+    return;
+  }
 
-  // Major email newsletter providers & endpoint patterns
-  const ESP_PATTERNS = [
-    /list-manage\.com\/unsubscribe/i,
-    /mailchimp\.com\/unsubscribe/i,
-    /sendinblue\.com/i,
-    /brevo\.com\/optout/i,
-    /substack\.com\/unsubscribe/i,
-    /activehosted\.com\/proc\.php\?.*act=unsub/i,
-    /constantcontact\.com/i,
-    /hubspotemail\.net/i,
-    /exacttarget\.com/i,
-    /campaign-monitor\.com/i,
-    /cmail\d+\.com\/t\//i
-  ];
+  // Dernier onglet pour lequel un bandeau est affiche, afin de ne pas masquer
+  // le bandeau d un autre onglet lors d un simple changement de selection.
+  var bannerTabId = null;
+
+  function hasAssistant() {
+    return typeof browser !== "undefined" &&
+           browser.materialAssistant &&
+           typeof browser.materialAssistant.showUnsubscribeBanner === "function";
+  }
+
+  async function hideBanner() {
+    bannerTabId = null;
+    if (!hasAssistant()) return;
+    try {
+      await browser.materialAssistant.hideUnsubscribeBanner();
+    } catch (e) {
+      // La fenetre chrome peut etre en cours de fermeture.
+    }
+  }
+
+  async function showBanner(url, senderName, tabId) {
+    if (!Rules.isSafeUrl(url)) return;
+    if (!hasAssistant()) return;
+    try {
+      await browser.materialAssistant.showUnsubscribeBanner(url, senderName || "");
+      bannerTabId = tabId;
+    } catch (e) {
+      console.warn("[Material-Thunderbird] Affichage du bandeau impossible :", e);
+    }
+  }
 
   /**
-   * Extracts unsubscribe URL from full message headers and parts
+   * Cherche une URL de desinscription dans un message complet.
+   * 1. En-tete List-Unsubscribe (RFC 2369), la source la plus fiable.
+   * 2. A defaut, les parties text/html du corps.
    */
   function extractUnsubscribeUrl(fullMessage) {
     if (!fullMessage) return null;
 
-    // 1. Check List-Unsubscribe standard RFC 2369 header
     if (fullMessage.headers) {
-      const unsubHeaders = fullMessage.headers["list-unsubscribe"] || fullMessage.headers["List-Unsubscribe"];
-      if (Array.isArray(unsubHeaders) && unsubHeaders.length > 0) {
-        for (const headerVal of unsubHeaders) {
-          // Look for <http...> link first
-          const httpMatch = headerVal.match(/<(https?:\/\/[^>]+)>/i);
-          if (httpMatch) {
-            return httpMatch[1];
-          }
+      // Thunderbird normalise les noms d en-tete en minuscules.
+      var values = fullMessage.headers["list-unsubscribe"];
+      if (Array.isArray(values)) {
+        for (var i = 0; i < values.length; i++) {
+          var fromHeader = Rules.findInListUnsubscribeHeader(values[i]);
+          if (fromHeader) return fromHeader;
         }
       }
     }
 
-    // 2. Recursively search text/html message parts for unsubscribe links
-    let foundUrl = null;
+    var found = null;
 
+    // Le parcours s arrete des qu une correspondance est trouvee. Sans ce garde-fou
+    // dans la boucle, une partie soeur traitee ensuite ecrasait le resultat.
     function scanParts(parts) {
-      if (!parts || foundUrl) return;
-      for (const part of parts) {
-        if (part.body && typeof part.body === "string") {
-          // Parse HTML anchors
-          const linkMatches = part.body.matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi);
-          for (const match of linkMatches) {
-            const href = match[1].trim();
-            const text = match[2].replace(/<[^>]+>/g, "").trim();
-
-            if (!href || href.startsWith("javascript:") || href.startsWith("mailto:")) continue;
-
-            // Check if href or anchor text matches unsubscribe patterns
-            if (UNSUB_KEYWORDS.test(href) || UNSUB_KEYWORDS.test(text)) {
-              foundUrl = href;
-              return;
-            }
-
-            for (const pattern of ESP_PATTERNS) {
-              if (pattern.test(href)) {
-                foundUrl = href;
-                return;
-              }
-            }
-          }
+      if (!parts || found) return;
+      for (var i = 0; i < parts.length && !found; i++) {
+        var part = parts[i];
+        var type = (part.contentType || "").toLowerCase();
+        if (typeof part.body === "string" && part.body && type.indexOf("text/") === 0) {
+          var url = Rules.findInHtml(part.body);
+          if (url) { found = url; return; }
         }
-
-        if (part.parts && Array.isArray(part.parts)) {
-          scanParts(part.parts);
-        }
+        if (Array.isArray(part.parts)) scanParts(part.parts);
       }
     }
 
-    if (fullMessage.parts) {
-      scanParts(fullMessage.parts);
-    }
-
-    return foundUrl;
+    if (Array.isArray(fullMessage.parts)) scanParts(fullMessage.parts);
+    return found;
   }
 
-  // Register listener for displayed messages
-  if (browser.messageDisplay && browser.messageDisplay.onMessageDisplayed) {
-    browser.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
-      try {
-        // Reset banner from previous message
-        if (browser.materialAssistant && browser.materialAssistant.hideUnsubscribeBanner) {
-          await browser.materialAssistant.hideUnsubscribeBanner();
-        }
+  function senderFromMessage(message, fullMessage) {
+    if (message && message.author) return message.author;
+    if (fullMessage && fullMessage.headers && Array.isArray(fullMessage.headers["from"])) {
+      return fullMessage.headers["from"][0] || "";
+    }
+    return "";
+  }
 
+  if (browser.messageDisplay && browser.messageDisplay.onMessageDisplayed) {
+    browser.messageDisplay.onMessageDisplayed.addListener(async function (tab, message) {
+      try {
+        await hideBanner();
         if (!message || !message.id) return;
 
-        // Fetch full message headers and parts
-        const fullMessage = await browser.messages.getFull(message.id);
-        const unsubscribeUrl = extractUnsubscribeUrl(fullMessage);
-
-        if (unsubscribeUrl && browser.materialAssistant && browser.materialAssistant.showUnsubscribeBanner) {
-          const senderName = message.author || (fullMessage.headers && fullMessage.headers["from"] ? fullMessage.headers["from"][0] : "");
-          await browser.materialAssistant.showUnsubscribeBanner(unsubscribeUrl, senderName);
+        var fullMessage = await browser.messages.getFull(message.id);
+        var url = extractUnsubscribeUrl(fullMessage);
+        if (url) {
+          await showBanner(url, senderFromMessage(message, fullMessage), tab && tab.id);
         }
       } catch (err) {
-        console.warn("[Material-Thunderbird] Error analyzing message for unsubscribe:", err);
+        console.warn("[Material-Thunderbird] Analyse du message impossible :", err);
       }
     });
   }
 
-  // Hide banner on tab switch
-  if (browser.tabs && browser.tabs.onActivated) {
-    browser.tabs.onActivated.addListener(async () => {
-      try {
-        if (browser.materialAssistant && browser.materialAssistant.hideUnsubscribeBanner) {
-          await browser.materialAssistant.hideUnsubscribeBanner();
-        }
-      } catch (e) {}
+  /**
+   * Repli : le script de message signale un lien trouve dans le DOM rendu, que
+   * getFull ne voit pas toujours (corps charge a distance, parties encodees).
+   * Le bandeau reste rendu dans la fenetre chrome, jamais dans le corps du mail.
+   */
+  if (browser.runtime && browser.runtime.onMessage) {
+    browser.runtime.onMessage.addListener(function (msg, sender) {
+      if (!msg || msg.type !== "material-unsubscribe-found") return;
+      if (bannerTabId !== null) return; // l en-tete a deja fourni un lien
+      var tabId = sender && sender.tab ? sender.tab.id : null;
+      showBanner(msg.url, msg.senderName, tabId);
     });
   }
 
-  // Register fallback messageDisplayScripts if supported
-  try {
-    if (browser.messageDisplayScripts) {
-      browser.messageDisplayScripts.register({
-        js: [{ file: "scripts/unsubscribe-detector.js" }]
+  // Un changement d onglet doit masquer le bandeau du message precedent.
+  if (browser.tabs && browser.tabs.onActivated) {
+    browser.tabs.onActivated.addListener(function (info) {
+      if (bannerTabId !== null && info && info.tabId === bannerTabId) return;
+      hideBanner();
+    });
+  }
+
+  // Le script de message est enregistre une seule fois par demarrage.
+  if (browser.messageDisplayScripts) {
+    browser.messageDisplayScripts
+      .register({
+        js: [
+          { file: "shared/unsubscribe-rules.js" },
+          { file: "scripts/unsubscribe-detector.js" }
+        ]
+      })
+      .catch(function (err) {
+        console.warn("[Material-Thunderbird] Enregistrement du script de message impossible :", err);
       });
-    }
-  } catch (err) {
-    // Non-fatal fallback
   }
 })();

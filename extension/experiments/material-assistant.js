@@ -277,28 +277,32 @@ function resolveAvatarInfo(rawString, onGravatarResolved) {
   };
 }
 
-const UNSUB_KEYWORDS = /unsubscribe|d[ée]sinscri|d[ée]sabonn|opt-?out|abmelden|annulla.*iscrizione|notification.*setting|manage.*preference|g[ée]rer.*abonnement|param[èe]tre.*notification|signoff|auto_signoff|sympa|diffusion/i;
+/**
+ * Regles de detection partagees avec background.js et le script de message.
+ * Chargees depuis shared/unsubscribe-rules.js au demarrage de experiment ; sans
+ * elles, aucune detection n a lieu cote chrome (le bandeau reste simplement absent).
+ */
+var UnsubscribeRules = null;
 
-const ESP_PATTERNS = [
-  /researchgate\.net\/(?:account\/settings|.*unsubscribe)/i,
-  /list-manage\.com\/unsubscribe/i,
-  /mailchimp\.com\/unsubscribe/i,
-  /sendinblue\.com/i,
-  /brevo\.com\/optout/i,
-  /substack\.com\/unsubscribe/i,
-  /activehosted\.com\/proc\.php\?.*act=unsub/i,
-  /constantcontact\.com/i,
-  /hubspotemail\.net/i,
-  /exacttarget\.com/i,
-  /campaign-monitor\.com/i,
-  /cmail\d+\.com\/t\//i,
-  /auto_signoff/i,
-  /signoff/i,
-  /sympa/i
-];
+function loadUnsubscribeRules(extension) {
+  if (UnsubscribeRules) return UnsubscribeRules;
+  try {
+    const scope = {};
+    Services.scriptloader.loadSubScript(
+      extension.rootURI.resolve("shared/unsubscribe-rules.js"),
+      scope
+    );
+    UnsubscribeRules = scope.MaterialUnsubscribeRules || null;
+  } catch (e) {
+    Cu.reportError("[Material-Thunderbird] Chargement des regles impossible : " + e);
+    UnsubscribeRules = null;
+  }
+  return UnsubscribeRules;
+}
 
 this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
   onStartup() {
+    loadUnsubscribeRules(this.extension);
     this._initWindows();
     this._windowListener = {
       onOpenWindow: (xulWin) => {
@@ -392,14 +396,14 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       let unsubscribeUrl = null;
       let senderName = "";
 
-      // A. Check RFC 2369 List-Unsubscribe in currentHeaderData
+      const rules = UnsubscribeRules;
+      if (!rules) return;
+
+      // A. En-tete List-Unsubscribe (RFC 2369), source la plus fiable.
       if (win.currentHeaderData) {
         const unsubHeader = win.currentHeaderData["list-unsubscribe"];
         if (unsubHeader && unsubHeader.headerValue) {
-          const match = unsubHeader.headerValue.match(/<(https?:\/\/[^>]+)>/i);
-          if (match) {
-            unsubscribeUrl = match[1];
-          }
+          unsubscribeUrl = rules.findInListUnsubscribeHeader(unsubHeader.headerValue);
         }
         const fromHeader = win.currentHeaderData["from"];
         if (fromHeader && fromHeader.headerValue) {
@@ -407,30 +411,14 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         }
       }
 
-      // B. Direct DOM scan of rendered email inside messagepane
+      // B. A defaut, analyse du message rendu dans le volet de lecture.
       if (!unsubscribeUrl && messagePane && messagePane.contentDocument) {
-        const bodyDoc = messagePane.contentDocument;
-        const anchors = bodyDoc.querySelectorAll("a[href]");
+        unsubscribeUrl = rules.findInDocument(messagePane.contentDocument);
+      }
 
-        for (const a of anchors) {
-          const href = (a.href || "").trim();
-          const text = (a.textContent || "").trim();
-
-          if (!href || href.startsWith("javascript:") || href.startsWith("mailto:")) continue;
-
-          if (UNSUB_KEYWORDS.test(href) || UNSUB_KEYWORDS.test(text)) {
-            unsubscribeUrl = href;
-            break;
-          }
-
-          for (const pattern of ESP_PATTERNS) {
-            if (pattern.test(href)) {
-              unsubscribeUrl = href;
-              break;
-            }
-          }
-          if (unsubscribeUrl) break;
-        }
+      // Le lien provient du courriel : il n est retenu que s il est ouvrable.
+      if (unsubscribeUrl && !rules.isSafeUrl(unsubscribeUrl)) {
+        unsubscribeUrl = null;
       }
 
       if (unsubscribeUrl) {
@@ -482,6 +470,15 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       triggerBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
+
+        // Dernier controle avant navigation : l URL provient du courriel, donc d une
+        // source non fiable. Sans ce filtre, un lien file:, data: ou chrome: place
+        // par expediteur serait ouvert depuis la fenetre privilegiee.
+        if (!UnsubscribeRules || !UnsubscribeRules.isSafeUrl(unsubscribeUrl)) {
+          Cu.reportError("[Material-Thunderbird] URL de desinscription refusee : " + unsubscribeUrl);
+          return;
+        }
+
         try {
           if (typeof win.openContentTab === "function") {
             win.openContentTab(unsubscribeUrl);
@@ -494,7 +491,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             extProtocolSvc.loadURI(uri);
           }
         } catch (err) {
-          win.open(unsubscribeUrl, "_blank");
+          Cu.reportError("[Material-Thunderbird] Ouverture du lien impossible : " + err);
         }
       };
     }
@@ -808,9 +805,14 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
   }
 
   getAPI(context) {
+    loadUnsubscribeRules(this.extension);
     return {
       materialAssistant: {
         showUnsubscribeBanner: async (unsubscribeUrl, senderName) => {
+          // L URL vient d un courriel via le script d arriere-plan : elle est
+          // revalidee ici, au dernier point avant affichage d un bouton chrome.
+          const rules = UnsubscribeRules;
+          if (!rules || !rules.isSafeUrl(unsubscribeUrl)) return;
           const windows = Services.wm.getEnumerator("mail:3pane");
           while (windows.hasMoreElements()) {
             const win = windows.getNext();

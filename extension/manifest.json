@@ -22,7 +22,10 @@
     "tabs"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "shared/unsubscribe-rules.js",
+      "background.js"
+    ]
   },
   "experiment_apis": {
     "materialAssistant": {
