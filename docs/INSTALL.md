@@ -45,7 +45,8 @@ précédente avait désactivé `xpinstall.signatures.required`, elle est égalem
 
 Si vous préférez installer le thème via le gestionnaire de modules de Thunderbird :
 
-1. Récupérez le fichier packagé **`dist/material-thunderbird.xpi`** (ou compilez-le avec `scripts/build.ps1`).
+1. Compilez le paquet avec **`scripts/build.ps1`**, qui le produit dans `dist/material-thunderbird.xpi`.
+   Ce dossier n'est pas versionné : un clone frais ne le contient pas.
 2. Lancez **Mozilla Thunderbird**.
 3. Ouvrez les **Paramètres** (icône d'engrenage en bas à gauche) > **Modules complémentaires et thèmes** (ou raccourci `Ctrl + Maj + A`).
 4. Cliquez sur l'icône d'engrenage en haut à droite de la page des modules complémentaires.
