@@ -60,7 +60,26 @@ Les couleurs sont définies dans `chrome/tokens/colors-light.css` et `chrome/tok
 
 ---
 
-## 2. Personnaliser les Polices de Caractères
+## 2. Avatars Gravatar (désactivés par défaut)
+
+Le thème peut afficher la photo Gravatar de vos correspondants. Cette option est
+**désactivée par défaut** car elle a un coût en vie privée : pour chaque message
+ouvert, une empreinte de l'adresse de l'expéditeur est envoyée à `gravatar.com`,
+ce qui révèle à un tiers avec qui vous correspondez et quand vous lisez son courrier.
+L'empreinte est facile à inverser pour une adresse déjà connue.
+
+Sans cette option, les avatars utilisent la photo de votre carnet d'adresses, puis
+l'initiale colorée du contact. **Aucune requête réseau n'est émise.**
+
+Pour l'activer en connaissance de cause :
+
+1. Ouvrez `about:config` dans Thunderbird (Paramètres > Général > Éditeur de configuration).
+2. Recherchez `extensions.material-thunderbird.gravatar.enabled`.
+3. Basculez la valeur à `true`.
+
+---
+
+## 3. Personnaliser les Polices de Caractères
 
 Dans `chrome/tokens/shapes.css`, modifiez la variable `--md-sys-font-family` :
 
@@ -73,7 +92,7 @@ Dans `chrome/tokens/shapes.css`, modifiez la variable `--md-sys-font-family` :
 
 ---
 
-## 3. Ajuster les Rayons de Courbure (Formes & Pilules)
+## 4. Ajuster les Rayons de Courbure (Formes & Pilules)
 
 Si vous préférez des arrondis plus subtils ou plus prononcés, modifiez les valeurs dans `chrome/tokens/shapes.css` :
 

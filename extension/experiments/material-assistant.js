@@ -3,7 +3,7 @@
  * Component: Material Assistant (Chrome Native Unsubscribe Banner & Material You Helpers)
  * Injects Material Design 3 enhancements directly into the Thunderbird chrome window:
  * 1. Automatic unsubscribe detection & native banner
- * 2. Unified Avatar Resolution (Address Book photo > Gravatar > Contact initial > Email initial)
+ * 2. Unified Avatar Resolution (Address Book photo > Gravatar, opt-in > Contact initial > Email initial)
  * 3. Text-sized sender avatar in multimessage view (multiMessageBrowser)
  * 4. Thread reply unread status and auto-collapse of read messages in expanded threads
  */
@@ -62,62 +62,56 @@ function hashString(str) {
   return Math.abs(hash);
 }
 
-// Pure JS Synchronous SHA-256 implementation for Gravatar lookups
-function sha256Hex(ascii) {
-  function rightRotate(v, a) {
-    return (v >>> a) | (v << (32 - a));
+/**
+ * Recherche Gravatar : desactivee par defaut.
+ *
+ * Interroger gravatar.com revient a transmettre a un tiers, pour chaque message
+ * ouvert, une empreinte de l adresse de votre correspondant et le moment ou vous
+ * lisez son courrier. L empreinte est triviale a inverser pour une adresse connue.
+ * Cette fonctionnalite reste donc explicitement opt-in :
+ *
+ *   about:config > extensions.material-thunderbird.gravatar.enabled = true
+ *
+ * Sans elle, les avatars retombent sur la photo du carnet d adresses puis sur
+ * l initiale coloree, sans aucune requete reseau.
+ */
+const GRAVATAR_PREF = "extensions.material-thunderbird.gravatar.enabled";
+
+function isGravatarEnabled() {
+  try {
+    return Services.prefs.getBoolPref(GRAVATAR_PREF, false);
+  } catch (e) {
+    return false;
   }
-  const pow = Math.pow, maxWord = pow(2, 32);
-  let i, j, result = '', words = [], asciiBitLength = ascii.length * 8, hash = [], k = [], primeCounter = 0, isComp = {};
-  for (let c = 2; primeCounter < 64; c++) {
-    if (!isComp[c]) {
-      for (i = 0; i < 313; i += c) isComp[i] = c;
-      hash[primeCounter] = (pow(c, 0.5) * maxWord) | 0;
-      k[primeCounter++] = (pow(c, 1/3) * maxWord) | 0;
-    }
-  }
-  ascii += '\x80';
-  while ((ascii.length % 64) - 56) ascii += '\x00';
-  for (i = 0; i < ascii.length; i++) {
-    words[i >> 2] |= ascii.charCodeAt(i) << (((3 - i) % 4) * 8);
-  }
-  words[words.length] = (asciiBitLength / maxWord) | 0;
-  words[words.length] = asciiBitLength;
-  for (j = 0; j < words.length; ) {
-    let w = words.slice(j, (j += 16));
-    let oldHash = hash;
-    hash = hash.slice(0, 8);
-    for (i = 0; i < 64; i++) {
-      let w15 = w[i - 15], w2 = w[i - 2];
-      let s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3);
-      let s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10);
-      w[i] = i < 16 ? w[i] : (w[i - 16] + s0 + w[i - 7] + s1) | 0;
-      let s1_2 = rightRotate(hash[0], 2) ^ rightRotate(hash[0], 13) ^ rightRotate(hash[0], 22);
-      let ch = (hash[4] & hash[5]) ^ (~hash[4] & hash[6]);
-      let t1 = hash[7] + (rightRotate(hash[4], 6) ^ rightRotate(hash[4], 11) ^ rightRotate(hash[4], 25)) + ch + k[i] + w[i];
-      let maj = (hash[0] & hash[1]) ^ (hash[0] & hash[2]) ^ (hash[1] & hash[2]);
-      let t2 = s1_2 + maj;
-      hash = [(t1 + t2) | 0].concat(hash);
-      hash[4] = (hash[4] + t1) | 0;
-      hash.length = 8;
-    }
-    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
-  }
-  for (i = 0; i < 8; i++) {
-    for (let b = 3; b >= 0; b--) {
-      let byte = (hash[i] >> (b * 8)) & 255;
-      result += (byte < 16 ? '0' : '') + byte.toString(16);
-    }
-  }
-  return result;
 }
 
-// In-memory Gravatar cache: email -> { found: boolean, url: string }
+// SHA-256 via la pile cryptographique de la plateforme. Remplace une implementation
+// manuelle de 45 lignes qui traitait par ailleurs mal les adresses non ASCII.
+function sha256Hex(str) {
+  try {
+    const bytes = new TextEncoder().encode(str);
+    const hasher = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+    hasher.init(Ci.nsICryptoHash.SHA256);
+    hasher.update(bytes, bytes.length);
+    const digest = hasher.finish(false);
+    let hex = "";
+    for (let i = 0; i < digest.length; i++) {
+      hex += ("0" + digest.charCodeAt(i).toString(16)).slice(-2);
+    }
+    return hex;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Cache en memoire : email -> { found: boolean, url: string }
 const gravatarCache = new Map();
 const pendingGravatarCallbacks = new Map();
 
-function checkGravatar(cleanEmail, onResolved) {
-  if (!cleanEmail) return;
+function checkGravatar(win, cleanEmail, onResolved) {
+  if (!cleanEmail || !win) return;
+  if (!isGravatarEnabled()) return;
+
   if (gravatarCache.has(cleanEmail)) {
     const cached = gravatarCache.get(cleanEmail);
     if (cached && cached.found && onResolved) {
@@ -129,27 +123,37 @@ function checkGravatar(cleanEmail, onResolved) {
     if (onResolved) pendingGravatarCallbacks.get(cleanEmail).push(onResolved);
     return;
   }
-  pendingGravatarCallbacks.set(cleanEmail, onResolved ? [onResolved] : []);
 
   const hash = sha256Hex(cleanEmail);
+  if (!hash) {
+    gravatarCache.set(cleanEmail, { found: false, url: null });
+    return;
+  }
+
+  pendingGravatarCallbacks.set(cleanEmail, onResolved ? [onResolved] : []);
   const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404&s=80`;
 
+  const settle = (found) => {
+    gravatarCache.set(cleanEmail, { found, url: found ? gravatarUrl : null });
+    const cbs = pendingGravatarCallbacks.get(cleanEmail) || [];
+    pendingGravatarCallbacks.delete(cleanEmail);
+    if (found) {
+      cbs.forEach((cb) => { try { cb(gravatarUrl); } catch (e) {} });
+    }
+  };
+
   try {
-    const img = new Image();
-    img.onload = () => {
-      gravatarCache.set(cleanEmail, { found: true, url: gravatarUrl });
-      const cbs = pendingGravatarCallbacks.get(cleanEmail) || [];
-      pendingGravatarCallbacks.delete(cleanEmail);
-      cbs.forEach(cb => { try { cb(gravatarUrl); } catch(e){} });
-    };
-    img.onerror = () => {
-      gravatarCache.set(cleanEmail, { found: false, url: null });
-      pendingGravatarCallbacks.delete(cleanEmail);
-    };
+    // Image doit provenir de la fenetre : le global de experiment ne le definit pas.
+    const img = new win.Image();
+    const timer = win.setTimeout(() => {
+      img.onload = img.onerror = null;
+      settle(false);
+    }, 2500);
+    img.onload = () => { win.clearTimeout(timer); settle(true); };
+    img.onerror = () => { win.clearTimeout(timer); settle(false); };
     img.src = gravatarUrl;
   } catch (e) {
-    gravatarCache.set(cleanEmail, { found: false, url: null });
-    pendingGravatarCallbacks.delete(cleanEmail);
+    settle(false);
   }
 }
 
@@ -187,14 +191,15 @@ function parseNameAndEmail(raw) {
 }
 
 /**
- * Universal Avatar Resolution Pipeline
- * Priority 1: Address Book contact photo (card.photoURL)
- * Priority 2: Gravatar avatar (SHA-256 of lowercase email)
- * Priority 3: First letter of saved contact (card.displayName || displayName)
- * Priority 4: First letter of email address (cleanEmail)
- * Background color: derived strictly from hash of cleanEmail, guaranteed 100% consistent everywhere.
+ * Resolution unifiee des avatars
+ * Priorite 1 : photo du carnet d adresses (card.photoURL)
+ * Priorite 2 : Gravatar, uniquement si l utilisateur l a active (voir GRAVATAR_PREF)
+ * Priorite 3 : initiale du contact enregistre (card.displayName || displayName)
+ * Priorite 4 : initiale de l adresse courriel (cleanEmail)
+ * La couleur de fond derive de l empreinte de cleanEmail : elle reste identique
+ * partout dans l interface pour un meme correspondant.
  */
-function resolveAvatarInfo(rawString, onGravatarResolved) {
+function resolveAvatarInfo(win, rawString, onGravatarResolved) {
   const { displayName, email } = parseNameAndEmail(rawString);
   const cleanEmail = (email || "").trim().toLowerCase();
 
@@ -236,7 +241,7 @@ function resolveAvatarInfo(rawString, onGravatarResolved) {
         };
       }
     } else {
-      checkGravatar(cleanEmail, onGravatarResolved);
+      checkGravatar(win, cleanEmail, onGravatarResolved);
     }
   }
 
@@ -578,7 +583,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
                         fromRec.textContent || "";
         const fromAvatar = fromBox.querySelector(".recipient-avatar");
         if (fromAvatar && rawFrom) {
-          const avatarInfo = resolveAvatarInfo(rawFrom, (gravUrl) => {
+          const avatarInfo = resolveAvatarInfo(win, rawFrom, (gravUrl) => {
             fromAvatar.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
             fromAvatar.style.removeProperty("--md-avatar-char");
             fromAvatar.style.backgroundImage = `url("${gravUrl}")`;
@@ -625,7 +630,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
                       rec.querySelector(".recipient-avatar") ||
                       rec;
 
-          const avatarInfo = resolveAvatarInfo(raw, (gravUrl) => {
+          const avatarInfo = resolveAvatarInfo(win, raw, (gravUrl) => {
             btn.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
             btn.style.removeProperty("--md-avatar-char");
           });
@@ -662,7 +667,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           const rawText = (authorEl.getAttribute("title") || authorEl.textContent || "").trim();
           if (!rawText) return;
 
-          const avatarInfo = resolveAvatarInfo(rawText, (gravUrl) => {
+          const avatarInfo = resolveAvatarInfo(win, rawText, (gravUrl) => {
             authorEl.style.setProperty("--author-img", `url("${gravUrl}")`);
             authorEl.style.removeProperty("--author-char");
           });
@@ -711,7 +716,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           if (cardContainer && senderEl) {
             const senderText = senderEl.getAttribute("title") || senderEl.textContent || "";
             if (senderText) {
-              const avatarInfo = resolveAvatarInfo(senderText, (gravUrl) => {
+              const avatarInfo = resolveAvatarInfo(win, senderText, (gravUrl) => {
                 cardContainer.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
                 cardContainer.style.removeProperty("--md-avatar-char");
               });
