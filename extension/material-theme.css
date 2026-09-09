@@ -4171,7 +4171,7 @@ body:has(#messageList),
   background-color: var(--author-bg, var(--md-sys-color-surface-container-high, #e0e2ec)) !important;
   color: var(--author-fg, var(--md-sys-color-on-surface, #1f1f1f)) !important;
   /* Default placeholder: crisp Material Design contact silhouette */
-  background-image: var(--author-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-image: var(--author-img, var(--author-placeholder, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"))) !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
   background-size: 12px 12px !important;
@@ -4324,35 +4324,44 @@ body:has(#messageList),
 }
 
 /* ==========================================================================
-   7. Pure CSS Initial Letter Determination for Multimessage Avatars
+   7. Initiale deduite en CSS seul, avant que le script ne reponde
+
+   Ces regles portaient sur ::before. Une declaration faite sur un
+   pseudo-element l emporte sur la valeur heritee de son element d origine,
+   donc elles battaient le style inline pose par material-assistant.js et la
+   couleur calculee par hachage de l adresse etait perdue : le meme
+   correspondant pouvait apparaitre d une couleur dans la liste des messages
+   et d une autre ici. Portees sur l element, elles ne servent plus que de
+   pastille immediate, et le script l emporte des qu il a resolu l avatar --
+   meme ordre de priorite que dans avatars.css.
    ========================================================================== */
-#messageList .author:is([title^="A" i], [title^="\"A" i], [data-author^="A" i])::before { --author-char: "A"; --author-bg: #FFD8D3; --author-fg: #3A0B07; background-image: none !important; }
-#messageList .author:is([title^="B" i], [title^="\"B" i], [data-author^="B" i])::before { --author-char: "B"; --author-bg: #D3E3FD; --author-fg: #041E49; background-image: none !important; }
-#messageList .author:is([title^="C" i], [title^="\"C" i], [data-author^="C" i])::before { --author-char: "C"; --author-bg: #C4EED0; --author-fg: #072711; background-image: none !important; }
-#messageList .author:is([title^="D" i], [title^="\"D" i], [data-author^="D" i])::before { --author-char: "D"; --author-bg: #EEDCFF; --author-fg: #2E004E; background-image: none !important; }
-#messageList .author:is([title^="E" i], [title^="\"E" i], [data-author^="E" i])::before { --author-char: "E"; --author-bg: #FFE088; --author-fg: #261900; background-image: none !important; }
-#messageList .author:is([title^="F" i], [title^="\"F" i], [data-author^="F" i])::before { --author-char: "F"; --author-bg: #C2F0EB; --author-fg: #00201D; background-image: none !important; }
-#messageList .author:is([title^="G" i], [title^="\"G" i], [data-author^="G" i])::before { --author-char: "G"; --author-bg: #FFD8E4; --author-fg: #3B071E; background-image: none !important; }
-#messageList .author:is([title^="H" i], [title^="\"H" i], [data-author^="H" i])::before { --author-char: "H"; --author-bg: #C2E7FF; --author-fg: #001D35; background-image: none !important; }
-#messageList .author:is([title^="I" i], [title^="\"I" i], [data-author^="I" i])::before { --author-char: "I"; --author-bg: #E1EAAF; --author-fg: #1B1F00; background-image: none !important; }
-#messageList .author:is([title^="J" i], [title^="\"J" i], [data-author^="J" i])::before { --author-char: "J"; --author-bg: #FFDBCA; --author-fg: #360F00; background-image: none !important; }
-#messageList .author:is([title^="K" i], [title^="\"K" i], [data-author^="K" i])::before { --author-char: "K"; --author-bg: #E8DEF8; --author-fg: #1D192B; background-image: none !important; }
-#messageList .author:is([title^="L" i], [title^="\"L" i], [data-author^="L" i])::before { --author-char: "L"; --author-bg: #B9F2D5; --author-fg: #002114; background-image: none !important; }
-#messageList .author:is([title^="M" i], [title^="\"M" i], [data-author^="M" i])::before { --author-char: "M"; --author-bg: #FFDAD6; --author-fg: #410002; background-image: none !important; }
-#messageList .author:is([title^="N" i], [title^="\"N" i], [data-author^="N" i])::before { --author-char: "N"; --author-bg: #DBE1FF; --author-fg: #00174B; background-image: none !important; }
-#messageList .author:is([title^="O" i], [title^="\"O" i], [data-author^="O" i])::before { --author-char: "O"; --author-bg: #FFDDB8; --author-fg: #2A1700; background-image: none !important; }
-#messageList .author:is([title^="P" i], [title^="\"P" i], [data-author^="P" i])::before { --author-char: "P"; --author-bg: #F5D9FF; --author-fg: #2B003A; background-image: none !important; }
-#messageList .author:is([title^="Q" i], [title^="\"Q" i], [data-author^="Q" i])::before { --author-char: "Q"; --author-bg: #D7E8CD; --author-fg: #111F0E; background-image: none !important; }
-#messageList .author:is([title^="R" i], [title^="\"R" i], [data-author^="R" i])::before { --author-char: "R"; --author-bg: #D8E2FF; --author-fg: #001944; background-image: none !important; }
-#messageList .author:is([title^="S" i], [title^="\"S" i], [data-author^="S" i])::before { --author-char: "S"; --author-bg: #FFDAD4; --author-fg: #3A0905; background-image: none !important; }
-#messageList .author:is([title^="T" i], [title^="\"T" i], [data-author^="T" i])::before { --author-char: "T"; --author-bg: #BCEBEE; --author-fg: #002022; background-image: none !important; }
-#messageList .author:is([title^="U" i], [title^="\"U" i], [data-author^="U" i])::before { --author-char: "U"; --author-bg: #F3DAFF; --author-fg: #2A003F; background-image: none !important; }
-#messageList .author:is([title^="V" i], [title^="\"V" i], [data-author^="V" i])::before { --author-char: "V"; --author-bg: #C7EAD4; --author-fg: #002113; background-image: none !important; }
-#messageList .author:is([title^="W" i], [title^="\"W" i], [data-author^="W" i])::before { --author-char: "W"; --author-bg: #FFDF9E; --author-fg: #251A00; background-image: none !important; }
-#messageList .author:is([title^="X" i], [title^="\"X" i], [data-author^="X" i])::before { --author-char: "X"; --author-bg: #FFD7F1; --author-fg: #36002D; background-image: none !important; }
-#messageList .author:is([title^="Y" i], [title^="\"Y" i], [data-author^="Y" i])::before { --author-char: "Y"; --author-bg: #FFD8D3; --author-fg: #3A0B07; background-image: none !important; }
-#messageList .author:is([title^="Z" i], [title^="\"Z" i], [data-author^="Z" i])::before { --author-char: "Z"; --author-bg: #D3E3FD; --author-fg: #041E49; background-image: none !important; }
-#messageList .author:is([title^="0"], [title^="1"], [title^="2"], [title^="3"], [title^="4"], [title^="5"], [title^="6"], [title^="7"], [title^="8"], [title^="9"])::before { --author-char: "#"; --author-bg: #E2E2E6; --author-fg: #191C20; background-image: none !important; }
+#messageList .author:is([title^="A" i], [title^="\"A" i], [data-author^="A" i]) { --author-char: "A"; --author-bg: #FFD8D3; --author-fg: #3A0B07; --author-placeholder: none; }
+#messageList .author:is([title^="B" i], [title^="\"B" i], [data-author^="B" i]) { --author-char: "B"; --author-bg: #D3E3FD; --author-fg: #041E49; --author-placeholder: none; }
+#messageList .author:is([title^="C" i], [title^="\"C" i], [data-author^="C" i]) { --author-char: "C"; --author-bg: #C4EED0; --author-fg: #072711; --author-placeholder: none; }
+#messageList .author:is([title^="D" i], [title^="\"D" i], [data-author^="D" i]) { --author-char: "D"; --author-bg: #EEDCFF; --author-fg: #2E004E; --author-placeholder: none; }
+#messageList .author:is([title^="E" i], [title^="\"E" i], [data-author^="E" i]) { --author-char: "E"; --author-bg: #FFE088; --author-fg: #261900; --author-placeholder: none; }
+#messageList .author:is([title^="F" i], [title^="\"F" i], [data-author^="F" i]) { --author-char: "F"; --author-bg: #C2F0EB; --author-fg: #00201D; --author-placeholder: none; }
+#messageList .author:is([title^="G" i], [title^="\"G" i], [data-author^="G" i]) { --author-char: "G"; --author-bg: #FFD8E4; --author-fg: #3B071E; --author-placeholder: none; }
+#messageList .author:is([title^="H" i], [title^="\"H" i], [data-author^="H" i]) { --author-char: "H"; --author-bg: #C2E7FF; --author-fg: #001D35; --author-placeholder: none; }
+#messageList .author:is([title^="I" i], [title^="\"I" i], [data-author^="I" i]) { --author-char: "I"; --author-bg: #E1EAAF; --author-fg: #1B1F00; --author-placeholder: none; }
+#messageList .author:is([title^="J" i], [title^="\"J" i], [data-author^="J" i]) { --author-char: "J"; --author-bg: #FFDBCA; --author-fg: #360F00; --author-placeholder: none; }
+#messageList .author:is([title^="K" i], [title^="\"K" i], [data-author^="K" i]) { --author-char: "K"; --author-bg: #E8DEF8; --author-fg: #1D192B; --author-placeholder: none; }
+#messageList .author:is([title^="L" i], [title^="\"L" i], [data-author^="L" i]) { --author-char: "L"; --author-bg: #B9F2D5; --author-fg: #002114; --author-placeholder: none; }
+#messageList .author:is([title^="M" i], [title^="\"M" i], [data-author^="M" i]) { --author-char: "M"; --author-bg: #FFDAD6; --author-fg: #410002; --author-placeholder: none; }
+#messageList .author:is([title^="N" i], [title^="\"N" i], [data-author^="N" i]) { --author-char: "N"; --author-bg: #DBE1FF; --author-fg: #00174B; --author-placeholder: none; }
+#messageList .author:is([title^="O" i], [title^="\"O" i], [data-author^="O" i]) { --author-char: "O"; --author-bg: #FFDDB8; --author-fg: #2A1700; --author-placeholder: none; }
+#messageList .author:is([title^="P" i], [title^="\"P" i], [data-author^="P" i]) { --author-char: "P"; --author-bg: #F5D9FF; --author-fg: #2B003A; --author-placeholder: none; }
+#messageList .author:is([title^="Q" i], [title^="\"Q" i], [data-author^="Q" i]) { --author-char: "Q"; --author-bg: #D7E8CD; --author-fg: #111F0E; --author-placeholder: none; }
+#messageList .author:is([title^="R" i], [title^="\"R" i], [data-author^="R" i]) { --author-char: "R"; --author-bg: #D8E2FF; --author-fg: #001944; --author-placeholder: none; }
+#messageList .author:is([title^="S" i], [title^="\"S" i], [data-author^="S" i]) { --author-char: "S"; --author-bg: #FFDAD4; --author-fg: #3A0905; --author-placeholder: none; }
+#messageList .author:is([title^="T" i], [title^="\"T" i], [data-author^="T" i]) { --author-char: "T"; --author-bg: #BCEBEE; --author-fg: #002022; --author-placeholder: none; }
+#messageList .author:is([title^="U" i], [title^="\"U" i], [data-author^="U" i]) { --author-char: "U"; --author-bg: #F3DAFF; --author-fg: #2A003F; --author-placeholder: none; }
+#messageList .author:is([title^="V" i], [title^="\"V" i], [data-author^="V" i]) { --author-char: "V"; --author-bg: #C7EAD4; --author-fg: #002113; --author-placeholder: none; }
+#messageList .author:is([title^="W" i], [title^="\"W" i], [data-author^="W" i]) { --author-char: "W"; --author-bg: #FFDF9E; --author-fg: #251A00; --author-placeholder: none; }
+#messageList .author:is([title^="X" i], [title^="\"X" i], [data-author^="X" i]) { --author-char: "X"; --author-bg: #FFD7F1; --author-fg: #36002D; --author-placeholder: none; }
+#messageList .author:is([title^="Y" i], [title^="\"Y" i], [data-author^="Y" i]) { --author-char: "Y"; --author-bg: #FFD8D3; --author-fg: #3A0B07; --author-placeholder: none; }
+#messageList .author:is([title^="Z" i], [title^="\"Z" i], [data-author^="Z" i]) { --author-char: "Z"; --author-bg: #D3E3FD; --author-fg: #041E49; --author-placeholder: none; }
+#messageList .author:is([title^="0"], [title^="1"], [title^="2"], [title^="3"], [title^="4"], [title^="5"], [title^="6"], [title^="7"], [title^="8"], [title^="9"]) { --author-char: "#"; --author-bg: #E2E2E6; --author-fg: #191C20; --author-placeholder: none; }
 
 /* ===== components/compose.css ===== */
 /**
