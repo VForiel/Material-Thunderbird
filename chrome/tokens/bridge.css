@@ -29,8 +29,6 @@
   --md-surface-low: var(--md-sys-color-surface-container-low);
   --md-surface-container: var(--md-sys-color-surface-container);
   --md-surface-high: var(--md-sys-color-surface-container-high);
-  /* Utilise par avatars.css ; n'etait defini nulle part, seul le repli s'appliquait. */
-  --md-surface-container-high: var(--md-sys-color-surface-container-high);
 
   /* Texte et contours */
   --md-on-surface: var(--md-sys-color-on-surface);
@@ -55,6 +53,9 @@
   --md-shape-extra-large: var(--md-shape-corner-extra-large);
   --md-shape-full: var(--md-shape-corner-full);
 
-  /* Typographie : utilise par multimessage.css, n'etait defini nulle part. */
-  --md-font-brand: var(--md-sys-font-family);
+  /* Typographie : le nom reellement employe par avatars.css, extras.css et
+     multimessage.css. L alias precedent s appelait --md-font-brand, que rien
+     n utilisait : les six sites d appel retombaient donc sur leur pile de
+     polices ecrite en dur et ignoraient --md-sys-font-family. */
+  --md-sys-typescale-font-brand: var(--md-sys-font-family);
 }
