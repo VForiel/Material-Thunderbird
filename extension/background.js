@@ -5,6 +5,13 @@
  * Les regles de detection vivent dans shared/unsubscribe-rules.js, charge avant ce
  * script par manifest.json. Le bandeau lui-meme est rendu une seule fois, dans la
  * fenetre chrome, par experiment materialAssistant.
+ *
+ * Ce script est le seul a decider s il y a un lien de desinscription. L experiment
+ * menait en parallele sa propre detection sur mutation de l en-tete, et son
+ * chemin negatif retirait le bandeau : la passe tardive pouvait donc effacer un
+ * bandeau que ce script venait de demander, apres quoi bannerTabId restait pose
+ * et le repli DOM etait ignore -- plus aucun bandeau pour ce message. L experiment
+ * ne fait plus qu afficher et masquer sur demande.
  */
 
 (function () {
@@ -16,9 +23,19 @@
     return;
   }
 
-  // Dernier onglet pour lequel un bandeau est affiche, afin de ne pas masquer
-  // le bandeau d un autre onglet lors d un simple changement de selection.
+  // Onglet pour lequel un bandeau est affiche, afin de ne pas masquer le bandeau
+  // d un autre onglet lors d un simple changement de selection.
   var bannerTabId = null;
+
+  // Expediteur du dernier message affiche, par onglet. Le script de message ne voit
+  // que le corps rendu : il ne peut pas nommer l expediteur, et le bandeau retombait
+  // donc sur "Cet expediteur" chaque fois que le lien venait du DOM et non de
+  // l en-tete. Cette table lui prete le nom deja lu ici.
+  var senderByTab = new Map();
+
+  function normalizeTabId(value) {
+    return typeof value === "number" ? value : null;
+  }
 
   function hasAssistant() {
     return typeof browser !== "undefined" &&
@@ -39,10 +56,14 @@
   async function showBanner(url, senderName, tabId) {
     if (!Rules.isSafeUrl(url)) return;
     if (!hasAssistant()) return;
+    // Pose avant l attente, pas apres : le repli DOM ne s execute que si
+    // bannerTabId est nul, et il pouvait donc s intercaler pendant l appel pour
+    // afficher un second bandeau par-dessus celui-ci.
+    bannerTabId = normalizeTabId(tabId);
     try {
-      await browser.materialAssistant.showUnsubscribeBanner(url, senderName || "");
-      bannerTabId = tabId;
+      await browser.materialAssistant.showUnsubscribeBanner(url, senderName || "", bannerTabId);
     } catch (e) {
+      bannerTabId = null;
       console.warn("[Material-Thunderbird] Affichage du bandeau impossible :", e);
     }
   }
@@ -101,10 +122,14 @@
         await hideBanner();
         if (!message || !message.id) return;
 
+        var tabId = normalizeTabId(tab && tab.id);
         var fullMessage = await browser.messages.getFull(message.id);
+        var senderName = senderFromMessage(message, fullMessage);
+        if (tabId !== null) senderByTab.set(tabId, senderName);
+
         var url = extractUnsubscribeUrl(fullMessage);
         if (url) {
-          await showBanner(url, senderFromMessage(message, fullMessage), tab && tab.id);
+          await showBanner(url, senderName, tabId);
         }
       } catch (err) {
         console.warn("[Material-Thunderbird] Analyse du message impossible :", err);
@@ -121,8 +146,8 @@
     browser.runtime.onMessage.addListener(function (msg, sender) {
       if (!msg || msg.type !== "material-unsubscribe-found") return;
       if (bannerTabId !== null) return; // l en-tete a deja fourni un lien
-      var tabId = sender && sender.tab ? sender.tab.id : null;
-      showBanner(msg.url, msg.senderName, tabId);
+      var tabId = normalizeTabId(sender && sender.tab && sender.tab.id);
+      showBanner(msg.url, tabId !== null ? senderByTab.get(tabId) : "", tabId);
     });
   }
 
@@ -131,6 +156,14 @@
     browser.tabs.onActivated.addListener(function (info) {
       if (bannerTabId !== null && info && info.tabId === bannerTabId) return;
       hideBanner();
+    });
+  }
+
+  // Sans cela senderByTab grossit pour toute la duree de la session.
+  if (browser.tabs && browser.tabs.onRemoved) {
+    browser.tabs.onRemoved.addListener(function (tabId) {
+      senderByTab.delete(tabId);
+      if (bannerTabId === tabId) bannerTabId = null;
     });
   }
 

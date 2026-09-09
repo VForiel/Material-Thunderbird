@@ -16,6 +16,12 @@
             "name": "senderName",
             "type": "string",
             "optional": true
+          },
+          {
+            "name": "tabId",
+            "type": "integer",
+            "optional": true,
+            "description": "Onglet auquel le bandeau appartient. Sans lui, le bandeau va a la fenetre courrier la plus recente."
           }
         ]
       },

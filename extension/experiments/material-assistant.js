@@ -2,7 +2,7 @@
  * Material-Thunderbird - WebExtension Experiment
  * Component: Material Assistant (Chrome Native Unsubscribe Banner & Material You Helpers)
  * Injects Material Design 3 enhancements directly into the Thunderbird chrome window:
- * 1. Automatic unsubscribe detection & native banner
+ * 1. Native unsubscribe banner, rendered on request from background.js
  * 2. Unified Avatar Resolution (Address Book photo > Gravatar, opt-in > Contact initial > Email initial)
  * 3. Text-sized sender avatar in multimessage view (multiMessageBrowser)
  * 4. Thread reply unread status and auto-collapse of read messages in expanded threads
@@ -283,9 +283,11 @@ function resolveAvatarInfo(win, rawString, onGravatarResolved) {
 }
 
 /**
- * Regles de detection partagees avec background.js et le script de message.
- * Chargees depuis shared/unsubscribe-rules.js au demarrage de experiment ; sans
- * elles, aucune detection n a lieu cote chrome (le bandeau reste simplement absent).
+ * Regles partagees avec background.js et le script de message. La detection est
+ * faite par background.js ; ce qui sert ici est isSafeUrl, aux deux derniers
+ * points avant qu une URL venue d un courriel n atteigne l interface : juste
+ * avant d afficher le bouton, et juste avant de naviguer. Sans les regles,
+ * aucune URL n est acceptee et le bandeau reste simplement absent.
  */
 var UnsubscribeRules = null;
 
@@ -421,7 +423,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const messagePane = win.document.getElementById("messagepane");
     if (messagePane) {
       const handleMessageLoaded = () => {
-        this._detectAndDisplayUnsubscribe(win);
         this._updateRecipientAvatars(win);
       };
       listen(messagePane, "load", handleMessageLoaded, true);
@@ -432,12 +433,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const msgHeaderView = win.document.getElementById("msgHeaderView") || win.document.getElementById("messageHeader");
     if (msgHeaderView) {
       observe(msgHeaderView, () => {
-        debounce("header", 50, () => {
-          this._updateRecipientAvatars(win);
-          this._detectAndDisplayUnsubscribe(win);
-        });
-        // Second passage : l en-tete se remplit parfois apres coup.
-        debounce("header-late", 300, () => this._detectAndDisplayUnsubscribe(win));
+        debounce("header", 50, () => this._updateRecipientAvatars(win));
       }, { childList: true, subtree: true });
     }
 
@@ -466,48 +462,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const threadTree = win.document.getElementById("threadTree") || win.document.querySelector("table#threadTree");
     if (threadTree) {
       this._setupThreadTree(win, threadTree);
-    }
-  }
-
-  _detectAndDisplayUnsubscribe(win) {
-    try {
-      const doc = win.document;
-      const messagePane = doc.getElementById("messagepane");
-      let unsubscribeUrl = null;
-      let senderName = "";
-
-      const rules = UnsubscribeRules;
-      if (!rules) return;
-
-      // A. En-tete List-Unsubscribe (RFC 2369), source la plus fiable.
-      if (win.currentHeaderData) {
-        const unsubHeader = win.currentHeaderData["list-unsubscribe"];
-        if (unsubHeader && unsubHeader.headerValue) {
-          unsubscribeUrl = rules.findInListUnsubscribeHeader(unsubHeader.headerValue);
-        }
-        const fromHeader = win.currentHeaderData["from"];
-        if (fromHeader && fromHeader.headerValue) {
-          senderName = fromHeader.headerValue;
-        }
-      }
-
-      // B. A defaut, analyse du message rendu dans le volet de lecture.
-      if (!unsubscribeUrl && messagePane && messagePane.contentDocument) {
-        unsubscribeUrl = rules.findInDocument(messagePane.contentDocument);
-      }
-
-      // Le lien provient du courriel : il n est retenu que s il est ouvrable.
-      if (unsubscribeUrl && !rules.isSafeUrl(unsubscribeUrl)) {
-        unsubscribeUrl = null;
-      }
-
-      if (unsubscribeUrl) {
-        this._renderUnsubscribeBanner(win, unsubscribeUrl, senderName);
-      } else {
-        this._removeUnsubscribeBanner(win);
-      }
-    } catch (e) {
-      // Non-fatal inspection error
     }
   }
 
@@ -633,6 +587,21 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     } else {
       const notificationBox = doc.getElementById("mail-notification-top");
       if (notificationBox) notificationBox.appendChild(banner);
+    }
+  }
+
+  /**
+   * Fenetre chrome de l onglet designe par la WebExtension. getGlobalForObject est
+   * la resolution employee par ext-mail.js lui-meme (getTabWindow).
+   */
+  _windowForTab(context, tabId) {
+    if (typeof tabId !== "number") return null;
+    try {
+      const tab = context.extension.tabManager.get(tabId);
+      const nativeTab = tab && tab.nativeTab;
+      return nativeTab ? Cu.getGlobalForObject(nativeTab) : null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -981,15 +950,20 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     loadUnsubscribeRules(this.extension);
     return {
       materialAssistant: {
-        showUnsubscribeBanner: async (unsubscribeUrl, senderName) => {
+        showUnsubscribeBanner: async (unsubscribeUrl, senderName, tabId) => {
           // L URL vient d un courriel via le script d arriere-plan : elle est
           // revalidee ici, au dernier point avant affichage d un bouton chrome.
           const rules = UnsubscribeRules;
           if (!rules || !rules.isSafeUrl(unsubscribeUrl)) return;
-          const windows = Services.wm.getEnumerator("mail:3pane");
-          while (windows.hasMoreElements()) {
-            const win = windows.getNext();
-            this._renderUnsubscribeBanner(win, unsubscribeUrl, senderName);
+
+          // Le bandeau appartient a un message, donc a un onglet. Il etait rendu
+          // dans toutes les fenetres courrier ouvertes : une infolettre lue dans
+          // l une en faisait apparaitre un dans l autre, ou aucun message
+          // correspondant n etait affiche.
+          const target = this._windowForTab(context, tabId) ||
+                         Services.wm.getMostRecentWindow("mail:3pane");
+          if (target) {
+            this._renderUnsubscribeBanner(target, unsubscribeUrl, senderName);
           }
         },
         hideUnsubscribeBanner: async () => {
