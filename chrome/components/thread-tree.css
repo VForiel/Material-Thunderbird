@@ -242,8 +242,12 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
 }
 
-/* Thread children (replies): ALWAYS transparent border to prevent erroneous blue border */
-#threadTree tr.card-layout[data-properties~="thread-children"] .card-container {
+/* Thread children (replies): unread replies get the 4px Material Blue Border, read replies stay transparent */
+#threadTree tr.card-layout[data-properties~="thread-children"]:is([data-properties*="unread" i], .unread) .card-container {
+  border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
+}
+
+#threadTree tr.card-layout[data-properties~="thread-children"]:not([data-properties*="unread" i]):not(.unread) .card-container {
   border-inline-start: 4px solid transparent !important;
 }
 
@@ -305,6 +309,12 @@ tr.card-layout.material-thread-read-hidden {
               box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
+/* Balanced bottom padding for cards with reply twisty button */
+#threadTree tr.card-layout.children .card-container,
+#threadTree tr.card-layout:has(button.twisty) .card-container {
+  padding-block-end: 8px !important;
+}
+
 /* Thread card dynamic row & twisty button sizing */
 #threadTree .card-container .thread-card-dynamic-row {
   align-items: center !important;
@@ -320,7 +330,7 @@ tr.card-layout.material-thread-read-hidden {
   padding-block: 1px !important;
   padding-inline: 8px !important;
   margin-block-start: 2px !important;
-  margin-block-end: 0px !important;
+  margin-block-end: 2px !important;
   border-radius: var(--md-shape-corner-full) !important;
 }
 

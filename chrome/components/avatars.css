@@ -78,6 +78,15 @@
               color 250ms ease !important;
 }
 
+/* When contact photo or Gravatar image is resolved on message card */
+#threadTree tr.card-layout .card-container[style*="--md-avatar-img"] .read-status-column::before {
+  content: "" !important;
+  background-image: var(--md-avatar-img) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
 /* Default Placeholder State (Instant non-blocking rendering) */
 #threadTree tr.card-layout:not(.avatar-loaded) .card-container .read-status-column::before {
   background-color: var(--md-avatar-bg, #E0E2EC) !important;

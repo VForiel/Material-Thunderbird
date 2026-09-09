@@ -149,22 +149,29 @@
     if (!targetElement) return;
 
     const { displayName, email } = parseNameAndEmail(rawNameOrEmail);
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const colorKey = cleanEmail || (displayName || "").toLowerCase();
+    const hash = hashString(colorKey);
+    const palette = M3_AVATAR_PALETTES[hash % M3_AVATAR_PALETTES.length];
+
     const gravatarUrl = await resolveGravatar(email);
 
     if (gravatarUrl) {
-      // Gravatar found: display image
+      // Gravatar found: display image with consistent background
       targetElement.style.setProperty("--md-avatar-img", `url("${gravatarUrl}")`);
-      targetElement.style.setProperty("--md-avatar-char", '""');
+      targetElement.style.setProperty("--md-avatar-bg", palette.bg);
+      targetElement.style.setProperty("--md-avatar-fg", palette.fg);
+      targetElement.style.removeProperty("--md-avatar-char");
       if (options.multimessage) {
         targetElement.style.setProperty("--author-img", `url("${gravatarUrl}")`);
-        targetElement.style.setProperty("--author-char", '""');
+        targetElement.style.setProperty("--author-bg", palette.bg);
+        targetElement.style.setProperty("--author-fg", palette.fg);
+        targetElement.style.removeProperty("--author-char");
       }
     } else {
       // Fallback: Contact Name initial, or email initial
       const resolvedString = displayName || email || "?";
       const letter = getInitialLetter(resolvedString);
-      const hash = hashString((displayName || email || "").toLowerCase());
-      const palette = M3_AVATAR_PALETTES[hash % M3_AVATAR_PALETTES.length];
 
       targetElement.style.setProperty("--md-avatar-char", `"${letter}"`);
       targetElement.style.setProperty("--md-avatar-bg", palette.bg);

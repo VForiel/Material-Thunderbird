@@ -3,8 +3,8 @@
  * Component: Material Assistant (Chrome Native Unsubscribe Banner & Material You Helpers)
  * Injects Material Design 3 enhancements directly into the Thunderbird chrome window:
  * 1. Automatic unsubscribe detection & native banner
- * 2. Contact initial letter on recipient avatar buttons ("Pour", "Copie à")
- * 3. Small text-sized sender avatar in multimessage view
+ * 2. Unified Avatar Resolution (Address Book photo > Gravatar > Contact initial > Email initial)
+ * 3. Text-sized sender avatar in multimessage view (multiMessageBrowser)
  * 4. Thread reply unread status and auto-collapse of read messages in expanded threads
  */
 
@@ -20,6 +20,15 @@ try {
   ({ Services } = ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs"));
 } catch (e) {
   ({ Services } = ChromeUtils.import("resource://gre/modules/Services.jsm"));
+}
+
+var MailServices;
+try {
+  ({ MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs"));
+} catch (e) {
+  try {
+    ({ MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"));
+  } catch (e2) {}
 }
 
 // Material You Tonal Palettes for High-Entropy Hashing
@@ -53,13 +62,103 @@ function hashString(str) {
   return Math.abs(hash);
 }
 
+// Pure JS Synchronous SHA-256 implementation for Gravatar lookups
+function sha256Hex(ascii) {
+  function rightRotate(v, a) {
+    return (v >>> a) | (v << (32 - a));
+  }
+  const pow = Math.pow, maxWord = pow(2, 32);
+  let i, j, result = '', words = [], asciiBitLength = ascii.length * 8, hash = [], k = [], primeCounter = 0, isComp = {};
+  for (let c = 2; primeCounter < 64; c++) {
+    if (!isComp[c]) {
+      for (i = 0; i < 313; i += c) isComp[i] = c;
+      hash[primeCounter] = (pow(c, 0.5) * maxWord) | 0;
+      k[primeCounter++] = (pow(c, 1/3) * maxWord) | 0;
+    }
+  }
+  ascii += '\x80';
+  while ((ascii.length % 64) - 56) ascii += '\x00';
+  for (i = 0; i < ascii.length; i++) {
+    words[i >> 2] |= ascii.charCodeAt(i) << (((3 - i) % 4) * 8);
+  }
+  words[words.length] = (asciiBitLength / maxWord) | 0;
+  words[words.length] = asciiBitLength;
+  for (j = 0; j < words.length; ) {
+    let w = words.slice(j, (j += 16));
+    let oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      let w15 = w[i - 15], w2 = w[i - 2];
+      let s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3);
+      let s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10);
+      w[i] = i < 16 ? w[i] : (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+      let s1_2 = rightRotate(hash[0], 2) ^ rightRotate(hash[0], 13) ^ rightRotate(hash[0], 22);
+      let ch = (hash[4] & hash[5]) ^ (~hash[4] & hash[6]);
+      let t1 = hash[7] + (rightRotate(hash[4], 6) ^ rightRotate(hash[4], 11) ^ rightRotate(hash[4], 25)) + ch + k[i] + w[i];
+      let maj = (hash[0] & hash[1]) ^ (hash[0] & hash[2]) ^ (hash[1] & hash[2]);
+      let t2 = s1_2 + maj;
+      hash = [(t1 + t2) | 0].concat(hash);
+      hash[4] = (hash[4] + t1) | 0;
+      hash.length = 8;
+    }
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+  }
+  for (i = 0; i < 8; i++) {
+    for (let b = 3; b >= 0; b--) {
+      let byte = (hash[i] >> (b * 8)) & 255;
+      result += (byte < 16 ? '0' : '') + byte.toString(16);
+    }
+  }
+  return result;
+}
+
+// In-memory Gravatar cache: email -> { found: boolean, url: string }
+const gravatarCache = new Map();
+const pendingGravatarCallbacks = new Map();
+
+function checkGravatar(cleanEmail, onResolved) {
+  if (!cleanEmail) return;
+  if (gravatarCache.has(cleanEmail)) {
+    const cached = gravatarCache.get(cleanEmail);
+    if (cached && cached.found && onResolved) {
+      onResolved(cached.url);
+    }
+    return;
+  }
+  if (pendingGravatarCallbacks.has(cleanEmail)) {
+    if (onResolved) pendingGravatarCallbacks.get(cleanEmail).push(onResolved);
+    return;
+  }
+  pendingGravatarCallbacks.set(cleanEmail, onResolved ? [onResolved] : []);
+
+  const hash = sha256Hex(cleanEmail);
+  const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404&s=80`;
+
+  try {
+    const img = new Image();
+    img.onload = () => {
+      gravatarCache.set(cleanEmail, { found: true, url: gravatarUrl });
+      const cbs = pendingGravatarCallbacks.get(cleanEmail) || [];
+      pendingGravatarCallbacks.delete(cleanEmail);
+      cbs.forEach(cb => { try { cb(gravatarUrl); } catch(e){} });
+    };
+    img.onerror = () => {
+      gravatarCache.set(cleanEmail, { found: false, url: null });
+      pendingGravatarCallbacks.delete(cleanEmail);
+    };
+    img.src = gravatarUrl;
+  } catch (e) {
+    gravatarCache.set(cleanEmail, { found: false, url: null });
+    pendingGravatarCallbacks.delete(cleanEmail);
+  }
+}
+
 // Normalize initial letter (removes quotes, accents, brackets)
 function getInitialLetter(nameOrEmail) {
   if (!nameOrEmail) return "?";
   let cleaned = nameOrEmail.replace(/^["'<\s]+/, "").trim();
   if (!cleaned) return "?";
   
-  // Normalize diacritics
   let normalized = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let firstChar = normalized.charAt(0).toUpperCase();
   if (/[A-Z0-9]/.test(firstChar)) {
@@ -73,7 +172,6 @@ function parseNameAndEmail(raw) {
   if (!raw) return { displayName: "", email: "" };
   const str = String(raw).trim();
   
-  // Pattern: "DisplayName <email@domain.com>"
   const match = str.match(/^(.*?)\s*<([^>]+)>$/);
   if (match) {
     const displayName = match[1].replace(/^["']+|["']+$/g, "").trim();
@@ -81,12 +179,102 @@ function parseNameAndEmail(raw) {
     return { displayName, email };
   }
   
-  // Pattern: purely an email address
   if (str.includes("@")) {
     return { displayName: "", email: str.replace(/[<>]/g, "").trim() };
   }
   
   return { displayName: str, email: "" };
+}
+
+/**
+ * Universal Avatar Resolution Pipeline
+ * Priority 1: Address Book contact photo (card.photoURL)
+ * Priority 2: Gravatar avatar (SHA-256 of lowercase email)
+ * Priority 3: First letter of saved contact (card.displayName || displayName)
+ * Priority 4: First letter of email address (cleanEmail)
+ * Background color: derived strictly from hash of cleanEmail, guaranteed 100% consistent everywhere.
+ */
+function resolveAvatarInfo(rawString, onGravatarResolved) {
+  const { displayName, email } = parseNameAndEmail(rawString);
+  const cleanEmail = (email || "").trim().toLowerCase();
+
+  // Background and text color is derived strictly from normalized email (or displayName fallback)
+  const colorKey = cleanEmail || (displayName || "").toLowerCase();
+  const hash = hashString(colorKey);
+  const palette = M3_AVATAR_PALETTES[hash % M3_AVATAR_PALETTES.length];
+
+  // 1. Priority 1: Address Book contact photo
+  let card = null;
+  if (cleanEmail && typeof MailServices !== "undefined" && MailServices?.ab) {
+    try {
+      card = MailServices.ab.cardForEmailAddress(cleanEmail);
+    } catch (e) {}
+  }
+  if (card && card.photoURL) {
+    return {
+      type: "img",
+      url: card.photoURL,
+      char: "",
+      bg: palette.bg,
+      fg: palette.fg,
+      cleanEmail
+    };
+  }
+
+  // 2. Priority 2: Gravatar
+  if (cleanEmail) {
+    if (gravatarCache.has(cleanEmail)) {
+      const g = gravatarCache.get(cleanEmail);
+      if (g && g.found) {
+        return {
+          type: "img",
+          url: g.url,
+          char: "",
+          bg: palette.bg,
+          fg: palette.fg,
+          cleanEmail
+        };
+      }
+    } else {
+      checkGravatar(cleanEmail, onGravatarResolved);
+    }
+  }
+
+  // 3. Priority 3: First letter of the saved contact name
+  const contactName = (card && card.displayName) ? card.displayName : displayName;
+  if (contactName && contactName.trim()) {
+    const letter = getInitialLetter(contactName);
+    return {
+      type: "char",
+      url: null,
+      char: letter,
+      bg: palette.bg,
+      fg: palette.fg,
+      cleanEmail
+    };
+  }
+
+  // 4. Priority 4: First letter of the email address
+  if (cleanEmail) {
+    const letter = getInitialLetter(cleanEmail);
+    return {
+      type: "char",
+      url: null,
+      char: letter,
+      bg: palette.bg,
+      fg: palette.fg,
+      cleanEmail
+    };
+  }
+
+  return {
+    type: "char",
+    url: null,
+    char: "?",
+    bg: palette.bg,
+    fg: palette.fg,
+    cleanEmail
+  };
 }
 
 const UNSUB_KEYWORDS = /unsubscribe|d[ée]sinscri|d[ée]sabonn|opt-?out|abmelden|annulla.*iscrizione|notification.*setting|manage.*preference|g[ée]rer.*abonnement|param[èe]tre.*notification|signoff|auto_signoff|sympa|diffusion/i;
@@ -168,17 +356,26 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       headerObserver.observe(msgHeaderView, { childList: true, subtree: true });
     }
 
-    // 3. Hook Multimessage View & Message List
-    const multimessagePane = win.document.getElementById("multimessage");
-    if (multimessagePane) {
-      multimessagePane.addEventListener("load", () => {
-        if (multimessagePane.contentDocument) {
-          this._setupMultimessageObserver(win, multimessagePane.contentDocument);
-        }
-      }, true);
-    }
+    // 3. Hook Multimessage View & Message List (robust browser detection)
+    const hookMultimessage = () => {
+      const multiBrowsers = win.document.querySelectorAll("#multiMessageBrowser, #multimessage, browser[src*='multimessageview']");
+      multiBrowsers.forEach((browser) => {
+        const attach = () => {
+          try {
+            if (browser.contentDocument) {
+              this._setupMultimessageObserver(win, browser.contentDocument);
+            }
+          } catch (e) {}
+        };
+        browser.addEventListener("load", attach, true);
+        browser.addEventListener("DOMContentLoaded", attach, true);
+        attach();
+      });
+    };
+    hookMultimessage();
+    win.addEventListener("select", () => win.setTimeout(hookMultimessage, 100), true);
 
-    // Also scan main window doc for multimessage elements
+    // Also observe the main document in case multimessage list is embedded
     this._setupMultimessageObserver(win, win.document);
 
     // 4. Hook Thread Tree for card avatars and thread collapsing
@@ -314,7 +511,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const messageHeader = doc.getElementById("msgHeaderView") || doc.getElementById("messageHeader");
     const messagePaneBox = doc.getElementById("messagepanebox") || doc.getElementById("messagepane");
 
-    // Insert banner directly between the header card and the message body for maximum visibility
     if (messageHeader && messageHeader.parentNode) {
       messageHeader.parentNode.insertBefore(banner, messageHeader.nextSibling);
     } else if (messagePaneBox && messagePaneBox.parentNode) {
@@ -335,8 +531,51 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
   async _updateRecipientAvatars(win) {
     try {
       const doc = win.document;
-      const recipientBoxes = doc.querySelectorAll("#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox");
 
+      // 1. Sender Avatar in #expandedfromBox
+      const fromBox = doc.getElementById("expandedfromBox");
+      if (fromBox) {
+        const fromRec = fromBox.querySelector(".header-recipient, mail-emailaddress, [emailAddress], .email-address") || fromBox;
+        const rawFrom = fromRec.getAttribute("label") ||
+                        fromRec.getAttribute("displayName") ||
+                        fromRec.getAttribute("emailAddress") ||
+                        fromRec.getAttribute("title") ||
+                        fromRec.textContent || "";
+        const fromAvatar = fromBox.querySelector(".recipient-avatar");
+        if (fromAvatar && rawFrom) {
+          const avatarInfo = resolveAvatarInfo(rawFrom, (gravUrl) => {
+            fromAvatar.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
+            fromAvatar.style.removeProperty("--md-avatar-char");
+            fromAvatar.style.backgroundImage = `url("${gravUrl}")`;
+            fromAvatar.style.backgroundSize = "cover";
+            const span = fromAvatar.querySelector("span");
+            if (span) span.textContent = "";
+          });
+
+          fromAvatar.style.setProperty("--md-avatar-bg", avatarInfo.bg);
+          fromAvatar.style.setProperty("--md-avatar-fg", avatarInfo.fg);
+          fromAvatar.style.backgroundColor = avatarInfo.bg;
+          fromAvatar.style.color = avatarInfo.fg;
+
+          if (avatarInfo.type === "img") {
+            fromAvatar.style.setProperty("--md-avatar-img", `url("${avatarInfo.url}")`);
+            fromAvatar.style.removeProperty("--md-avatar-char");
+            fromAvatar.style.backgroundImage = `url("${avatarInfo.url}")`;
+            fromAvatar.style.backgroundSize = "cover";
+            const span = fromAvatar.querySelector("span");
+            if (span) span.textContent = "";
+          } else {
+            fromAvatar.style.removeProperty("--md-avatar-img");
+            fromAvatar.style.setProperty("--md-avatar-char", `"${avatarInfo.char}"`);
+            fromAvatar.style.backgroundImage = "none";
+            const span = fromAvatar.querySelector("span");
+            if (span) span.textContent = avatarInfo.char;
+          }
+        }
+      }
+
+      // 2. Recipient Boxes (Pour, Copie à, Copie cachée à, etc.)
+      const recipientBoxes = doc.querySelectorAll("#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox");
       recipientBoxes.forEach((box) => {
         const recipients = box.querySelectorAll(".header-recipient, mail-emailaddress, [emailAddress]");
         recipients.forEach((rec) => {
@@ -346,25 +585,34 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
                       rec.getAttribute("title") ||
                       rec.textContent || "";
           
-          const { displayName, email } = parseNameAndEmail(raw);
-          const resolvedString = displayName || email || "?";
-          const letter = getInitialLetter(resolvedString);
-          const hash = hashString((displayName || email || "").toLowerCase());
-          const palette = M3_AVATAR_PALETTES[hash % M3_AVATAR_PALETTES.length];
-
+          if (!raw) return;
           const btn = rec.querySelector(".recipient-address-book-button") ||
                       rec.querySelector(".recipient-avatar") ||
                       rec;
-          btn.style.setProperty("--md-avatar-char", `"${letter}"`);
-          btn.style.setProperty("--md-avatar-bg", palette.bg);
-          btn.style.setProperty("--md-avatar-fg", palette.fg);
+
+          const avatarInfo = resolveAvatarInfo(raw, (gravUrl) => {
+            btn.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
+            btn.style.removeProperty("--md-avatar-char");
+          });
+
+          btn.style.setProperty("--md-avatar-bg", avatarInfo.bg);
+          btn.style.setProperty("--md-avatar-fg", avatarInfo.fg);
+
+          if (avatarInfo.type === "img") {
+            btn.style.setProperty("--md-avatar-img", `url("${avatarInfo.url}")`);
+            btn.style.removeProperty("--md-avatar-char");
+          } else {
+            btn.style.removeProperty("--md-avatar-img");
+            btn.style.setProperty("--md-avatar-char", `"${avatarInfo.char}"`);
+          }
         });
       });
     } catch (e) {}
   }
 
   _setupMultimessageObserver(win, doc) {
-    if (!doc) return;
+    if (!doc || doc.__materialMultimessageObserved) return;
+    doc.__materialMultimessageObserved = true;
 
     const processItems = () => {
       const items = doc.querySelectorAll("#messageList > li");
@@ -377,19 +625,26 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         const authorEl = li.querySelector(".item-header .author");
         if (authorEl) {
           const rawText = (authorEl.getAttribute("title") || authorEl.textContent || "").trim();
-          const { displayName, email } = parseNameAndEmail(rawText);
-          const resolvedString = displayName || email || "?";
-          const letter = getInitialLetter(resolvedString);
-          const hash = hashString((displayName || email || "").toLowerCase());
-          const palette = M3_AVATAR_PALETTES[hash % M3_AVATAR_PALETTES.length];
+          if (!rawText) return;
 
-          // Directly style authorEl so .author::before receives crisp letter & tonal background
-          authorEl.style.setProperty("--author-char", `"${letter}"`);
-          authorEl.style.setProperty("--author-bg", palette.bg);
-          authorEl.style.setProperty("--author-fg", palette.fg);
-          authorEl.setAttribute("data-author", letter);
-          if (!authorEl.getAttribute("title") && rawText) {
+          const avatarInfo = resolveAvatarInfo(rawText, (gravUrl) => {
+            authorEl.style.setProperty("--author-img", `url("${gravUrl}")`);
+            authorEl.style.removeProperty("--author-char");
+          });
+
+          authorEl.style.setProperty("--author-bg", avatarInfo.bg);
+          authorEl.style.setProperty("--author-fg", avatarInfo.fg);
+          authorEl.setAttribute("data-author", avatarInfo.char || "A");
+          if (!authorEl.getAttribute("title")) {
             authorEl.setAttribute("title", rawText);
+          }
+
+          if (avatarInfo.type === "img") {
+            authorEl.style.setProperty("--author-img", `url("${avatarInfo.url}")`);
+            authorEl.style.removeProperty("--author-char");
+          } else {
+            authorEl.style.removeProperty("--author-img");
+            authorEl.style.setProperty("--author-char", `"${avatarInfo.char}"`);
           }
         }
       });
@@ -397,7 +652,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
     processItems();
 
-    const msgList = doc.getElementById("messageList");
+    const msgList = doc.getElementById("messageList") || doc.body;
     if (msgList) {
       const listObs = new win.MutationObserver(processItems);
       listObs.observe(msgList, { childList: true, subtree: true });
@@ -414,22 +669,32 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       let lastVisibleAnchor = null;
 
       rows.forEach((row) => {
-        // 1. Non-blocking Avatar Letter & Color Resolution
+        // 1. Unified Avatar Resolution
         if (!row.dataset.avatarResolved) {
           const cardContainer = row.querySelector(".card-container");
           const senderEl = row.querySelector(".sender");
           if (cardContainer && senderEl) {
             const senderText = senderEl.getAttribute("title") || senderEl.textContent || "";
-            const letter = getInitialLetter(senderText);
-            const hash = hashString(senderText.toLowerCase());
-            const palette = M3_AVATAR_PALETTES[hash % M3_AVATAR_PALETTES.length];
+            if (senderText) {
+              const avatarInfo = resolveAvatarInfo(senderText, (gravUrl) => {
+                cardContainer.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
+                cardContainer.style.removeProperty("--md-avatar-char");
+              });
 
-            cardContainer.style.setProperty("--md-avatar-char", `"${letter}"`);
-            cardContainer.style.setProperty("--md-avatar-bg", palette.bg);
-            cardContainer.style.setProperty("--md-avatar-fg", palette.fg);
+              cardContainer.style.setProperty("--md-avatar-bg", avatarInfo.bg);
+              cardContainer.style.setProperty("--md-avatar-fg", avatarInfo.fg);
 
-            row.classList.add("avatar-loaded");
-            row.dataset.avatarResolved = "true";
+              if (avatarInfo.type === "img") {
+                cardContainer.style.setProperty("--md-avatar-img", `url("${avatarInfo.url}")`);
+                cardContainer.style.removeProperty("--md-avatar-char");
+              } else {
+                cardContainer.style.removeProperty("--md-avatar-img");
+                cardContainer.style.setProperty("--md-avatar-char", `"${avatarInfo.char}"`);
+              }
+
+              row.classList.add("avatar-loaded");
+              row.dataset.avatarResolved = "true";
+            }
           }
         }
 

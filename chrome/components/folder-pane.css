@@ -197,3 +197,52 @@ li[is="folder-tree-row"]:is(.unread) > .container > .name,
   font-weight: 700 !important;
   color: var(--md-sys-color-primary) !important;
 }
+
+/* Subdued unread styling for Junk, Trash, and All Mail / Archives
+   Does NOT grab attention: removes bright blue text, removes blue pill background,
+   refines font weight and softens contrast */
+#folderTree li:is(
+  [data-folder-type="junk"],
+  [data-folder-type="trash"],
+  [data-folder-type="archive"],
+  [data-folder-type="archives"],
+  [data-properties~="specialFolder-Junk"],
+  [data-properties~="specialFolder-Trash"],
+  [data-properties~="specialFolder-Archive"],
+  :has(.name[title*="Indésirables" i]),
+  :has(.name[title*="Corbeille" i]),
+  :has(.name[title*="Tous les messages" i]),
+  :has(.name[title*="Junk" i]),
+  :has(.name[title*="Trash" i]),
+  :has(.name[title*="All Mail" i])
+):is(.unread, [data-properties~="unread"]) > .container > .name {
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  font-weight: 500 !important;
+}
+
+#folderTree li:is(
+  [data-folder-type="junk"],
+  [data-folder-type="trash"],
+  [data-folder-type="archive"],
+  [data-folder-type="archives"],
+  [data-properties~="specialFolder-Junk"],
+  [data-properties~="specialFolder-Trash"],
+  [data-properties~="specialFolder-Archive"],
+  :has(.name[title*="Indésirables" i]),
+  :has(.name[title*="Corbeille" i]),
+  :has(.name[title*="Tous les messages" i]),
+  :has(.name[title*="Junk" i]),
+  :has(.name[title*="Trash" i]),
+  :has(.name[title*="All Mail" i])
+) .unread-count {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-outline, #747775) !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  padding: 0 4px !important;
+  box-shadow: none !important;
+  border: none !important;
+  opacity: 0.8 !important;
+}
+
