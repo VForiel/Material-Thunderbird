@@ -7,10 +7,14 @@
     etaient deux copies manuelles du theme, qui avaient diverge sur pres de la
     moitie de leurs regles. Il n existe plus qu une source : chrome/.
 
+    Les couleurs de theme de manifest.json sont elles aussi derivees de
+    chrome/tokens/ : voir scripts/theme-colors.ps1.
+
     Les chemins internes du .xpi utilisent des barres obliques, conformement a la
     specification.
 #>
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "theme-colors.ps1")
 
 $ProjectRoot = (Get-Item (Join-Path $PSScriptRoot "..")).FullName
 $ChromeDir = Join-Path $ProjectRoot "chrome"
@@ -18,6 +22,7 @@ $ExtensionDir = Join-Path $ProjectRoot "extension"
 $DistDir = Join-Path $ProjectRoot "dist"
 $OutputFile = Join-Path $DistDir "material-thunderbird.xpi"
 $GeneratedCss = Join-Path $ExtensionDir "material-theme.css"
+$ManifestFile = Join-Path $ExtensionDir "manifest.json"
 
 # Meme ordre que les @import de chrome/userChrome.css : les jetons d abord,
 # puis les composants, extras.css en dernier.
@@ -69,6 +74,14 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($GeneratedCss, $sb.ToString(), $utf8NoBom)
 $lineCount = ([System.IO.File]::ReadAllLines($GeneratedCss)).Length
 Write-Host "    $($Sources.Count) sources -> $lineCount lignes" -ForegroundColor DarkGray
+
+Write-Host "[*] Synchronisation des couleurs de theme de manifest.json..." -ForegroundColor Cyan
+$themeChanged = Update-ManifestThemeColors -ManifestPath $ManifestFile -ChromeDir $ChromeDir
+if ($themeChanged -gt 0) {
+    Write-Host "    $themeChanged couleur(s) alignee(s) sur chrome/tokens/" -ForegroundColor DarkGray
+} else {
+    Write-Host "    deja a jour" -ForegroundColor DarkGray
+}
 
 Write-Host "[*] Packaging Material-Thunderbird Extension (.xpi)..." -ForegroundColor Cyan
 

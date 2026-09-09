@@ -108,6 +108,7 @@ Material-Thunderbird/
 │       └── extras.css             # Règles complémentaires, chargées en dernier
 ├── extension/                     # Sources de l'extension WebExtension
 │   ├── manifest.json              # Déclaration du thème et theme_experiment
+│   │                              # (couleurs de thème générées depuis chrome/tokens/)
 │   ├── material-theme.css         # GÉNÉRÉ depuis chrome/ par scripts/build.ps1
 │   ├── background.js              # Script d'arrière-plan et enregistrement d'APIs
 │   ├── shared/                    # Code partagé par les trois contextes
@@ -119,6 +120,7 @@ Material-Thunderbird/
 ├── scripts/                       # Outils d'automatisation
 │   ├── install.bat                # Lanceur d'installation double-clic (Windows)
 │   ├── install.ps1                # Script PowerShell d'installation automatique
+│   ├── theme-colors.ps1           # Report de la palette dans manifest.json
 │   ├── uninstall.bat              # Lanceur de désinstallation (Windows)
 │   ├── uninstall.ps1              # Script PowerShell de restauration
 │   └── build.ps1                  # Script de génération du package .xpi
