@@ -354,31 +354,41 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     win.__materialWindowState = null;
     if (!state) return;
 
+    if (state.tabmail && state.tabMonitor) {
+      try { state.tabmail.unregisterTabMonitor(state.tabMonitor); } catch (e) {}
+    }
+
     for (const observer of state.observers) {
       try { observer.disconnect(); } catch (e) {}
     }
-    for (const timer of state.timers) {
-      try { win.clearTimeout(timer); } catch (e) {}
+    // Les minuteurs appartiennent a la fenetre qui les a poses : about:message
+    // a la sienne, et clearTimeout de la fenetre chrome ne les annulerait pas.
+    for (const [timerWin, id] of state.timers) {
+      try { timerWin.clearTimeout(id); } catch (e) {}
     }
     for (const [target, type, handler, capture] of state.listeners) {
       try { target.removeEventListener(type, handler, capture); } catch (e) {}
     }
 
-    // Retire les elements injectes dans interface de Thunderbird.
-    try {
-      this._removeUnsubscribeBanner(win);
-      const doc = win.document;
-      for (const row of doc.querySelectorAll("tr.material-thread-toggle-row")) {
-        row.remove();
-      }
-      for (const row of doc.querySelectorAll(".material-thread-read-hidden")) {
-        row.classList.remove("material-thread-read-hidden");
-      }
-      for (const row of doc.querySelectorAll("[data-avatar-key]")) {
-        delete row.dataset.avatarKey;
-        row.classList.remove("avatar-loaded");
-      }
-    } catch (e) {}
+    // Retire les elements injectes, dans chacun des sous-documents visites.
+    try { this._removeUnsubscribeBanner(win); } catch (e) {}
+    for (const doc of state.documents) {
+      try {
+        delete doc.__materialAbout3PaneSetup;
+        delete doc.__materialAboutMessageSetup;
+        delete doc.__materialMultimessageObserved;
+        for (const row of doc.querySelectorAll("tr.material-thread-toggle-row")) {
+          row.remove();
+        }
+        for (const row of doc.querySelectorAll(".material-thread-read-hidden")) {
+          row.classList.remove("material-thread-read-hidden");
+        }
+        for (const row of doc.querySelectorAll("[data-avatar-key]")) {
+          delete row.dataset.avatarKey;
+          row.classList.remove("avatar-loaded");
+        }
+      } catch (e) {}
+    }
   }
 
   _initWindows() {
@@ -389,83 +399,210 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }
   }
 
+  /**
+   * Depuis Supernova (115), la fenetre mail:3pane ne contient plus l interface
+   * courrier : elle porte un tabmail, et chaque onglet courrier charge about:3pane
+   * (liste des messages, #threadTree, #multiMessageBrowser) qui charge a son tour
+   * about:message (#messageHeader, #expandedfromBox, #messagepane) -- trois
+   * documents distincts.
+   *
+   * Tout ce qui suit cherchait ses elements dans le document de la fenetre, ou
+   * aucun d eux n existe : les quatre points d accroche retournaient null et
+   * aucune fonction de ce module ne s executait. Les avatars restaient des
+   * cercles gris vides, le repli des fils lus ne se declenchait jamais, et le
+   * bandeau de desinscription etait construit puis abandonne faute de point
+   * d insertion. Le theme paraissait correct parce que userChrome.css, lui,
+   * s applique bien a ces sous-documents.
+   *
+   * On passe donc par le tabmail, et on se raccroche a chaque changement
+   * d onglet : chaque onglet courrier a ses propres documents.
+   */
   _setupWindow(win) {
     if (!win || !win.document || win.__materialWindowSetup) return;
     win.__materialWindowSetup = true;
 
-    // Tout ce qui est accroche ici est enregistre pour pouvoir etre relache
-    // dans _teardownWindow.
-    const state = { observers: [], timers: [], listeners: [] };
+    // Tout ce qui est accroche ici est enregistre pour pouvoir etre relache dans
+    // _teardownWindow. documents retient les sous-documents visites, dont les
+    // elements injectes doivent eux aussi etre retires.
+    const state = { observers: [], timers: [], listeners: [], documents: [] };
     win.__materialWindowState = state;
 
+    const tabmail = win.document.getElementById("tabmail");
+    if (!tabmail) return;
+    state.tabmail = tabmail;
+
+    const monitor = {
+      monitorName: "materialAssistant",
+      onTabSwitched: () => this._attachToCurrentTab(win),
+      onTabOpened: () => this._attachToCurrentTab(win),
+      onTabRestored: () => this._attachToCurrentTab(win),
+      // tabmail appelle onTabTitleChanged sans garde : la methode doit exister.
+      onTabTitleChanged: () => {},
+      onTabClosing: () => {},
+      onTabPersist: () => null
+    };
+    tabmail.registerTabMonitor(monitor);
+    state.tabMonitor = monitor;
+
+    this._attachToCurrentTab(win);
+  }
+
+  /**
+   * Accroche les documents de l onglet courant. Sans effet si l onglet n est pas
+   * un onglet courrier ; chaque document porte un drapeau, donc rappeler cette
+   * methode a chaque changement d onglet ne double aucune accroche.
+   */
+  _attachToCurrentTab(win) {
+    const state = win.__materialWindowState;
+    if (!state || !state.tabmail) return;
+
+    let about3Pane = null;
+    try { about3Pane = state.tabmail.currentAbout3Pane; } catch (e) {}
+    if (about3Pane) this._setupAbout3Pane(win, about3Pane);
+
+    let aboutMessage = null;
+    try { aboutMessage = state.tabmail.currentAboutMessage; } catch (e) {}
+    if (aboutMessage) this._setupAboutMessage(win, aboutMessage);
+  }
+
+  _rememberDocument(win, doc) {
+    const state = win.__materialWindowState;
+    if (state && !state.documents.includes(doc)) state.documents.push(doc);
+  }
+
+  /**
+   * about:3pane : liste des messages et vue multi-messages. Les navigateurs
+   * imbriques restent masques tant qu aucun message n est selectionne, d ou les
+   * ecouteurs de chargement plutot qu une seule passe.
+   */
+  _setupAbout3Pane(win, win3) {
+    const doc = win3.document;
+    if (!doc || doc.__materialAbout3PaneSetup) return;
+
+    const state = win.__materialWindowState;
     const listen = (target, type, handler, capture) => {
       target.addEventListener(type, handler, capture);
-      state.listeners.push([target, type, handler, capture]);
+      if (state) state.listeners.push([target, type, handler, capture]);
     };
-    const observe = (target, handler, options) => {
-      const observer = new win.MutationObserver(handler);
-      observer.observe(target, options);
-      state.observers.push(observer);
-      return observer;
-    };
-    // Un seul minuteur en vol par cle : les rafales de mutations en programmaient
-    // un par lot, sans jamais les annuler.
-    const timers = new Map();
-    const debounce = (key, delay, fn) => {
-      if (timers.has(key)) win.clearTimeout(timers.get(key));
-      const id = win.setTimeout(() => { timers.delete(key); fn(); }, delay);
-      timers.set(key, id);
-      state.timers.push(id);
-    };
-    state.debounce = debounce;
 
-    // 1. Volet de lecture : desinscription et avatars des destinataires.
-    const messagePane = win.document.getElementById("messagepane");
-    if (messagePane) {
-      const handleMessageLoaded = () => {
-        this._updateRecipientAvatars(win);
-      };
-      listen(messagePane, "load", handleMessageLoaded, true);
-      listen(messagePane, "DOMContentLoaded", handleMessageLoaded, true);
+    // about3Pane.js clone son <template> et ne publie messageBrowser et
+    // multiMessageBrowser qu au cours de son initialisation. Le moniteur
+    // d onglets nous appelle des le demarrage, donc parfois avant : on
+    // repasserait alors a cote des deux navigateurs, sans jamais y revenir
+    // puisque le drapeau serait deja pose.
+    if (doc.readyState !== "complete") {
+      listen(win3, "load", () => this._setupAbout3Pane(win, win3), true);
+      return;
     }
 
-    // 2. En-tete du message.
-    const msgHeaderView = win.document.getElementById("msgHeaderView") || win.document.getElementById("messageHeader");
-    if (msgHeaderView) {
-      observe(msgHeaderView, () => {
-        debounce("header", 50, () => this._updateRecipientAvatars(win));
-      }, { childList: true, subtree: true });
-    }
+    doc.__materialAbout3PaneSetup = true;
+    this._rememberDocument(win, doc);
 
-    // 3. Vue multi-messages.
-    const hookMultimessage = () => {
-      const multiBrowsers = win.document.querySelectorAll("#multiMessageBrowser, #multimessage, browser[src*='multimessageview']");
-      multiBrowsers.forEach((browser) => {
-        const attach = () => {
-          try {
-            if (browser.contentDocument) {
-              this._setupMultimessageObserver(win, browser.contentDocument);
-            }
-          } catch (e) {}
-        };
-        listen(browser, "load", attach, true);
-        listen(browser, "DOMContentLoaded", attach, true);
-        attach();
-      });
-    };
-    hookMultimessage();
-    listen(win, "select", () => debounce("multimessage", 100, hookMultimessage), true);
-
-    this._setupMultimessageObserver(win, win.document);
-
-    // 4. Liste des messages : avatars et repli des fils.
-    const threadTree = win.document.getElementById("threadTree") || win.document.querySelector("table#threadTree");
+    const threadTree = doc.getElementById("threadTree");
     if (threadTree) {
-      this._setupThreadTree(win, threadTree);
+      // Les observateurs et le cadencement doivent venir de la fenetre qui
+      // possede l arbre, pas de la fenetre chrome exterieure.
+      this._setupThreadTree(win3, threadTree, state);
+    }
+
+    // La vue multi-messages se charge a la premiere selection multiple.
+    const multiBrowser = win3.multiMessageBrowser || doc.getElementById("multiMessageBrowser");
+    if (multiBrowser) {
+      const attachMulti = () => {
+        try {
+          if (multiBrowser.contentDocument) {
+            this._setupMultimessageObserver(win3, multiBrowser.contentDocument, state);
+            this._rememberDocument(win, multiBrowser.contentDocument);
+          }
+        } catch (e) {}
+      };
+      listen(multiBrowser, "load", attachMulti, true);
+      attachMulti();
+    }
+
+    // about:message n existe pas tant qu aucun message n est affiche.
+    const messageBrowser = win3.messageBrowser || doc.getElementById("messageBrowser");
+    if (messageBrowser) {
+      const attachMessage = () => {
+        try {
+          if (messageBrowser.contentWindow) {
+            this._setupAboutMessage(win, messageBrowser.contentWindow);
+          }
+        } catch (e) {}
+      };
+      listen(messageBrowser, "load", attachMessage, true);
+      attachMessage();
     }
   }
 
-  _renderUnsubscribeBanner(win, unsubscribeUrl, senderName) {
+  /**
+   * about:message : en-tete du message, avatars de l expediteur et des
+   * destinataires. C est aussi le document qui recoit le bandeau de
+   * desinscription.
+   */
+  _setupAboutMessage(win, winMsg) {
+    const doc = winMsg.document;
+    if (!doc || doc.__materialAboutMessageSetup) return;
+
+    const state = win.__materialWindowState;
+
+    // Meme precaution que pour about:3pane : l en-tete du message n existe
+    // pas encore tant que le document n est pas charge.
+    if (doc.readyState !== "complete") {
+      const onLoad = () => this._setupAboutMessage(win, winMsg);
+      winMsg.addEventListener("load", onLoad, true);
+      if (state) state.listeners.push([winMsg, "load", onLoad, true]);
+      return;
+    }
+
+    doc.__materialAboutMessageSetup = true;
+    this._rememberDocument(win, doc);
+    const timers = new Map();
+    const debounce = (key, delay, fn) => {
+      if (timers.has(key)) winMsg.clearTimeout(timers.get(key));
+      const id = winMsg.setTimeout(() => { timers.delete(key); fn(); }, delay);
+      timers.set(key, id);
+      if (state) state.timers.push([winMsg, id]);
+    };
+
+    const header = doc.getElementById("messageHeader") || doc.getElementById("msgHeaderView");
+    if (header) {
+      const observer = new winMsg.MutationObserver(() => {
+        debounce("header", 50, () => this._updateRecipientAvatars(winMsg));
+      });
+      observer.observe(header, { childList: true, subtree: true });
+      if (state) state.observers.push(observer);
+    }
+
+    this._updateRecipientAvatars(winMsg);
+  }
+
+  /**
+   * Fenetre about:message associee a une fenetre chrome. L en-tete du message et
+   * le volet de lecture vivent la, jamais dans le document de la fenetre.
+   */
+  _aboutMessageWindow(win) {
+    if (!win || !win.document) return null;
+    // Deja une fenetre about:message.
+    try {
+      if (win.document.getElementById("messageHeader")) return win;
+    } catch (e) {}
+    // Fenetre 3 panneaux : l onglet courant repond pour son propre document.
+    try {
+      const tabmail = win.document.getElementById("tabmail");
+      if (tabmail && tabmail.currentAboutMessage) return tabmail.currentAboutMessage;
+    } catch (e) {}
+    // Fenetre de message autonome : un seul navigateur about:message.
+    try {
+      const browser = win.document.getElementById("messageBrowser");
+      if (browser && browser.contentWindow) return browser.contentWindow;
+    } catch (e) {}
+    return null;
+  }
+
+  _renderUnsubscribeBanner(chromeWin, unsubscribeUrl, senderName) {
+    const win = this._aboutMessageWindow(chromeWin);
+    if (!win) return;
     const doc = win.document;
     let banner = doc.getElementById("material-unsubscribe-banner");
     if (!banner) {
@@ -556,10 +693,15 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       }
 
       try {
-        if (typeof win.openContentTab === "function") {
-          win.openContentTab(unsubscribeUrl);
-        } else if (typeof win.openURL === "function") {
-          win.openURL(unsubscribeUrl);
+        // Le bandeau vit dans about:message, qui n a pas de fonction de
+        // navigation : msgHdrView.js passe lui aussi par top pour ouvrir ses
+        // liens. Sans cela on retombait sur le service de protocole externe et
+        // le lien partait dans le navigateur du systeme.
+        const host = win.top || win;
+        if (typeof host.openContentTab === "function") {
+          host.openContentTab(unsubscribeUrl);
+        } else if (typeof host.openURL === "function") {
+          host.openURL(unsubscribeUrl);
         } else {
           const uri = Services.io.newURI(unsubscribeUrl);
           const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
@@ -605,7 +747,9 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }
   }
 
-  _removeUnsubscribeBanner(win) {
+  _removeUnsubscribeBanner(chromeWin) {
+    const win = this._aboutMessageWindow(chromeWin);
+    if (!win) return;
     const banner = win.document.getElementById("material-unsubscribe-banner");
     if (banner) {
       banner.remove();
@@ -694,9 +838,14 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     } catch (e) {}
   }
 
-  _setupMultimessageObserver(win, doc) {
+  // doc est le document de la vue multi-messages, dans son propre navigateur :
+  // MutationObserver et requestAnimationFrame viennent de sa fenetre a lui.
+  // win ne sert plus qu au calcul des avatars ; state est celui de la fenetre
+  // chrome, ou l observateur est enregistre pour le demontage.
+  _setupMultimessageObserver(win, doc, state) {
     if (!doc || doc.__materialMultimessageObserved) return;
     doc.__materialMultimessageObserved = true;
+    const view = doc.defaultView || win;
 
     const processItems = () => {
       const items = doc.querySelectorAll("#messageList > li");
@@ -742,10 +891,10 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       // frame suivante et l observateur est suspendu pendant son execution.
       let pending = false;
       let applying = false;
-      const listObs = new win.MutationObserver(() => {
+      const listObs = new view.MutationObserver(() => {
         if (pending || applying) return;
         pending = true;
-        win.requestAnimationFrame(() => {
+        view.requestAnimationFrame(() => {
           pending = false;
           applying = true;
           try { processItems(); } finally { applying = false; }
@@ -753,12 +902,13 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       });
       listObs.observe(msgList, { childList: true, subtree: true });
 
-      const state = win.__materialWindowState;
       if (state) state.observers.push(listObs);
     }
   }
 
-  _setupThreadTree(win, threadTree) {
+  // win est la fenetre about:3pane qui possede l arbre ; state celui de la
+  // fenetre chrome.
+  _setupThreadTree(win, threadTree, state) {
     const processRows = () => {
       const rows = threadTree.querySelectorAll("tr.card-layout");
       let currentParent = null;
@@ -898,7 +1048,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       attributeFilter: ["aria-expanded", "class", "data-properties"]
     });
 
-    const state = win.__materialWindowState;
     if (state) state.observers.push(treeObserver);
 
     runProcessRows();
