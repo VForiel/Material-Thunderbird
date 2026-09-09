@@ -4975,13 +4975,30 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   height: auto !important;
 }
 
-#threadTree tr.card-layout.children .card-container,
-#threadTree tr.card-layout:has(button.twisty) .card-container,
-#threadTree tr.card-layout[aria-expanded] .card-container {
+/* Cartes de reponse (messages enfants d'un fil deploye) : volontairement
+   compactes, elles s'alignent sous la carte parente. */
+#threadTree tr.card-layout.children .card-container {
   min-block-size: 46px !important;
   max-block-size: none !important;
   margin: 2px 6px !important;
   padding-block: 2px 3px !important;
+  padding-inline-start: 10px !important;
+  padding-inline-end: 8px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Cartes de fil (parent portant le bouton de repli).
+   Elles partagent la respiration des cartes simples au lieu du gabarit
+   compact ci-dessus : la regle englobait aussi les parents, dont le nom
+   d'expediteur se retrouvait colle au bord superieur de la carte.
+   La marge haute est legerement superieure a la basse, la pastille
+   "N reponses" apportant deja de l'air en bas. */
+#threadTree tr.card-layout:not(.children):is(:has(button.twisty), [aria-expanded]) .card-container {
+  min-block-size: 54px !important;
+  max-block-size: none !important;
+  margin: 3px 6px !important;
+  padding-block: 9px 7px !important;
   padding-inline-start: 10px !important;
   padding-inline-end: 8px !important;
   box-sizing: border-box !important;
