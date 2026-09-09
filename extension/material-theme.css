@@ -61,7 +61,11 @@
 :root,
 :root[lwt-theme-brighttext="false"] {
   /* Primary & Containers */
-  --md-sys-color-primary: #1a73e8;
+  /* #0b57d0 est la valeur employee partout ailleurs : repli des var() dans les
+     composants, theme de manifest.json et guide de personnalisation. Seule cette
+     definition disait encore #1a73e8, ce qui donnait deux bleus dans interface. */
+  --md-sys-color-primary: #0b57d0;
+  --md-sys-color-primary-hover: #0842a0;
   --md-sys-color-on-primary: #ffffff;
   --md-sys-color-primary-container: #d3e3fd;
   --md-sys-color-on-primary-container: #041e49;
@@ -209,6 +213,7 @@
   :root:not([lwt-theme-brighttext="false"]) {
     /* Primary & Containers */
     --md-sys-color-primary: #a8c7fa;
+    --md-sys-color-primary-hover: #c2e7ff;
     --md-sys-color-on-primary: #00315b;
     --md-sys-color-primary-container: #004a77;
     --md-sys-color-on-primary-container: #c2e7ff;
@@ -307,6 +312,7 @@
 :root[lwt-theme-brighttext="true"] {
   /* Primary & Containers */
   --md-sys-color-primary: #a8c7fa;
+  --md-sys-color-primary-hover: #c2e7ff;
   --md-sys-color-on-primary: #00315b;
   --md-sys-color-primary-container: #004a77;
   --md-sys-color-on-primary-container: #c2e7ff;
@@ -1064,7 +1070,7 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
-  background-color: #0B57D0 !important;
+  background-color: var(--md-sys-color-primary, #0B57D0) !important;
   color: #FFFFFF !important;
   border-color: transparent !important;
   box-shadow: 0 1px 2px rgba(11, 87, 208, 0.3) !important;
@@ -1086,13 +1092,13 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover,
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button:hover,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover {
-  background-color: #0842a0 !important;
+  background-color: var(--md-sys-color-primary-hover, #0842A0) !important;
   color: #FFFFFF !important;
 }
 
 tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
-  background-color: #0B57D0 !important;
+  background-color: var(--md-sys-color-primary, #0B57D0) !important;
   color: #FFFFFF !important;
 }
 
@@ -1745,7 +1751,7 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 }
 
 #material-unsubscribe-banner .material-unsub-btn:hover {
-  background-color: #0842a0 !important;
+  background-color: var(--md-sys-color-primary-hover, #0842A0) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
   transform: translateY(-1px) !important;
 }
@@ -4337,13 +4343,13 @@ body:has(#messageList),
 }
 
 #button-send:hover {
-  background-color: #0842a0 !important;
+  background-color: var(--md-sys-color-primary-hover, #0842A0) !important;
   box-shadow: 0 3px 6px rgba(11, 87, 208, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15) !important;
   transform: translateY(-1px) !important;
 }
 
 #button-send:active {
-  background-color: #0b57d0 !important;
+  background-color: var(--md-sys-color-primary, #0B57D0) !important;
   transform: translateY(0) !important;
   box-shadow: 0 1px 2px rgba(11, 87, 208, 0.3) !important;
 }

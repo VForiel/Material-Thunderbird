@@ -14,6 +14,7 @@
   :root:not([lwt-theme-brighttext="false"]) {
     /* Primary & Containers */
     --md-sys-color-primary: #a8c7fa;
+    --md-sys-color-primary-hover: #c2e7ff;
     --md-sys-color-on-primary: #00315b;
     --md-sys-color-primary-container: #004a77;
     --md-sys-color-on-primary-container: #c2e7ff;
@@ -112,6 +113,7 @@
 :root[lwt-theme-brighttext="true"] {
   /* Primary & Containers */
   --md-sys-color-primary: #a8c7fa;
+  --md-sys-color-primary-hover: #c2e7ff;
   --md-sys-color-on-primary: #00315b;
   --md-sys-color-primary-container: #004a77;
   --md-sys-color-on-primary-container: #c2e7ff;

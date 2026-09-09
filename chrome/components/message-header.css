@@ -344,7 +344,7 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 }
 
 #material-unsubscribe-banner .material-unsub-btn:hover {
-  background-color: #0842a0 !important;
+  background-color: var(--md-sys-color-primary-hover, #0842A0) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
   transform: translateY(-1px) !important;
 }

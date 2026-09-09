@@ -14,7 +14,11 @@
 :root,
 :root[lwt-theme-brighttext="false"] {
   /* Primary & Containers */
-  --md-sys-color-primary: #1a73e8;
+  /* #0b57d0 est la valeur employee partout ailleurs : repli des var() dans les
+     composants, theme de manifest.json et guide de personnalisation. Seule cette
+     definition disait encore #1a73e8, ce qui donnait deux bleus dans interface. */
+  --md-sys-color-primary: #0b57d0;
+  --md-sys-color-primary-hover: #0842a0;
   --md-sys-color-on-primary: #ffffff;
   --md-sys-color-primary-container: #d3e3fd;
   --md-sys-color-on-primary-container: #041e49;
