@@ -16,9 +16,7 @@
   },
   "permissions": [
     "messagesRead",
-    "messagesModify",
     "messageDisplayScripts",
-    "activeTab",
     "tabs"
   ],
   "background": {
