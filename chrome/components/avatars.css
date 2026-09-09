@@ -447,9 +447,10 @@ tr.card-layout:is(:has(.sender[title^="0"]), :has(.sender[title^="\"0"]), :has(.
 
 /* ==========================================================================
    4. DYNAMIC TONAL COLOR RESOLUTION (Non-blocking Asynchronous)
-   High-entropy palette assignment and sender hashing is performed
-   asynchronously by extension/scripts/thread-assistant.js during idle frames
-   so that rendering is never blocked, with instantaneous placeholder fallback!
+   Le choix de la palette et le hachage de l'expediteur sont effectues par
+   extension/experiments/material-assistant.js, qui renseigne les proprietes
+   --md-avatar-* ci-dessous. Le rendu n'est jamais bloque : l'initiale coloree
+   s'affiche immediatement.
    ========================================================================== */
 
 /* Subtle smooth transition when avatar custom property is resolved */

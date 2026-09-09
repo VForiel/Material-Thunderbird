@@ -105,9 +105,10 @@ Material-Thunderbird/
 │   ├── manifest.json              # Déclaration du thème et theme_experiment
 │   ├── material-theme.css         # Feuille de style injectée
 │   ├── background.js              # Script d'arrière-plan et enregistrement d'APIs
+│   ├── shared/                    # Code partagé par les trois contextes
+│   │   └── unsubscribe-rules.js   # Règles de détection de désinscription
 │   ├── scripts/                   # Scripts d'assistance non-bloquants
-│   │   ├── unsubscribe-detector.js # Détection intelligente de désinscription
-│   │   └── thread-assistant.js    # Puce de réponse non lue et résolution d'avatars
+│   │   └── unsubscribe-detector.js # Analyse du message affiché
 │   └── icons/                     # Icône de l'extension au format SVG
 │       └── icon.svg
 ├── scripts/                       # Outils d'automatisation
