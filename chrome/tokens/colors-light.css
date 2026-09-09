@@ -4,9 +4,15 @@
  * Reference: https://m3.material.io/styles/color/the-color-system/tokens
  */
 
+/**
+ * Specificite : ces selecteurs doivent rester moins specifiques que ceux de
+ * colors-dark.css, sinon le bloc @media (prefers-color-scheme: dark) ne s applique
+ * jamais. Une media query n ajoute aucune specificite : `:root` y vaut 0-1-0.
+ * `:root` (0-1-0)                      -> base, battue par le bloc sombre
+ * `:root[lwt-theme-brighttext="false"]` (0-2-0) -> Thunderbird impose un theme clair
+ */
 :root,
-:root[lwt-theme-brighttext="false"],
-:root:not([lwt-theme-brighttext="true"]) {
+:root[lwt-theme-brighttext="false"] {
   /* Primary & Containers */
   --md-sys-color-primary: #1a73e8;
   --md-sys-color-on-primary: #ffffff;

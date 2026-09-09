@@ -70,5 +70,35 @@
       "button_background_hover": "rgba(11, 87, 208, 0.08)",
       "button_background_active": "rgba(11, 87, 208, 0.16)"
     }
+  },
+  "dark_theme": {
+    "colors": {
+      "frame": "#111315",
+      "frame_inactive": "#0C0E10",
+      "tab_selected": "#1D2023",
+      "tab_text": "#A8C7FA",
+      "tab_background_text": "#C4C7C5",
+      "tab_line": "#A8C7FA",
+      "toolbar": "#191C1E",
+      "toolbar_text": "#E2E2E5",
+      "toolbar_field": "#272A2D",
+      "toolbar_field_text": "#E2E2E5",
+      "toolbar_field_border": "transparent",
+      "toolbar_top_separator": "transparent",
+      "toolbar_bottom_separator": "#444746",
+      "icons": "#C4C7C5",
+      "icons_attention": "#A8C7FA",
+      "popup": "#1D2023",
+      "popup_text": "#E2E2E5",
+      "popup_border": "#444746",
+      "popup_highlight": "#004B72",
+      "popup_highlight_text": "#C7E7FF",
+      "sidebar": "#191C1E",
+      "sidebar_text": "#E2E2E5",
+      "sidebar_highlight": "#004B72",
+      "sidebar_highlight_text": "#C7E7FF",
+      "button_background_hover": "rgba(168, 199, 250, 0.08)",
+      "button_background_active": "rgba(168, 199, 250, 0.16)"
+    }
   }
 }

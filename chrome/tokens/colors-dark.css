@@ -4,8 +4,14 @@
  * Reference: https://m3.material.io/styles/color/the-color-system/tokens
  */
 
+/**
+ * `:root:not([lwt-theme-brighttext="false"])` vaut 0-2-0 et bat donc le `:root` de
+ * colors-light.css (0-1-0) lorsque le systeme est en mode sombre. Un simple `:root`
+ * ici serait a egalite et perdrait par ordre de declaration, ce qui rendait tout ce
+ * bloc inoperant. Le selecteur ne matche pas quand Thunderbird impose un theme clair.
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([lwt-theme-brighttext="false"]) {
     /* Primary & Containers */
     --md-sys-color-primary: #a8c7fa;
     --md-sys-color-on-primary: #00315b;
