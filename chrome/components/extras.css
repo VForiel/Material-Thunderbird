@@ -1,0 +1,491 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Regles complementaires
+ *
+ * Ces regles n'existaient que dans la feuille de l'extension. Elles sont desormais
+ * partagees par les deux modes d'installation : le profil chrome/ les charge via
+ * userChrome.css, et scripts/build.ps1 les concatene dans material-theme.css.
+ *
+ * Chargees en dernier : elles completent les composants sans les redefinir.
+ */
+
+window, #messengerWindow, body {
+  font-family: var(--md-sys-font-family) !important;
+  background-color: var(--md-surface) !important;
+  color: var(--md-on-surface) !important;
+}
+
+#folderPane, #folderTree {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+  border-right: none !important;
+  border-inline-end: none !important;
+}
+
+#folderTree li.selected > .container :is(.name) {
+  color: var(--md-on-secondary-container) !important;
+}
+
+.folder-count-badge, .unread-count {
+  background-color: var(--md-primary-container) !important;
+  color: var(--md-on-primary-container) !important;
+  border-radius: var(--md-shape-full) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  padding: 3px 8px !important;
+}
+
+.list-header-bar-container-end .button,
+#threadPaneQuickFilterButton,
+#threadPaneDisplayButton {
+  border-radius: var(--md-shape-full) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  color: var(--md-on-surface-variant) !important;
+  padding: 4px 10px !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+.list-header-bar-container-end .button:hover,
+#threadPaneQuickFilterButton:hover,
+#threadPaneDisplayButton:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+}
+
+#threadTree .card-container {
+  border-radius: var(--md-shape-medium) !important;
+  background-color: var(--md-surface-lowest) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  margin: 3px 6px !important;
+  transition: background-color var(--md-motion-short), box-shadow var(--md-motion-short) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container,
+#threadTree tr.card-layout[aria-selected="true"] .card-container {
+  background-color: var(--md-secondary-container) !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container :is(.sender, .subject) {
+  color: var(--md-on-secondary-container) !important;
+}
+
+#threadTree tr.card-layout.selected .card-container .date {
+  color: var(--md-on-secondary-container) !important;
+  opacity: 0.8 !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .recipient-avatar {
+  display: none !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button {
+  order: -1 !important;
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  min-inline-size: 20px !important;
+  min-block-size: 20px !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  background-color: var(--md-avatar-bg, var(--md-surface-high, #e0e2ec)) !important;
+  color: var(--md-avatar-fg, var(--md-on-surface, #1f1f1f)) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-inline-end: 6px !important;
+  margin-inline-start: 0 !important;
+  position: relative !important;
+  
+  background-image: var(--md-avatar-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 13px 13px !important;
+  transition: background-color var(--md-motion-short), transform 150ms ease !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button:is([style*="--md-avatar-char"], [style*="--md-avatar-img"]) {
+  background-image: var(--md-avatar-img, none) !important;
+  background-size: cover !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button[style*="--md-avatar-char"]::before {
+  content: var(--md-avatar-char, "") !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  color: inherit !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button:hover {
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+  transform: scale(1.08) !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button * {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button:hover {
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+  transform: scale(1.08) !important;
+}
+
+#mail-notification-top,
+.notificationbox-stack {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+search-bar:focus-within,
+#unifiedToolbar search-bar:focus-within,
+#search-bar:focus-within {
+  background-color: var(--md-surface-lowest) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+#tabs-toolbar,
+#tabmail-tabs {
+  background-color: var(--md-surface-low) !important;
+  border-bottom: none !important;
+}
+
+#previousViewButton,
+#nextViewButton,
+.today-navigation-button:not(#todayViewButton),
+#calendarControlBarMenu {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-surface-high) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-width: 32px !important;
+  min-height: 30px !important;
+  padding: 4px 10px !important;
+  margin: 0 2px !important;
+  cursor: pointer !important;
+}
+
+#previousViewButton:hover,
+#nextViewButton:hover,
+.today-navigation-button:not(#todayViewButton):hover,
+#calendarControlBarMenu:hover {
+  background-color: var(--md-state-hover) !important;
+  color: var(--md-primary) !important;
+}
+
+#todayViewButton,
+.today-navigation-button#todayViewButton {
+  border-radius: var(--md-shape-full) !important;
+  background-color: var(--md-primary-container) !important;
+  color: var(--md-on-primary-container) !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-width: 34px !important;
+  min-height: 30px !important;
+  padding: 4px 12px !important;
+  margin: 0 2px !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+}
+
+#todayViewButton:hover,
+.today-navigation-button#todayViewButton:hover {
+  background-color: var(--md-primary) !important;
+  color: var(--md-on-primary) !important;
+}
+
+.view-header {
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--md-on-surface) !important;
+}
+
+#calendar-view-box,
+#view-box,
+calendar-month-view,
+calendar-week-view,
+calendar-day-view {
+  background-color: var(--md-surface) !important;
+  color: var(--md-on-surface) !important;
+}
+
+.calview-toggle-item[role="tab"][aria-selected="true"],
+.calview-toggle-item.selected {
+  background-color: var(--md-secondary-container) !important;
+  color: var(--md-on-secondary-container) !important;
+  font-weight: 600 !important;
+}
+
+calendar-event-box,
+calendar-month-day-box-item,
+.calendar-color-box,
+.calendar-item-container {
+  border-radius: var(--md-shape-small) !important;
+  box-shadow: var(--md-elevation-1) !important;
+  font-family: var(--md-sys-font-family) !important;
+  border: none !important;
+  min-block-size: 24px !important;
+  margin-block: 2px !important;
+  transition: box-shadow var(--md-motion-short) !important;
+}
+
+#cardsPane,
+#cardsPaneHeader,
+#cards,
+#cards table[is="tree-view-table"],
+#cards table[is="tree-view-table"] tbody {
+  background-color: var(--md-surface-low) !important;
+  border: none !important;
+}
+
+tr[is="ab-card-row"]:hover td > .card-container,
+#cards .card-container:hover {
+  background-color: var(--md-surface-lowest) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+#detailsPane {
+  background-color: var(--md-surface-lowest) !important;
+  color: var(--md-on-surface) !important;
+  border: none !important;
+}
+
+.contact-details-scroll {
+  background-color: var(--md-surface-lowest) !important;
+  padding: 24px 32px !important;
+}
+
+#detailsPane header {
+  border-bottom: 1px solid var(--md-surface-high) !important;
+  padding-block-end: 20px !important;
+  margin-block-end: 20px !important;
+}
+
+hr[is="pane-splitter"],
+splitter,
+#folderPaneSplitter,
+#messagePaneSplitter,
+#sidebar-splitter,
+#listSplitter,
+#calsidebar_splitter,
+#today-splitter,
+#today-pane-splitter,
+#booksSplitter,
+#sharedSplitter {
+  border: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#cards tr:hover:not(.selected) .card-container,
+tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
+  background-color: #f5f8fc !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:hover,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button:hover {
+  background-color: #dfe7f2 !important;
+}
+
+#header-view-toolbar [hidden],
+#header-view-toolbar [collapsed="true"],
+.message-header-view-button[hidden],
+.message-header-view-button[collapsed="true"] {
+  display: none !important;
+}
+
+#messageList > li::before,
+#messageList > li::after,
+#messageList > li.unread::before,
+#messageList > li.unread::after,
+#messageList .item-header::before,
+#messageList .item-header::after,
+#messageList .left-block::before,
+#messageList .left-block::after,
+#messageList .unread-icon,
+#messageList [class*="unread-icon"],
+#messageList .unread-dot,
+#messageList .unread {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
+  background: none !important;
+  border: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+#messageList .item-header .author::before,
+#messageList .item-header .multi-avatar {
+  content: var(--author-char, "") !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 18px !important;
+  block-size: 18px !important;
+  min-inline-size: 18px !important;
+  min-block-size: 18px !important;
+  border-radius: 50% !important;
+  background-color: var(--author-bg, var(--multi-avatar-bg, #c2e7ff)) !important;
+  color: var(--author-fg, var(--multi-avatar-fg, #001d35)) !important;
+  background-image: var(--author-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23001d35'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 11px 11px !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 18px !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  flex-shrink: 0 !important;
+  margin-inline-end: 6px !important;
+  vertical-align: middle !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  user-select: none !important;
+}
+
+#messageList .item-header .author:is([style*="--author-char"], [style*="--author-img"])::before {
+  background-image: var(--author-img, none) !important;
+  background-size: cover !important;
+}
+
+#messageList .item-header .author {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#threadTree tr.card-layout.children,
+#threadTree tr.card-layout:has(button.twisty),
+#threadTree tr.card-layout[aria-expanded] {
+  height: auto !important;
+}
+
+#threadTree tr.card-layout.children .card-container,
+#threadTree tr.card-layout:has(button.twisty) .card-container,
+#threadTree tr.card-layout[aria-expanded] .card-container {
+  min-block-size: 46px !important;
+  max-block-size: none !important;
+  margin: 2px 6px !important;
+  padding-block: 2px 3px !important;
+  padding-inline-start: 10px !important;
+  padding-inline-end: 8px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+#threadTree tr.card-layout.children .card-container > .thread-card-column:not(.read-status-column) {
+  gap: 0px !important;
+  min-height: 0 !important;
+  justify-content: center !important;
+}
+
+#threadTree tr.card-layout.children .card-container .thread-card-row:first-child,
+#threadTree tr.card-layout.children .card-container .sender-row {
+  margin-block-end: 0px !important;
+  line-height: 1.18 !important;
+}
+
+#threadTree tr.card-layout.children .card-container .subject {
+  line-height: 1.18 !important;
+  font-size: 12px !important;
+}
+
+#threadTree tr.card-layout.children .card-container .thread-card-dynamic-row,
+#threadTree tr.card-layout.children .card-container button.twisty {
+  min-block-size: 16px !important;
+  height: 16px !important;
+  line-height: 14px !important;
+  font-size: 10.5px !important;
+  padding-block: 0px 1px !important;
+  padding-inline: 7px !important;
+  margin-block-start: 1px !important;
+  margin-block-end: 0px !important;
+}
+
+#threadTree tr.card-layout:is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout.selected:is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout[aria-selected="true"]:is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout:is([data-properties~="unread"], .unread) .card-container {
+  border-inline-start: 4px solid var(--md-primary, #0B57D0) !important;
+}
+
+@media (max-width: 950px) {
+  #header-view-toolbox {
+    max-width: 340px !important;
+  }
+  #header-view-toolbar {
+    max-width: 320px !important;
+  }
+}
+
+@media (max-width: 750px) {
+  #header-view-toolbox {
+    max-width: 100% !important;
+    align-self: flex-start !important;
+    margin-top: 8px !important;
+  }
+  #header-view-toolbar {
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}

@@ -90,7 +90,8 @@ Material-Thunderbird/
 │   ├── tokens/                    # Jetons de design Material You
 │   │   ├── shapes.css             # Arrondis, élévations et polices
 │   │   ├── colors-light.css       # Palette tonale claire (Google Blue)
-│   │   └── colors-dark.css        # Palette tonale sombre
+│   │   ├── colors-dark.css        # Palette tonale sombre
+│   │   └── bridge.css             # Alias courts --md-* vers les jetons système
 │   └── components/                # Modules CSS par composant
 │       ├── spaces-toolbar.css     # Barre d'espaces (Navigation Rail)
 │       ├── unified-toolbar.css    # Barre d'outils supérieure et bouton FAB
@@ -100,10 +101,11 @@ Material-Thunderbird/
 │       ├── tabs-and-dialogs.css   # Onglets, menus contextuels et modales
 │       ├── calendar.css           # Agenda, vues du calendrier et volet Aujourd'hui
 │       ├── avatars.css            # Cercles avatars non-bloquants avec placeholder neutre
-│       └── multimessage.css       # Vue multi-messages / conversation (Material You)
+│       ├── multimessage.css       # Vue multi-messages / conversation (Material You)
+│       └── extras.css             # Règles complémentaires, chargées en dernier
 ├── extension/                     # Sources de l'extension WebExtension
 │   ├── manifest.json              # Déclaration du thème et theme_experiment
-│   ├── material-theme.css         # Feuille de style injectée
+│   ├── material-theme.css         # GÉNÉRÉ depuis chrome/ par scripts/build.ps1
 │   ├── background.js              # Script d'arrière-plan et enregistrement d'APIs
 │   ├── shared/                    # Code partagé par les trois contextes
 │   │   └── unsubscribe-rules.js   # Règles de détection de désinscription

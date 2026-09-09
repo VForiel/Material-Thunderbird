@@ -1,0 +1,60 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Jetons de compatibilite : alias courts vers les jetons systeme.
+ *
+ * Le theme s'ecrivait autrefois sur deux espaces de noms distincts : `--md-sys-color-*`
+ * dans chrome/, et `--md-*` dans la feuille de l'extension. Les deux decrivaient la
+ * meme palette, ce qui obligeait a maintenir chaque couleur a deux endroits.
+ *
+ * Les alias ci-dessous font pointer les noms courts vers les jetons systeme. Ils sont
+ * definis une seule fois sur `:root` : comme `--md-sys-color-*` bascule deja entre
+ * clair et sombre, les alias suivent automatiquement.
+ *
+ * Ils restent necessaires car `theme_experiment` dans manifest.json expose
+ * `--md-primary` et `--md-surface` a Thunderbird.
+ */
+
+:root {
+  /* Couleurs principales */
+  --md-primary: var(--md-sys-color-primary);
+  --md-on-primary: var(--md-sys-color-on-primary);
+  --md-primary-container: var(--md-sys-color-primary-container);
+  --md-on-primary-container: var(--md-sys-color-on-primary-container);
+  --md-secondary-container: var(--md-sys-color-secondary-container);
+  --md-on-secondary-container: var(--md-sys-color-on-secondary-container);
+
+  /* Surfaces */
+  --md-surface: var(--md-sys-color-surface);
+  --md-surface-lowest: var(--md-sys-color-surface-container-lowest);
+  --md-surface-low: var(--md-sys-color-surface-container-low);
+  --md-surface-container: var(--md-sys-color-surface-container);
+  --md-surface-high: var(--md-sys-color-surface-container-high);
+  /* Utilise par avatars.css ; n'etait defini nulle part, seul le repli s'appliquait. */
+  --md-surface-container-high: var(--md-sys-color-surface-container-high);
+
+  /* Texte et contours */
+  --md-on-surface: var(--md-sys-color-on-surface);
+  --md-on-surface-variant: var(--md-sys-color-on-surface-variant);
+  --md-outline: var(--md-sys-color-outline);
+  --md-outline-variant: var(--md-sys-color-outline-variant);
+
+  /* Etats */
+  --md-state-hover: var(--md-sys-state-hover);
+
+  /* Elevations */
+  --md-elevation-1: var(--md-sys-elevation-1);
+  --md-elevation-2: var(--md-sys-elevation-2);
+
+  /* Mouvement : raccourci duree + courbe, tel qu'employe par les composants. */
+  --md-motion-short: var(--md-motion-duration-short) var(--md-motion-easing-standard);
+
+  /* Formes */
+  --md-shape-small: var(--md-shape-corner-small);
+  --md-shape-medium: var(--md-shape-corner-medium);
+  --md-shape-large: var(--md-shape-corner-large);
+  --md-shape-extra-large: var(--md-shape-corner-extra-large);
+  --md-shape-full: var(--md-shape-corner-full);
+
+  /* Typographie : utilise par multimessage.css, n'etait defini nulle part. */
+  --md-font-brand: var(--md-sys-font-family);
+}

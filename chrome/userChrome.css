@@ -14,6 +14,7 @@
 @import "tokens/shapes.css";
 @import "tokens/colors-light.css";
 @import "tokens/colors-dark.css";
+@import "tokens/bridge.css";
 
 /* ==========================================================================
    Import Components
@@ -29,6 +30,8 @@
 @import "components/avatars.css";
 @import "components/multimessage.css";
 @import "components/compose.css";
+/* Charge en dernier : complete les composants ci-dessus. */
+@import "components/extras.css";
 
 /* ==========================================================================
    Global Material Application Overrides
