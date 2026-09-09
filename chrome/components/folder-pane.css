@@ -47,7 +47,7 @@ div#folderPane,
   background: transparent !important;
 }
 
-/* Extended FAB - Write Message Button in Folder Pane (Full text visibility) */
+/* Extended FAB - Write Message Button in Folder Pane (Full text visibility with ellipsis) */
 #folderPaneWriteMessage {
   background-color: var(--md-sys-color-primary) !important;
   color: var(--md-sys-color-on-primary) !important;
@@ -64,11 +64,18 @@ div#folderPane,
   box-shadow: var(--md-sys-elevation-1) !important;
   cursor: pointer !important;
   white-space: nowrap !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
   max-width: 100% !important;
   transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#folderPaneWriteMessage * {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
 #folderPaneWriteMessage:hover {

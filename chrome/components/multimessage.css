@@ -1,0 +1,448 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Multi-Message & Thread Summary View
+ * Reference: chrome://messenger/content/multimessageview.xhtml
+ */
+
+/* ==========================================================================
+   1. Canvas Background (Soft Blue / Surface Container Low)
+   ========================================================================== */
+body:has(#headingWrapper),
+body:has(#messageList),
+#content:has(#messageList) {
+  background-color: var(--md-sys-color-surface-container-low, #edf2fa) !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  font-family: var(--md-sys-font-family, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  margin: 0 !important;
+  padding: 0 0 20px 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* ==========================================================================
+   2. Elevated Header Card (Title, Message Count & Action Buttons)
+   ========================================================================== */
+#headingWrapper {
+  background-color: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+  border: none !important;
+  margin: 12px 14px 10px 14px !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 16px !important;
+  box-sizing: border-box !important;
+  transition: background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease) !important;
+}
+
+/* Title & Subtitle */
+#heading {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 18px !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: baseline !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+#summaryTitle {
+  font-weight: 700 !important;
+  font-size: 17px !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#summarySubtitle {
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+}
+
+/* ==========================================================================
+   3. Material You Action Buttons (Pills, No Border, Soft Tonal Hover)
+   ========================================================================== */
+/* ==========================================================================
+   3. Material You Action Buttons (Pills, No Border, Soft Tonal Hover)
+   Scoped strictly to multimessage view so it never leaks into single message header
+   ========================================================================== */
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbox,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar {
+  border: none !important;
+  background: transparent !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton {
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 6px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  gap: 6px !important;
+  min-height: 32px !important;
+  box-sizing: border-box !important;
+  transition: background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease),
+              color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease) !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:hover,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button:hover,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  border: none !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:active,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button:active {
+  background-color: #d0e1f9 !important;
+}
+
+/* Respect native Thunderbird dynamic button hiding */
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar [hidden],
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar [collapsed="true"],
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1[hidden],
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button[hidden] {
+  display: none !important;
+}
+
+/* Star Flag Button */
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) button.email-action-flagged {
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: #edf2fa !important;
+  border: none !important;
+  outline: none !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  min-height: 32px !important;
+  min-width: 32px !important;
+  transition: background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease) !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton:hover,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) button.email-action-flagged:hover {
+  background-color: #dfe7f2 !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton[aria-pressed="true"],
+:is(body:has(#messageList), #multimessage, [data-multimessage]) button.email-action-flagged[aria-pressed="true"] {
+  background-color: #ffeed4 !important;
+}
+/* ==========================================================================
+   4. Message Cards List (White Rounded Encarts on Soft Blue Canvas)
+   ========================================================================== */
+#messageList {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+#messageList > li {
+  background-color: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  padding: 14px 18px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+  transition: box-shadow var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease),
+              transform 150ms ease,
+              background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease) !important;
+}
+
+#messageList > li:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+#messageList > li:active {
+  transform: translateY(0) !important;
+  background-color: #f8fafd !important;
+}
+
+/* Unread Message Cards in Multimessage View - Uniform with Main Thread Tree */
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) {
+  border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
+}
+
+#messageList > li:not(.unread):not([unread]):not([data-properties~="unread"]) {
+  border-inline-start: 4px solid transparent !important;
+}
+
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) .item-header .author,
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) .item-header .author.link {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) .item-header .subject {
+  font-weight: 600 !important;
+  color: var(--md-sys-color-primary, #0B57D0) !important;
+}
+
+/* Eradicate ALL unread dots (native green dot, pseudo-elements, status icons):
+   the 4px blue left border alone is clean and sufficient */
+#messageList > li::before,
+#messageList > li::after,
+#messageList > li.unread::before,
+#messageList > li.unread::after,
+#messageList .item-header::before,
+#messageList .item-header::after,
+#messageList .left-block::before,
+#messageList .left-block::after,
+#messageList .unread-icon,
+#messageList [class*="unread-icon"],
+#messageList .unread-dot,
+#messageList [class*="unread-dot"],
+#messageList .unread-status,
+#messageList [class*="unread-status"],
+#messageList .status-icon,
+#messageList [class*="status-icon"],
+#messageList [data-properties~="unread"]::before,
+#messageList [data-properties~="unread"]::after,
+#messageList .left-block > :is(.unread-status, .status-icon, .unread, [class*="unread"], [class*="status"]):not(.author):not(.multi-avatar) {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
+  background: none !important;
+  border: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
+
+/* Card Header (Sender & Date) */
+#messageList .item-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 13.5px !important;
+}
+
+#messageList .item-header .left-block {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Small text-sized avatar for sender in multimessage view (18px) */
+#messageList .item-header .author::before {
+  content: var(--author-char, "") !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 18px !important;
+  block-size: 18px !important;
+  min-inline-size: 18px !important;
+  min-block-size: 18px !important;
+  border-radius: 50% !important;
+  background-color: var(--author-bg, var(--md-sys-color-surface-container-high, #e0e2ec)) !important;
+  color: var(--author-fg, var(--md-sys-color-on-surface, #1f1f1f)) !important;
+  /* Default placeholder: crisp Material Design contact silhouette */
+  background-image: var(--author-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 12px 12px !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  flex-shrink: 0 !important;
+  margin-inline-end: 6px !important;
+  vertical-align: middle !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  user-select: none !important;
+}
+
+/* When letter initial is set: remove background placeholder icon */
+#messageList .item-header .author[style*="--author-char"]::before {
+  background-image: none !important;
+}
+
+/* When Gravatar / photo is resolved: display full image cover */
+#messageList .item-header .author[style*="--author-img"]::before {
+  background-image: var(--author-img) !important;
+  background-size: cover !important;
+  content: "" !important;
+}
+
+#messageList .item-header .author,
+#messageList .item-header .author.link {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  text-decoration: none !important;
+}
+
+#messageList .item-header .subject {
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  text-decoration: none !important;
+}
+
+#messageList .item-header .date {
+  font-size: 12px !important;
+  color: var(--md-sys-color-outline, #747775) !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  margin-inline-start: 12px !important;
+}
+
+/* Snippet / Message Preview */
+#messageList .snippet {
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Star icon inside item */
+#messageList .star {
+  display: none !important;
+}
+
+/* ==========================================================================
+   5. Footer / Size & Notice Info
+   ========================================================================== */
+#footer {
+  margin: 12px 18px 0 18px !important;
+  padding: 0 !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  font-size: 12px !important;
+  opacity: 0.8 !important;
+}
+
+#footer .info {
+  display: inline-block !important;
+  margin-inline-end: 12px !important;
+}
+
+/* ==========================================================================
+   6. Dark Mode Support (Material You Dark Theme)
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  body:has(#headingWrapper),
+  body:has(#messageList),
+  #content:has(#messageList) {
+    background-color: var(--md-sys-color-surface-container-low, #191c1e) !important;
+    color: var(--md-sys-color-on-surface, #e2e2e5) !important;
+  }
+
+  #headingWrapper {
+    background-color: var(--md-sys-color-surface-container, #1d2023) !important;
+    box-shadow: none !important;
+  }
+
+  #summaryTitle {
+    color: var(--md-sys-color-on-surface, #e2e2e5) !important;
+  }
+
+  #summarySubtitle {
+    color: var(--md-sys-color-on-surface-variant, #c4c7c5) !important;
+  }
+
+  #header-view-toolbar .toolbarbutton-1,
+  #header-view-toolbar button,
+  #header-view-toolbar toolbarbutton,
+  #starMessageButton,
+  button.email-action-flagged {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--md-sys-color-on-surface, #e2e2e5) !important;
+  }
+
+  #header-view-toolbar .toolbarbutton-1:hover,
+  #header-view-toolbar button:hover,
+  #header-view-toolbar toolbarbutton:hover,
+  #starMessageButton:hover {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+  }
+
+  #messageList > li {
+    background-color: var(--md-sys-color-surface-container, #1d2023) !important;
+    box-shadow: none !important;
+  }
+
+  #messageList > li:hover {
+    background-color: var(--md-sys-color-surface-container-high, #272a2d) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  #messageList .item-header .author,
+  #messageList .item-header .author.link {
+    color: var(--md-sys-color-on-surface, #e2e2e5) !important;
+  }
+
+  #messageList .item-header .subject {
+    color: var(--md-sys-color-primary, #a8c7fa) !important;
+  }
+
+  #messageList .item-header .date {
+    color: var(--md-sys-color-outline, #8e918f) !important;
+  }
+
+  #messageList .snippet {
+    color: var(--md-sys-color-on-surface-variant, #c4c7c5) !important;
+  }
+
+  #footer {
+    color: var(--md-sys-color-on-surface-variant, #c4c7c5) !important;
+  }
+}
+
+/* ==========================================================================
+   7. Pure CSS Initial Letter Determination for Multimessage Avatars
+   ========================================================================== */
+#messageList .author:is([title^="A" i], [title^="\"A" i], [data-author^="A" i])::before { --author-char: "A"; --author-bg: #FFD8D3; --author-fg: #3A0B07; background-image: none !important; }
+#messageList .author:is([title^="B" i], [title^="\"B" i], [data-author^="B" i])::before { --author-char: "B"; --author-bg: #D3E3FD; --author-fg: #041E49; background-image: none !important; }
+#messageList .author:is([title^="C" i], [title^="\"C" i], [data-author^="C" i])::before { --author-char: "C"; --author-bg: #C4EED0; --author-fg: #072711; background-image: none !important; }
+#messageList .author:is([title^="D" i], [title^="\"D" i], [data-author^="D" i])::before { --author-char: "D"; --author-bg: #EEDCFF; --author-fg: #2E004E; background-image: none !important; }
+#messageList .author:is([title^="E" i], [title^="\"E" i], [data-author^="E" i])::before { --author-char: "E"; --author-bg: #FFE088; --author-fg: #261900; background-image: none !important; }
+#messageList .author:is([title^="F" i], [title^="\"F" i], [data-author^="F" i])::before { --author-char: "F"; --author-bg: #C2F0EB; --author-fg: #00201D; background-image: none !important; }
+#messageList .author:is([title^="G" i], [title^="\"G" i], [data-author^="G" i])::before { --author-char: "G"; --author-bg: #FFD8E4; --author-fg: #3B071E; background-image: none !important; }
+#messageList .author:is([title^="H" i], [title^="\"H" i], [data-author^="H" i])::before { --author-char: "H"; --author-bg: #C2E7FF; --author-fg: #001D35; background-image: none !important; }
+#messageList .author:is([title^="I" i], [title^="\"I" i], [data-author^="I" i])::before { --author-char: "I"; --author-bg: #E1EAAF; --author-fg: #1B1F00; background-image: none !important; }
+#messageList .author:is([title^="J" i], [title^="\"J" i], [data-author^="J" i])::before { --author-char: "J"; --author-bg: #FFDBCA; --author-fg: #360F00; background-image: none !important; }
+#messageList .author:is([title^="K" i], [title^="\"K" i], [data-author^="K" i])::before { --author-char: "K"; --author-bg: #E8DEF8; --author-fg: #1D192B; background-image: none !important; }
+#messageList .author:is([title^="L" i], [title^="\"L" i], [data-author^="L" i])::before { --author-char: "L"; --author-bg: #B9F2D5; --author-fg: #002114; background-image: none !important; }
+#messageList .author:is([title^="M" i], [title^="\"M" i], [data-author^="M" i])::before { --author-char: "M"; --author-bg: #FFDAD6; --author-fg: #410002; background-image: none !important; }
+#messageList .author:is([title^="N" i], [title^="\"N" i], [data-author^="N" i])::before { --author-char: "N"; --author-bg: #DBE1FF; --author-fg: #00174B; background-image: none !important; }
+#messageList .author:is([title^="O" i], [title^="\"O" i], [data-author^="O" i])::before { --author-char: "O"; --author-bg: #FFDDB8; --author-fg: #2A1700; background-image: none !important; }
+#messageList .author:is([title^="P" i], [title^="\"P" i], [data-author^="P" i])::before { --author-char: "P"; --author-bg: #F5D9FF; --author-fg: #2B003A; background-image: none !important; }
+#messageList .author:is([title^="Q" i], [title^="\"Q" i], [data-author^="Q" i])::before { --author-char: "Q"; --author-bg: #D7E8CD; --author-fg: #111F0E; background-image: none !important; }
+#messageList .author:is([title^="R" i], [title^="\"R" i], [data-author^="R" i])::before { --author-char: "R"; --author-bg: #D8E2FF; --author-fg: #001944; background-image: none !important; }
+#messageList .author:is([title^="S" i], [title^="\"S" i], [data-author^="S" i])::before { --author-char: "S"; --author-bg: #FFDAD4; --author-fg: #3A0905; background-image: none !important; }
+#messageList .author:is([title^="T" i], [title^="\"T" i], [data-author^="T" i])::before { --author-char: "T"; --author-bg: #BCEBEE; --author-fg: #002022; background-image: none !important; }
+#messageList .author:is([title^="U" i], [title^="\"U" i], [data-author^="U" i])::before { --author-char: "U"; --author-bg: #F3DAFF; --author-fg: #2A003F; background-image: none !important; }
+#messageList .author:is([title^="V" i], [title^="\"V" i], [data-author^="V" i])::before { --author-char: "V"; --author-bg: #C7EAD4; --author-fg: #002113; background-image: none !important; }
+#messageList .author:is([title^="W" i], [title^="\"W" i], [data-author^="W" i])::before { --author-char: "W"; --author-bg: #FFDF9E; --author-fg: #251A00; background-image: none !important; }
+#messageList .author:is([title^="X" i], [title^="\"X" i], [data-author^="X" i])::before { --author-char: "X"; --author-bg: #FFD7F1; --author-fg: #36002D; background-image: none !important; }
+#messageList .author:is([title^="Y" i], [title^="\"Y" i], [data-author^="Y" i])::before { --author-char: "Y"; --author-bg: #FFD8D3; --author-fg: #3A0B07; background-image: none !important; }
+#messageList .author:is([title^="Z" i], [title^="\"Z" i], [data-author^="Z" i])::before { --author-char: "Z"; --author-bg: #D3E3FD; --author-fg: #041E49; background-image: none !important; }
+#messageList .author:is([title^="0"], [title^="1"], [title^="2"], [title^="3"], [title^="4"], [title^="5"], [title^="6"], [title^="7"], [title^="8"], [title^="9"])::before { --author-char: "#"; --author-bg: #E2E2E6; --author-fg: #191C20; background-image: none !important; }

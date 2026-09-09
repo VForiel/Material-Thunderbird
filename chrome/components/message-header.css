@@ -30,6 +30,50 @@
   line-height: 1.3 !important;
 }
 
+/* Responsive Action Buttons Toolbar (Wide layout: 1 line; Narrow layout: wraps gracefully) */
+#header-view-toolbox {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  max-width: calc(100% - 300px) !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+
+#header-view-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 4px 6px !important;
+  max-width: 100% !important;
+}
+
+#header-view-toolbar .message-header-view-button,
+#header-view-toolbar .toolbarbutton-1 {
+  flex-shrink: 0 !important;
+  margin: 1px 2px !important;
+}
+
+@media (max-width: 850px) {
+  #header-view-toolbox {
+    max-width: calc(100% - 220px) !important;
+  }
+}
+
+@media (max-width: 650px) {
+  #header-view-toolbox {
+    max-width: 100% !important;
+    align-self: flex-start !important;
+    margin-top: 8px !important;
+  }
+  #header-view-toolbar {
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+
 /* Header Action Buttons (Material 3 Seamless Tonal Pills - Soft blue-tinted base) */
 .message-header-view-button,
 #messageHeader .toolbarbutton-1.message-header-view-button,
@@ -96,44 +140,80 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 }
 
 /* Primary Actions: Reply, Reply All & Forward Buttons (Distinct Light Blue Tonal Pill) */
-.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
-#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
-#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton) {
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]),
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]),
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]) {
   background-color: var(--md-sys-color-secondary-container) !important;
   color: var(--md-sys-color-on-secondary-container) !important;
   border: none !important;
   font-weight: 600 !important;
 }
 
-.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
-#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
-#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover {
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover,
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover,
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover {
   background-color: #b9dcf7 !important;
   color: var(--md-sys-color-on-secondary-container) !important;
 }
 
-/* Action Icons (Two-tone Material Outline) */
+/* Action Icons: Keep native Thunderbird icon colors and styling without forcing black stroke */
 .message-header-view-button image,
 .message-header-view-button .button-icon {
-  -moz-context-properties: fill, stroke, stroke-opacity !important;
-  fill: color-mix(in srgb, currentColor 20%, transparent) !important;
-  stroke: currentColor !important;
   margin-inline-end: 4px !important;
 }
 
 /* ==========================================================================
    Sender & Recipient Chips (Material 3 Touch Targets & Soft Hover State)
    ========================================================================== */
+/* Respect Thunderbird's native element and button hiding */
+[hidden],
+[collapsed="true"],
+.message-header-view-button[hidden],
+.message-header-view-button[collapsed="true"],
+#header-view-toolbar [hidden],
+#header-view-toolbar [collapsed="true"],
+#messageHeader [hidden],
+#messageHeader [collapsed="true"],
+.message-header-row[hidden],
+.multi-recipient-row[hidden] {
+  display: none !important;
+}
+
+/* In message-header-hide-label-column, hide the redundant outer column label so labels aren't duplicated */
+.message-header-hide-label-column .message-header-label {
+  display: none !important;
+}
+
+/* Header row vertical alignment */
+.header-row-grow,
+.multi-recipient-row:not([hidden]) {
+  align-items: center !important;
+}
+
+.row-heading {
+  align-self: center !important;
+  line-height: normal !important;
+  margin-block: 0 !important;
+  padding-block: 0 !important;
+}
+
+.recipients-list {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+}
+
 .header-recipient,
 .header-newsgroup,
 .header-message-id,
 .emailRecipient {
   border-radius: var(--md-shape-corner-medium) !important;
-  padding: 4px 10px !important;
+  padding: 3px 8px !important;
   margin: 1px 2px !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  align-self: center !important;
+  gap: 6px !important;
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
@@ -168,6 +248,134 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
   border: none !important;
   background: transparent !important;
   padding: 0 !important;
+}
+
+/* Material You 1-Click Unsubscribe Banner (Positioned between Header and Message Body) */
+#material-unsubscribe-banner,
+.material-unsubscribe-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background-color: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  border-radius: var(--md-shape-corner-medium, 12px) !important;
+  padding: 10px 18px !important;
+  margin: 0 14px 10px 14px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid var(--md-sys-color-outline-variant, rgba(0, 0, 0, 0.08)) !important;
+  font-family: var(--md-sys-font-family, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 13px !important;
+  box-sizing: border-box !important;
+  gap: 12px !important;
+  animation: materialUnsubSlide 220ms cubic-bezier(0.2, 0, 0, 1) forwards !important;
+}
+
+@keyframes materialUnsubSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#material-unsubscribe-banner .material-unsub-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+#material-unsubscribe-banner .material-unsub-icon {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
+  color: var(--md-sys-color-on-secondary-container, #001d35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+#material-unsubscribe-banner .material-unsub-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+}
+
+#material-unsubscribe-banner .material-unsub-title {
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#material-unsubscribe-banner .material-unsub-desc {
+  font-size: 12px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+}
+
+#material-unsubscribe-banner .material-unsub-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+#material-unsubscribe-banner .material-unsub-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background-color: var(--md-sys-color-primary, #0B57D0) !important;
+  color: var(--md-sys-color-on-primary, #ffffff) !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  padding: 6px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  transition: background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease),
+              transform 150ms ease !important;
+}
+
+#material-unsubscribe-banner .material-unsub-btn:hover {
+  background-color: #0842a0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+#material-unsubscribe-banner .material-unsub-close {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  transition: background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease) !important;
+}
+
+#material-unsubscribe-banner .material-unsub-close:hover {
+  background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  #material-unsubscribe-banner,
+  .material-unsubscribe-card {
+    background-color: var(--md-sys-color-surface-container-high, #2b2930) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--md-sys-color-on-surface, #e6e0e9) !important;
+  }
 }
 
 #mail-notification-top > .notificationbox-stack[notificationside="top"],
@@ -243,12 +451,16 @@ notification-message moz-button {
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-/* "Options ▾" dropdown-list button: ensure label and dropdown arrow have breathing room */
+/* "Options ▾" dropdown-list button: ensure label and dropdown arrow have ample breathing room */
 notification-message button.button-menu-list,
-notification-message .button-menu-list {
-  padding-inline-end: 24px !important; /* room for the ~12px icon + gap */
-  background-size: 10px !important;
-  background-position: right 6px center !important;
+notification-message .button-menu-list,
+notification-message .notification-button.button-menu-list,
+notification-message button[popup],
+notification-message button[type="menu"] {
+  padding-inline-start: 14px !important;
+  padding-inline-end: 30px !important; /* ample space so text and chevron never collide */
+  background-size: 12px !important;
+  background-position: right 10px center !important;
 }
 
 notification-message button:hover,
@@ -272,4 +484,232 @@ notification-message .close button:hover,
 notification-message moz-button::part(button):hover {
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
+
+
+/* ==========================================================================
+   Attachment Area (Material 3 Elevated Card & Tonal File Chips)
+   Reference: chrome/classic/skin/classic/messenger/attachmentList.css
+   ========================================================================== */
+
+/* Attachment Container Card - Elevated White Card matching Message Header */
+/* Attachment Container Card - Elevated White Card matching Message Header */
+#attachmentView {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 4px 14px 6px 14px !important;
+  padding: 4px 12px !important;
+  border: none !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  max-block-size: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* When expanded with files, add comfortable bottom space */
+#attachmentView:not(:has(#attachmentList[collapsed])) {
+  padding: 6px 14px 10px 14px !important;
+}
+
+#attachment-splitter {
+  display: none !important;
+}
+
+/* Attachment Bar Header */
+#attachmentBar {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 2px 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  color: var(--md-sys-color-on-surface) !important;
+  min-height: 28px !important;
+}
+
+/* Attachment Dropdown Toggle Chevron */
+#attachmentToggle {
+  border-radius: var(--md-shape-corner-full) !important;
+  border: none !important;
+  background-color: transparent !important;
+  padding: 4px !important;
+  min-inline-size: 24px !important;
+  min-block-size: 24px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#attachmentToggle:hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+/* Attachment Count & Text Info */
+#attachmentInfo {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#attachmentIcon {
+  -moz-context-properties: fill, stroke !important;
+  fill: var(--md-sys-color-primary) !important;
+  margin-inline-end: 4px !important;
+}
+
+#attachmentName {
+  border-radius: var(--md-shape-corner-small) !important;
+  padding: 2px 6px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#attachmentName:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+#attachmentSize {
+  opacity: 0.7 !important;
+  font-size: 12px !important;
+}
+
+/* Attachment Action Buttons ("Enregistrer", "Tout enregistrer" - Seamless Material Tonal Pill) */
+#attachmentSaveAll,
+#attachmentSaveAllSingle,
+#attachmentSaveAllMultiple,
+#attachment-view-toolbar .toolbarbutton-1 {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Eliminate native interior borders & gray backgrounds inside the pill */
+#attachment-view-toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-button,
+#attachment-view-toolbar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker,
+#attachment-view-toolbar .toolbarbutton-1:hover > .toolbarbutton-menubutton-button,
+#attachment-view-toolbar .toolbarbutton-1:hover > .toolbarbutton-menubutton-dropmarker,
+#attachment-view-toolbar .toolbarbutton-1 > .button-box,
+#attachment-view-toolbar .toolbarbutton-1:hover > .button-box {
+  border: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding-block: 5px !important;
+  padding-inline: 12px !important;
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+#attachmentSaveAllSingle:hover,
+#attachmentSaveAllMultiple:hover,
+#attachment-view-toolbar .toolbarbutton-1:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Attachment List & File Items (Material 3 Tonal Chips) */
+#attachmentList,
+.attachmentList {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 6px 2px 4px 2px !important;
+  gap: 8px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+  min-height: 38px !important;
+}
+
+#attachmentList[collapsed] {
+  display: none !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.attachmentItem {
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: 1px solid transparent !important;
+  padding: 5px 12px !important;
+  gap: 6px !important;
+  min-inline-size: auto !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 2px 4px !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+.attachmentItem:hover {
+  background-color: #dfe7f2 !important;
+  border-color: transparent !important;
+  transform: translateY(-1px) !important;
+}
+
+.attachmentItem[selected] {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  border-color: transparent !important;
+}
+
+.attachmentItem .attachmentcell-icon {
+  -moz-context-properties: fill, stroke !important;
+  fill: var(--md-sys-color-primary) !important;
+}
+
+.attachmentItem .attachmentcell-name {
+  font-weight: 500 !important;
+  font-size: 12px !important;
+}
+
+.attachmentItem .attachmentcell-size {
+  opacity: 0.7 !important;
+  font-size: 11px !important;
+  margin-inline-start: 4px !important;
+}
+
+/* Dark Mode Overrides for Attachments */
+@media (prefers-color-scheme: dark) {
+  #attachmentView {
+    background-color: var(--md-sys-color-surface-container-low) !important;
+    box-shadow: none !important;
+  }
+
+  #attachmentSaveAllSingle,
+  #attachmentSaveAllMultiple,
+  #attachment-view-toolbar .toolbarbutton-1,
+  .attachmentItem {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--md-sys-color-on-surface) !important;
+  }
+
+  #attachmentSaveAllSingle:hover,
+  #attachmentSaveAllMultiple:hover,
+  #attachment-view-toolbar .toolbarbutton-1:hover,
+  .attachmentItem:hover {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+  }
+
+  .attachmentItem[selected] {
+    background-color: var(--md-sys-color-secondary-container) !important;
+    color: var(--md-sys-color-on-secondary-container) !important;
+  }
+}
+
 

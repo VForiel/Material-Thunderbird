@@ -24,14 +24,14 @@
   box-shadow: none !important;
   background-color: transparent !important;
   color: var(--md-sys-color-on-surface-variant) !important;
-  /* Leave room for the 16px filter icon + 8px gap on the start side */
+  /* Ensure ample room for the check indicator and 15px filter icon */
   padding-block: 5px !important;
-  padding-inline-start: 30px !important;
-  padding-inline-end: 12px !important;
-  /* Freeze the icon at the start of the button area */
-  background-position: 9px center !important;
+  padding-inline-start: 36px !important;
+  padding-inline-end: 14px !important;
+  /* Position the icon cleanly before text */
+  background-position: 12px center !important;
   background-repeat: no-repeat !important;
-  background-size: 15px 15px !important;
+  background-size: 14px 14px !important;
   -moz-context-properties: fill, stroke !important;
   fill: currentColor !important;
   stroke: currentColor !important;
@@ -39,6 +39,11 @@
   font-weight: 500 !important;
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
               color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#threadPaneQuickFilterButton span {
+  display: inline-block !important;
+  margin-inline-start: 2px !important;
 }
 
 #threadPaneQuickFilterButton:hover {
@@ -80,67 +85,243 @@
    Replaces legacy gray bordered XUL box with a soft rounded chip.
    Reference: chrome/classic/skin/classic/messenger/shared/threadCard.css
    ========================================================================== */
-button.thread-card-button,
-#threadTree button.thread-card-button,
-tr.card-layout .thread-card-button {
+/* Hide twisty button on rows with NO replies/children */
+#threadTree tr:not(.children) button.twisty,
+#threadTree tr:not(.children) .thread-card-button {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Only display and style twisty pill when the thread has replies */
+#threadTree tr.children button.twisty,
+#threadTree tr.children .thread-card-button,
+.children button.twisty {
   border-radius: var(--md-shape-corner-full) !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   outline: none !important;
   background-color: #edf2fa !important;
   color: var(--md-sys-color-on-surface-variant) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
-  padding-block: 3px !important;
+  padding-block: 2px !important;
   padding-inline: 8px !important;
   gap: 4px !important;
   box-shadow: none !important;
   cursor: pointer !important;
   min-block-size: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
               color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-button.thread-card-button:hover,
-#threadTree button.thread-card-button:hover,
-tr.card-layout .thread-card-button:hover {
+#threadTree tr.children button.twisty:hover,
+#threadTree tr.children .thread-card-button:hover,
+.children button.twisty:hover {
   background-color: #dfe7f2 !important;
   color: var(--md-sys-color-on-surface) !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
-tr.card-layout.selected button.thread-card-button,
-tr.card-layout[aria-selected="true"] button.thread-card-button {
+tr.card-layout.selected.children button.twisty,
+tr.card-layout[aria-selected="true"].children button.twisty,
+tr.card-layout.selected.children .thread-card-button,
+tr.card-layout[aria-selected="true"].children .thread-card-button {
   background-color: rgba(255, 255, 255, 0.5) !important;
   color: var(--md-sys-color-on-secondary-container) !important;
 }
 
-tr.card-layout.selected button.thread-card-button:hover,
-tr.card-layout[aria-selected="true"] button.thread-card-button:hover {
+tr.card-layout.selected.children button.twisty:hover,
+tr.card-layout[aria-selected="true"].children button.twisty:hover,
+tr.card-layout.selected.children .thread-card-button:hover,
+tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
   background-color: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* Icon color inside the twisty pill */
-button.thread-card-button img,
-tr.card-layout .thread-card-button img {
-  -moz-context-properties: fill, stroke !important;
-  fill: currentColor !important;
-  stroke: currentColor !important;
-  opacity: 0.8 !important;
+/* Icon color inside the twisty pill - hide native green unread dot */
+#threadTree button.twisty img,
+#threadTree button.twisty .replies-icon,
+#threadTree button.twisty .twisty-icon,
+#threadTree button.twisty [class*="unread"],
+#threadTree button.twisty::before {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* When thread has unread replies: turn the twisty button into a vibrant Material You Primary Blue pill with crisp white text */
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
+  background-color: #0B57D0 !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+  box-shadow: 0 1px 2px rgba(11, 87, 208, 0.3) !important;
+}
+
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty *,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty span,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty label,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button:hover,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover {
+  background-color: #0842a0 !important;
+  color: #FFFFFF !important;
+}
+
+tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
+  background-color: #0B57D0 !important;
+  color: #FFFFFF !important;
+}
+
+tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty *,
+tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
 }
 
 /* ==========================================================================
    Cards View Styling (Preserves native table / grid layout)
    ========================================================================== */
 
-/* Card Container (Inside table cell) - Elevated Pure White Card on Light Blue Surface */
-#threadTree .card-container {
+/* Base border for ALL cards: transparent 4px to maintain strict alignment */
+#threadTree tr.card-layout .card-container {
+  border-inline-start: 4px solid transparent !important;
+}
+
+/* UNREAD CARDS & COLLAPSED THREADS WITH UNREAD REPLIES:
+   Always gets the 4px Material Primary Blue Border on the left.
+   Excluded for thread-children so reply cards never get an erroneous blue border! */
+#threadTree tr.card-layout:not([data-properties~="thread-children"]):is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout.selected:not([data-properties~="thread-children"]):is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout[aria-selected="true"]:not([data-properties~="thread-children"]):is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout:not([data-properties~="thread-children"]):is([data-properties~="unread"], .unread) .card-container {
+  border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
+}
+
+/* Thread children (replies): ALWAYS transparent border to prevent erroneous blue border */
+#threadTree tr.card-layout[data-properties~="thread-children"] .card-container {
+  border-inline-start: 4px solid transparent !important;
+}
+
+/* Expanded thread: remove blue border from parent if parent message itself is read */
+#threadTree tr.card-layout.children[aria-expanded="true"]:not([data-properties~="unread"]):not(.unread) .card-container {
+  border-inline-start: 4px solid transparent !important;
+}
+
+/* Collapsed read messages in expanded thread */
+tr.card-layout.material-thread-read-hidden {
+  display: none !important;
+}
+
+/* Button to reveal all read messages in the thread */
+.material-thread-toggle-row td {
+  padding: 2px 8px !important;
+}
+
+.material-show-all-thread-btn {
+  margin: 2px 18px 4px 44px !important;
+  padding: 4px 14px !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: var(--md-sys-color-surface-container-high, #e0e2ec) !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  border: none !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all var(--md-motion-duration-short, 200ms) !important;
+}
+
+.material-show-all-thread-btn:hover {
+  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
+  color: var(--md-sys-color-on-secondary-container, #001d35) !important;
+}
+
+/* Card Container (Inside table cell) - Elevated Pure White Card on Light Blue Surface
+   Comfortable, unified height and balanced padding matching across ALL cards */
+#threadTree .card-container,
+#threadTree tr.card-layout .card-container,
+#threadTree tr.card-layout.children .card-container,
+#threadTree tr.card-layout:has(button.twisty) .card-container,
+#threadTree tr.card-layout[aria-expanded] .card-container,
+#threadTree tr.card-layout[data-properties~="thread-children"] .card-container {
   border-radius: var(--md-shape-corner-medium) !important;
   background-color: var(--md-sys-color-surface-container-lowest) !important;
   border: none !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
   margin: 3px 6px !important;
+  padding-block: 5px 6px !important;
+  padding-inline-start: 10px !important;
+  padding-inline-end: 8px !important;
+  min-block-size: 54px !important;
+  box-sizing: border-box !important;
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
               box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+/* Thread card dynamic row & twisty button sizing */
+#threadTree .card-container .thread-card-dynamic-row {
+  align-items: center !important;
+}
+
+#threadTree button.twisty,
+#threadTree .thread-card-button {
+  min-block-size: 18px !important;
+  height: 18px !important;
+  line-height: 16px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding-block: 1px !important;
+  padding-inline: 8px !important;
+  margin-block-start: 2px !important;
+  margin-block-end: 0px !important;
+  border-radius: var(--md-shape-corner-full) !important;
 }
 
 /* Card Hover State - Subtle Lift */
@@ -150,12 +331,14 @@ tr.card-layout .thread-card-button img {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Selected Card (Material 3 Tonal Secondary Container) - Borderless Pill/Card */
+/* Selected Card (Material 3 Tonal Secondary Container) - Preserves left border */
 #threadTree tr.card-layout.selected .card-container,
 #threadTree tr.card-layout[aria-selected="true"] .card-container,
 #threadTree tr.card-layout.current.selected .card-container {
   background-color: var(--md-sys-color-secondary-container) !important;
-  border: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
 }
 
@@ -196,10 +379,19 @@ tr.card-layout .thread-card-button img {
   color: var(--md-sys-color-primary) !important;
 }
 
-/* Unread Dot Indicator */
+/* Unread Dot Indicator: Hidden in favor of clean 4px left border */
+#threadTree .read-status,
+#threadTree tr.card-layout .read-status,
 #threadTree tr.card-layout[data-properties~="unread"] .read-status {
-  fill: var(--md-sys-color-primary) !important;
-  stroke: var(--md-sys-color-primary) !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Vertical spacing inside the card rows */
+#threadTree .card-container .thread-card-row {
+  margin-block-end: 2px !important;
+  gap: 6px !important;
 }
 
 /* ==========================================================================

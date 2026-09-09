@@ -26,6 +26,8 @@
 @import "components/tabs-and-dialogs.css";
 @import "components/calendar.css";
 @import "components/addressbook.css";
+@import "components/avatars.css";
+@import "components/multimessage.css";
 
 /* ==========================================================================
    Global Material Application Overrides

@@ -16,16 +16,19 @@
 - **✏️ Extended Floating Action Button (FAB)** : Bouton "Écrire" modernisé avec coins arrondis et ombre d'élévation Material 3.
 - **🔍 Barre de Recherche Pilule** : Barre de recherche globale aux angles complètement arrondis (`border-radius: 9999px`).
 - **📂 Arbre des Dossiers (Navigation Drawer)** : Sélection des dossiers sous forme de capsules ovales tonales et badges de notification doux.
-- **🗂️ Vue Cartes pour les Messages** : Liste des messages présentée sous forme de cartes aérées avec point indicateur d'état non lu.
+- **🗂️ Vue Cartes pour les Messages & Fils (Threads)** : Liste des messages présentée sous forme de cartes aérées avec point indicateur d'état non lu. Padding vertical optimisé pour les conversations avec réponses et affichage direct d'une puce pour les réponses non lues même lorsque le fil est replié.
+- **📑 Vue Multi-Messages Material You (`multimessageview`)** : Refonte totale du panneau de sélection multiple / conversation complète sous forme de cartes d'e-mails d'un blanc pur (`#ffffff`), sans bordure, sur fond bleu doux (`surface-container-low`), avec en-tête surélevée, titre en gras et boutons d'action Material 3.
 - **✉️ En-tête de Message Surélevé** : Fiche d'en-tête de courriel élégante avec boutons d'actions en pilules (Répondre, Transférer, Archiver, Supprimer).
+- **⚡ Avatars Non-Bloquants avec Placeholder Instantané** : Placeholder neutre affiché immédiatement lors du défilement, suivi d'une résolution asynchrone progressive sans gel d'affichage.
+- **🛡️ Détecteur de Désinscription Intelligent** : Script d'arrière-plan non-bloquant analysant les liens de désinscription (mots-clés multilingues, regex, ESP majeurs) et injectant un bandeau d'action Material You au-dessus du message pour se désinscrire en 1 clic.
 - **📅 Agenda & Calendrier Modernisés** : Événements sous forme de cartes Material 3 aux coins arrondis, sélecteur de vues en boutons segmentés, badge "Aujourd'hui" en pilule tonale et volet d'agenda restylé.
-- **⚡ Installation Simplifiée en 1 Clic** : Script automatique sous Windows qui détecte votre profil et configure Thunderbird sans manipulation manuelle !
+- **⚡ Installation Globale en 1 Clic** : Script unique automatique sous Windows qui détecte votre profil, déploie les styles et configure Thunderbird sans manipulation manuelle !
 
 ---
 
 ## 🚀 Installation Rapide en 1 Clic (Windows)
 
-La méthode la plus rapide et sans prise de tête :
+Un **seul et unique script global** pour tout installer :
 
 1. Téléchargez ou clonez ce dépôt sur votre machine :
    ```bash
@@ -35,12 +38,13 @@ La méthode la plus rapide et sans prise de tête :
 3. **Double-cliquez sur `install.bat`** (ou lancez `install.ps1` dans PowerShell).
 4. Le script :
    - Détecte automatiquement votre profil Thunderbird actif (`profiles.ini`).
-   - Active le support des feuilles de style dans `user.js` (`toolkit.legacyUserProfileCustomizations.stylesheets = true`).
+   - Active le support des feuilles de style dans `user.js` (`toolkit.legacyUserProfileCustomizations.stylesheets = true` et `svg.context-properties.content.enabled = true`).
    - Déploie le thème Material You dans le dossier `chrome/` de votre profil.
-5. **Redémarrez Mozilla Thunderbird** pour admirer votre nouvelle interface !
+   - Synchronise le package WebExtension `dist/material-thunderbird.xpi`.
+5. **Fermez et relancez Mozilla Thunderbird** pour admirer votre nouvelle interface !
 
 > [!TIP]
-> **Pour désinstaller à tout moment :** Double-cliquez simplement sur **`scripts/uninstall.bat`** puis redémarrez Thunderbird.
+> **Pour tout désinstaller :** Double-cliquez simplement sur l'unique script **`scripts/uninstall.bat`** puis redémarrez Thunderbird.
 
 ---
 
@@ -88,10 +92,16 @@ Material-Thunderbird/
 │       ├── thread-tree.css        # Liste des messages (Vue cartes)
 │       ├── message-header.css     # En-tête de courriel surélevé
 │       ├── tabs-and-dialogs.css   # Onglets, menus contextuels et modales
-│       └── calendar.css           # Agenda, vues du calendrier et volet Aujourd'hui
+│       ├── calendar.css           # Agenda, vues du calendrier et volet Aujourd'hui
+│       ├── avatars.css            # Cercles avatars non-bloquants avec placeholder neutre
+│       └── multimessage.css       # Vue multi-messages / conversation (Material You)
 ├── extension/                     # Sources de l'extension WebExtension
 │   ├── manifest.json              # Déclaration du thème et theme_experiment
 │   ├── material-theme.css         # Feuille de style injectée
+│   ├── background.js              # Script d'arrière-plan et enregistrement d'APIs
+│   ├── scripts/                   # Scripts d'assistance non-bloquants
+│   │   ├── unsubscribe-detector.js # Détection intelligente de désinscription
+│   │   └── thread-assistant.js    # Puce de réponse non lue et résolution d'avatars
 │   └── icons/                     # Icône de l'extension au format SVG
 │       └── icon.svg
 ├── scripts/                       # Outils d'automatisation

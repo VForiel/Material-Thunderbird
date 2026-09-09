@@ -299,7 +299,9 @@ window, #messengerWindow, body {
 #threadTree tr.card-layout.selected .card-container,
 #threadTree tr.card-layout[aria-selected="true"] .card-container {
   background-color: var(--md-secondary-container) !important;
-  border: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
 }
 
@@ -336,9 +338,12 @@ window, #messengerWindow, body {
   color: var(--md-primary) !important;
 }
 
+#threadTree .read-status,
+#threadTree tr.card-layout .read-status,
 #threadTree tr.card-layout[data-properties~="unread"] .read-status {
-  fill: var(--md-primary) !important;
-  stroke: var(--md-primary) !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 /* Message Header Card */
@@ -414,9 +419,6 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 
 .message-header-view-button image,
 .message-header-view-button .button-icon {
-  -moz-context-properties: fill, stroke, stroke-opacity !important;
-  fill: color-mix(in srgb, currentColor 20%, transparent) !important;
-  stroke: currentColor !important;
   margin-inline-end: 4px !important;
 }
 
@@ -429,18 +431,18 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 }
 
 /* Primary Actions: Reply, Reply All & Forward Buttons (Distinct Light Blue Tonal Pill) */
-.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
-#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton),
-#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton) {
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]),
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]),
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]) {
   background-color: var(--md-secondary-container) !important;
   color: var(--md-on-secondary-container) !important;
   border-color: transparent !important;
   font-weight: 600 !important;
 }
 
-.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
-#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover,
-#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):hover {
+.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover,
+#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover,
+#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover {
   background-color: #b9dcf7 !important;
   color: var(--md-on-secondary-container) !important;
 }
@@ -481,6 +483,79 @@ toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 .header-recipient:hover .recipient-multi-line-name,
 .header-recipient:hover .recipient-multi-line-address {
   color: var(--md-on-surface) !important;
+}
+
+/* Secondary Recipients (Pour, Copie à, etc.):
+   Hide empty avatar, make address book button the avatar on the left */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .recipient-avatar {
+  display: none !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button {
+  order: -1 !important;
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  min-inline-size: 20px !important;
+  min-block-size: 20px !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  background-color: var(--md-avatar-bg, var(--md-surface-high, #e0e2ec)) !important;
+  color: var(--md-avatar-fg, var(--md-on-surface, #1f1f1f)) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-inline-end: 6px !important;
+  margin-inline-start: 0 !important;
+  position: relative !important;
+  /* Default placeholder: crisp bonhomme contact icon */
+  background-image: var(--md-avatar-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 13px 13px !important;
+  transition: background-color var(--md-motion-short), transform 150ms ease !important;
+}
+
+/* When avatar character or photo is resolved: clear default placeholder */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button:is([style*="--md-avatar-char"], [style*="--md-avatar-img"]) {
+  background-image: var(--md-avatar-img, none) !important;
+  background-size: cover !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button[style*="--md-avatar-char"]::before {
+  content: var(--md-avatar-char, "") !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  color: inherit !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button:hover {
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+  transform: scale(1.08) !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button * {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient .recipient-address-book-button:hover {
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+  transform: scale(1.08) !important;
 }
 
 /* Material You Notification Banners */
@@ -1446,4 +1521,613 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   font-weight: 700 !important;
   color: var(--md-on-surface) !important;
   margin-block: 0 12px !important;
+}
+
+/* ==========================================================================
+   Multi-Message & Thread Summary View (Material You M3)
+   ========================================================================== */
+body:has(#headingWrapper),
+body:has(#messageList),
+#content:has(#messageList) {
+  background-color: var(--md-sys-color-surface-container-low, #edf2fa) !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#headingWrapper {
+  background-color: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+  border: none !important;
+  margin: 12px 14px 10px 14px !important;
+  padding: 16px 20px !important;
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+#summaryTitle {
+  font-weight: 700 !important;
+  font-size: 17px !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#summarySubtitle {
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton {
+  border-radius: 9999px !important;
+  background-color: #edf2fa !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  border: none !important;
+  padding: 6px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:hover,
+:is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button:hover {
+  background-color: #dfe7f2 !important;
+}
+
+/* Respect Thunderbird native button hiding */
+#header-view-toolbar [hidden],
+#header-view-toolbar [collapsed="true"],
+.message-header-view-button[hidden],
+.message-header-view-button[collapsed="true"] {
+  display: none !important;
+}
+
+#messageList {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+#messageList > li {
+  background-color: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  padding: 14px 18px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  transition: box-shadow 200ms ease, transform 150ms ease !important;
+}
+
+#messageList > li:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Unread Message Cards in Multimessage View - Uniform with Main Thread Tree */
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) {
+  border-inline-start: 3px solid var(--md-sys-color-primary, #0B57D0) !important;
+}
+
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) .item-header .author,
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) .item-header .author.link {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#messageList > li:is(.unread, [unread], [data-properties~="unread"]) .item-header .subject {
+  font-weight: 600 !important;
+  color: var(--md-sys-color-primary, #0B57D0) !important;
+}
+
+/* Remove ALL unread dots in multimessage view */
+#messageList > li::before,
+#messageList > li::after,
+#messageList > li.unread::before,
+#messageList > li.unread::after,
+#messageList .item-header::before,
+#messageList .item-header::after,
+#messageList .left-block::before,
+#messageList .left-block::after,
+#messageList .unread-icon,
+#messageList [class*="unread-icon"],
+#messageList .unread-dot,
+#messageList .unread {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
+  background: none !important;
+  border: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Small text-sized avatar for sender in multimessage view (18px) */
+#messageList .item-header .author::before,
+#messageList .item-header .multi-avatar {
+  content: var(--author-char, "") !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 18px !important;
+  block-size: 18px !important;
+  min-inline-size: 18px !important;
+  min-block-size: 18px !important;
+  border-radius: 50% !important;
+  background-color: var(--author-bg, var(--multi-avatar-bg, #c2e7ff)) !important;
+  color: var(--author-fg, var(--multi-avatar-fg, #001d35)) !important;
+  background-image: var(--author-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23001d35'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 11px 11px !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 18px !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  flex-shrink: 0 !important;
+  margin-inline-end: 6px !important;
+  vertical-align: middle !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  user-select: none !important;
+}
+
+#messageList .item-header .author:is([style*="--author-char"], [style*="--author-img"])::before {
+  background-image: var(--author-img, none) !important;
+  background-size: cover !important;
+}
+
+#messageList .item-header .author {
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+#messageList .item-header .date {
+  font-size: 12px !important;
+  color: var(--md-sys-color-outline, #747775) !important;
+}
+
+#messageList .snippet {
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+
+/* Thread card expansion & twisty button styles */
+#threadTree tr.card-layout.children,
+#threadTree tr.card-layout:has(button.twisty),
+#threadTree tr.card-layout[aria-expanded] {
+  height: auto !important;
+}
+
+#threadTree tr.card-layout.children .card-container,
+#threadTree tr.card-layout:has(button.twisty) .card-container,
+#threadTree tr.card-layout[aria-expanded] .card-container {
+  min-block-size: 46px !important;
+  max-block-size: none !important;
+  margin: 2px 6px !important;
+  padding-block: 2px 3px !important;
+  padding-inline-start: 10px !important;
+  padding-inline-end: 8px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+#threadTree tr.card-layout.children .card-container > .thread-card-column:not(.read-status-column) {
+  gap: 0px !important;
+  min-height: 0 !important;
+  justify-content: center !important;
+}
+
+#threadTree tr.card-layout.children .card-container .thread-card-row:first-child,
+#threadTree tr.card-layout.children .card-container .sender-row {
+  margin-block-end: 0px !important;
+  line-height: 1.18 !important;
+}
+
+#threadTree tr.card-layout.children .card-container .subject {
+  line-height: 1.18 !important;
+  font-size: 12px !important;
+}
+
+#threadTree tr.card-layout.children .card-container .thread-card-dynamic-row,
+#threadTree tr.card-layout.children .card-container button.twisty {
+  min-block-size: 16px !important;
+  height: 16px !important;
+  line-height: 14px !important;
+  font-size: 10.5px !important;
+  padding-block: 0px 1px !important;
+  padding-inline: 7px !important;
+  margin-block-start: 1px !important;
+  margin-block-end: 0px !important;
+}
+
+/* Hide twisty button on rows with NO replies/children */
+#threadTree tr:not(.children) button.twisty,
+#threadTree tr:not(.children) .thread-card-button {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Only display and style twisty pill when the thread has replies */
+#threadTree tr.children button.twisty,
+#threadTree tr.children .thread-card-button,
+.children button.twisty {
+  border-radius: var(--md-shape-full, 9999px) !important;
+  border: 1px solid transparent !important;
+  outline: none !important;
+  background-color: #edf2fa !important;
+  color: var(--md-on-surface-variant, #444746) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding-block: 2px !important;
+  padding-inline: 8px !important;
+  gap: 4px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  min-block-size: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short) !important;
+}
+
+#threadTree tr.children button.twisty:hover,
+#threadTree tr.children .thread-card-button:hover,
+.children button.twisty:hover {
+  background-color: #dfe7f2 !important;
+  color: var(--md-on-surface, #1f1f1f) !important;
+  border-color: transparent !important;
+}
+
+/* Icon inside the twisty pill - hide native green unread dot */
+#threadTree button.twisty img,
+#threadTree button.twisty .replies-icon,
+#threadTree button.twisty .twisty-icon,
+#threadTree button.twisty [class*="unread"],
+#threadTree button.twisty::before {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* When thread has unread replies: turn the twisty button into a vibrant Material You Primary Blue pill with crisp white text */
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
+  background-color: #0B57D0 !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+  box-shadow: 0 1px 2px rgba(11, 87, 208, 0.3) !important;
+}
+
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty *,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty span,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty label,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover,
+#threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button:hover,
+.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover {
+  background-color: #0842a0 !important;
+  color: #FFFFFF !important;
+}
+
+tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
+tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
+  background-color: #0B57D0 !important;
+  color: #FFFFFF !important;
+}
+
+tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty *,
+tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+/* Base border for ALL cards: transparent 4px to maintain strict alignment */
+#threadTree tr.card-layout .card-container {
+  border-inline-start: 4px solid transparent !important;
+}
+
+/* UNREAD CARDS & COLLAPSED THREADS WITH UNREAD REPLIES:
+   Always gets the 4px Material Primary Blue Border on the left.
+   Placed AFTER the transparent base border so it can NEVER be overridden! */
+#threadTree tr.card-layout:is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout.selected:is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout[aria-selected="true"]:is(
+  [data-properties*="unread" i],
+  [data-properties*="hasUnread" i],
+  .unread,
+  .has-unread-replies,
+  :has(button.twisty.has-unread),
+  :has(button.twisty[class*="unread"]),
+  :has(button.twisty[data-properties*="unread" i]),
+  :has(button.twisty[aria-label*="unread" i]),
+  :has(button.twisty[aria-label*="non lu" i])
+):not([aria-expanded="true"]) .card-container,
+#threadTree tr.card-layout:is([data-properties~="unread"], .unread) .card-container {
+  border-inline-start: 4px solid var(--md-primary, #0B57D0) !important;
+}
+
+/* Expanded thread: remove blue border from parent if parent message itself is read */
+#threadTree tr.card-layout.children[aria-expanded="true"]:not([data-properties~="unread"]):not(.unread) .card-container {
+  border-inline-start: 4px solid transparent !important;
+}
+
+/* Collapsed read messages in expanded thread */
+tr.card-layout.material-thread-read-hidden {
+  display: none !important;
+}
+
+/* Button to reveal all read messages in the thread */
+.material-thread-toggle-row td {
+  padding: 2px 8px !important;
+}
+
+.material-show-all-thread-btn {
+  margin: 2px 18px 4px 44px !important;
+  padding: 3px 12px !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  background-color: var(--md-surface-high, #e0e2ec) !important;
+  color: var(--md-on-surface-variant, #444746) !important;
+  border: none !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all var(--md-motion-short) !important;
+}
+
+.material-show-all-thread-btn:hover {
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+}
+
+/* Material You 1-Click Unsubscribe Banner */
+#material-unsubscribe-banner,
+.material-unsubscribe-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background-color: var(--md-surface-lowest, #ffffff) !important;
+  color: var(--md-on-surface, #1f1f1f) !important;
+  border-radius: var(--md-shape-medium, 12px) !important;
+  padding: 10px 18px !important;
+  margin: 0 14px 10px 14px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  font-size: 13px !important;
+  box-sizing: border-box !important;
+  gap: 12px !important;
+}
+
+#material-unsubscribe-banner .material-unsub-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+#material-unsubscribe-banner .material-unsub-icon {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+#material-unsubscribe-banner .material-unsub-details {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+}
+
+#material-unsubscribe-banner .material-unsub-title {
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  color: var(--md-on-surface, #1f1f1f) !important;
+}
+
+#material-unsubscribe-banner .material-unsub-desc {
+  font-size: 12px !important;
+  color: var(--md-on-surface-variant, #444746) !important;
+}
+
+#material-unsubscribe-banner .material-unsub-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+#material-unsubscribe-banner .material-unsub-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background-color: var(--md-primary, #0B57D0) !important;
+  color: var(--md-on-primary, #ffffff) !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  padding: 6px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+#material-unsubscribe-banner .material-unsub-close {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--md-on-surface-variant, #444746) !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+/* ==========================================================================
+   Secondary Recipients (Pour, Copie à, Réponse à) - Bonhomme Avatar Placeholder
+   ========================================================================== */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button) {
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  min-inline-size: 20px !important;
+  min-block-size: 20px !important;
+  border-radius: var(--md-shape-full, 9999px) !important;
+  background-color: var(--md-avatar-bg, var(--md-surface-container-high, #e0e2ec)) !important;
+  color: var(--md-avatar-fg, var(--md-on-surface, #1f1f1f)) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-inline-end: 6px !important;
+  margin-inline-start: 0 !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  order: -1 !important;
+  overflow: hidden !important;
+  background-image: var(--md-avatar-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 13px 13px !important;
+  transition: background-color var(--md-motion-short), color var(--md-motion-short), transform 150ms ease !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button) :is(img, image, svg, .avatar-icon):not([src*="http"]):not([src*="data:image"]):not([src*="blob"]) {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient:has(.recipient-address-book-button) .recipient-avatar {
+  display: none !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button):is([style*="--md-avatar-char"], [style*="--md-avatar-img"]) {
+  background-image: var(--md-avatar-img, none) !important;
+  background-size: cover !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button)[style*="--md-avatar-char"]::before {
+  content: var(--md-avatar-char, "") !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  font-family: var(--md-font-brand, -apple-system, sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  color: inherit !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button):hover {
+  background-color: var(--md-secondary-container, #c2e7ff) !important;
+  color: var(--md-on-secondary-container, #001d35) !important;
+  transform: scale(1.08) !important;
+}
+
+/* ==========================================================================
+   Responsive Header Action Toolbar (Wraps onto 2nd line without squeezing recipients)
+   ========================================================================== */
+#header-view-toolbox {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  max-width: 400px !important;
+  min-width: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+#header-view-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 3px 5px !important;
+  max-width: 380px !important;
+}
+
+#header-view-toolbar .message-header-view-button,
+#header-view-toolbar .toolbarbutton-1 {
+  flex-shrink: 0 !important;
+  margin: 1px 2px !important;
+}
+
+@media (max-width: 950px) {
+  #header-view-toolbox {
+    max-width: 340px !important;
+  }
+  #header-view-toolbar {
+    max-width: 320px !important;
+  }
+}
+
+@media (max-width: 750px) {
+  #header-view-toolbox {
+    max-width: 100% !important;
+    align-self: flex-start !important;
+    margin-top: 8px !important;
+  }
+  #header-view-toolbar {
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+  }
 }

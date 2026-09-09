@@ -1,0 +1,449 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Avatars & Tonal Color Hashing (Thread Tree & Message Header)
+ *
+ * Provides high-entropy Material You tonal color palettes derived from
+ * a hash of the sender/contact name and email address.
+ * Two contacts sharing the same initial letter receive different colors!
+ */
+
+/* ==========================================================================
+   1. THREAD TREE CARDS - SENDER AVATARS
+   ========================================================================== */
+
+/* Card container: dedicated avatar column and content column with balanced margins & vertical padding */
+#threadTree tr.card-layout .card-container {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  column-gap: 10px !important;
+  align-items: center !important;
+  min-block-size: 54px !important;
+  padding-block: 5px 6px !important;
+  padding-inline-start: 10px !important;
+  padding-inline-end: 8px !important;
+  box-sizing: border-box !important;
+}
+
+/* Structure of the avatar column inside each message card (First Column) */
+#threadTree tr.card-layout .card-container > .read-status-column {
+  grid-column: 1 !important;
+  inline-size: 40px !important;
+  min-inline-size: 40px !important;
+  block-size: 100% !important;
+  min-block-size: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  position: relative !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Message Content Column (Second Column - explicitly excludes .read-status-column) */
+#threadTree tr.card-layout .card-container > .thread-card-column:not(.read-status-column) {
+  grid-column: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-self: center !important;
+  min-inline-size: 0 !important;
+  overflow: hidden !important;
+  gap: 2px !important;
+}
+
+/* Avatar Circle (Rendered via ::before on .read-status-column) */
+#threadTree tr.card-layout .card-container .read-status-column::before {
+  content: var(--md-avatar-char, "") !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 38px !important;
+  block-size: 38px !important;
+  min-inline-size: 38px !important;
+  min-block-size: 38px !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  user-select: none !important;
+  background-color: var(--md-avatar-bg, #E0E2EC) !important;
+  color: var(--md-avatar-fg, #444746) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  transition: transform var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease),
+              background-color 250ms ease,
+              color 250ms ease !important;
+}
+
+/* Default Placeholder State (Instant non-blocking rendering) */
+#threadTree tr.card-layout:not(.avatar-loaded) .card-container .read-status-column::before {
+  background-color: var(--md-avatar-bg, #E0E2EC) !important;
+  color: var(--md-avatar-fg, #747775) !important;
+}
+
+/* Avatar Loaded Animation */
+#threadTree tr.card-layout.avatar-loaded .card-container .read-status-column::before {
+  animation: avatarLoadedFade 200ms ease forwards;
+}
+
+@keyframes avatarLoadedFade {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Hover effect on message card: subtle avatar scale */
+#threadTree tr.card-layout:hover .card-container .read-status-column::before {
+  transform: scale(1.05) !important;
+}
+
+/* Unread status: Remove blue dot overlaid on the avatar (left blue border is sufficient) */
+#threadTree .card-container .read-status-column .read-status,
+#threadTree tr.card-layout .card-container .read-status-column .read-status {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+
+/* ==========================================================================
+   2. MESSAGE HEADER - SENDER & RECIPIENTS AVATARS
+   ========================================================================== */
+
+/* Main sender avatar in message header */
+#expandedfromBox .recipient-avatar {
+  background-color: var(--md-avatar-bg, var(--md-sys-color-primary-container)) !important;
+  color: var(--md-avatar-fg, var(--md-sys-color-on-primary-container)) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  inline-size: 38px !important;
+  block-size: 38px !important;
+  min-inline-size: 38px !important;
+  min-block-size: 38px !important;
+}
+
+#expandedfromBox .recipient-avatar span {
+  color: inherit !important;
+  font-weight: 700 !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+}
+
+/* Secondary Recipients (Pour, Copie à, Réponse à, Cci) :
+   Replaces default gray empty circle with a crisp Material Design bonhomme contact icon placeholder! */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button) {
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  min-inline-size: 20px !important;
+  min-block-size: 20px !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: var(--md-avatar-bg, var(--md-sys-color-surface-container-high, #e0e2ec)) !important;
+  color: var(--md-avatar-fg, var(--md-sys-color-on-surface, #1f1f1f)) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-inline-end: 6px !important;
+  margin-inline-start: 0 !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  order: -1 !important;
+  overflow: hidden !important;
+  /* Default placeholder: crisp bonhomme contact icon (never an empty gray circle) */
+  background-image: var(--md-avatar-img, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%23444746'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E")) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 13px 13px !important;
+  transition: background-color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease),
+              color var(--md-motion-duration-short, 200ms) var(--md-motion-easing-standard, ease),
+              transform 150ms ease !important;
+}
+
+/* Hide native blank images/SVGs inside recipient avatar so the bonhomme icon always shines through */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button) :is(img, image, svg, .avatar-icon):not([src*="http"]):not([src*="data:image"]):not([src*="blob"]) {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Avoid duplicate adjacent avatar icons if both recipient-address-book-button and recipient-avatar exist */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) .header-recipient:has(.recipient-address-book-button) .recipient-avatar {
+  display: none !important;
+}
+
+/* When avatar character or photo is resolved: clear default placeholder */
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button):is([style*="--md-avatar-char"], [style*="--md-avatar-img"]) {
+  background-image: var(--md-avatar-img, none) !important;
+  background-size: cover !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button)[style*="--md-avatar-char"]::before {
+  content: var(--md-avatar-char, "") !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  inline-size: 100% !important;
+  block-size: 100% !important;
+  font-family: var(--md-sys-typescale-font-brand, -apple-system, "Google Sans", "Roboto", "Segoe UI", sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  color: inherit !important;
+}
+
+:is(#expandedtoBox, #expandedccBox, #expandedbccBox, #expandedreply-toBox) :is(.recipient-avatar, .recipient-address-book-button):hover {
+  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
+  color: var(--md-sys-color-on-secondary-container, #001d35) !important;
+  transform: scale(1.08) !important;
+  opacity: 1 !important;
+}
+
+
+/* ==========================================================================
+   3. AVATAR CHARACTER DETERMINATION (A-Z, Accents, Digits)
+   ========================================================================== */
+
+/* Letter A */
+tr.card-layout:is(:has(.sender[title^="A" i]), :has(.sender[title^="\"A" i]), :has(.sender[title^="'A" i]), :has(.sender[title^="Ã€" i]), :has(.sender[title^="\"Ã€" i]), :has(.sender[title^="'Ã€" i]), :has(.sender[title^="Ã‚" i]), :has(.sender[title^="\"Ã‚" i]), :has(.sender[title^="'Ã‚" i]), :has(.sender[title^="Ã„" i]), :has(.sender[title^="\"Ã„" i]), :has(.sender[title^="'Ã„" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="A" i]), :has(.recipient-single-line[title^="\"A" i]), :has(.recipient-single-line[title^="'A" i]), :has(.recipient-single-line[title^="Ã€" i]), :has(.recipient-single-line[title^="\"Ã€" i]), :has(.recipient-single-line[title^="'Ã€" i]), :has(.recipient-single-line[title^="Ã‚" i]), :has(.recipient-single-line[title^="\"Ã‚" i]), :has(.recipient-single-line[title^="'Ã‚" i]), :has(.recipient-single-line[title^="Ã„" i]), :has(.recipient-single-line[title^="\"Ã„" i]), :has(.recipient-single-line[title^="'Ã„" i])) {
+  --md-avatar-char: "A";
+  --md-avatar-bg: #FFD8D3;
+  --md-avatar-fg: #3A0B07;
+}
+
+/* Letter B */
+tr.card-layout:is(:has(.sender[title^="B" i]), :has(.sender[title^="\"B" i]), :has(.sender[title^="'B" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="B" i]), :has(.recipient-single-line[title^="\"B" i]), :has(.recipient-single-line[title^="'B" i])) {
+  --md-avatar-char: "B";
+  --md-avatar-bg: #D3E3FD;
+  --md-avatar-fg: #041E49;
+}
+
+/* Letter C */
+tr.card-layout:is(:has(.sender[title^="C" i]), :has(.sender[title^="\"C" i]), :has(.sender[title^="'C" i]), :has(.sender[title^="Ã‡" i]), :has(.sender[title^="\"Ã‡" i]), :has(.sender[title^="'Ã‡" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="C" i]), :has(.recipient-single-line[title^="\"C" i]), :has(.recipient-single-line[title^="'C" i]), :has(.recipient-single-line[title^="Ã‡" i]), :has(.recipient-single-line[title^="\"Ã‡" i]), :has(.recipient-single-line[title^="'Ã‡" i])) {
+  --md-avatar-char: "C";
+  --md-avatar-bg: #C4EED0;
+  --md-avatar-fg: #072711;
+}
+
+/* Letter D */
+tr.card-layout:is(:has(.sender[title^="D" i]), :has(.sender[title^="\"D" i]), :has(.sender[title^="'D" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="D" i]), :has(.recipient-single-line[title^="\"D" i]), :has(.recipient-single-line[title^="'D" i])) {
+  --md-avatar-char: "D";
+  --md-avatar-bg: #EEDCFF;
+  --md-avatar-fg: #2E004E;
+}
+
+/* Letter E */
+tr.card-layout:is(:has(.sender[title^="E" i]), :has(.sender[title^="\"E" i]), :has(.sender[title^="'E" i]), :has(.sender[title^="Ã‰" i]), :has(.sender[title^="\"Ã‰" i]), :has(.sender[title^="'Ã‰" i]), :has(.sender[title^="Ãˆ" i]), :has(.sender[title^="\"Ãˆ" i]), :has(.sender[title^="'Ãˆ" i]), :has(.sender[title^="ÃŠ" i]), :has(.sender[title^="\"ÃŠ" i]), :has(.sender[title^="'ÃŠ" i]), :has(.sender[title^="Ã‹" i]), :has(.sender[title^="\"Ã‹" i]), :has(.sender[title^="'Ã‹" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="E" i]), :has(.recipient-single-line[title^="\"E" i]), :has(.recipient-single-line[title^="'E" i]), :has(.recipient-single-line[title^="Ã‰" i]), :has(.recipient-single-line[title^="\"Ã‰" i]), :has(.recipient-single-line[title^="'Ã‰" i]), :has(.recipient-single-line[title^="Ãˆ" i]), :has(.recipient-single-line[title^="\"Ãˆ" i]), :has(.recipient-single-line[title^="'Ãˆ" i]), :has(.recipient-single-line[title^="ÃŠ" i]), :has(.recipient-single-line[title^="\"ÃŠ" i]), :has(.recipient-single-line[title^="'ÃŠ" i]), :has(.recipient-single-line[title^="Ã‹" i]), :has(.recipient-single-line[title^="\"Ã‹" i]), :has(.recipient-single-line[title^="'Ã‹" i])) {
+  --md-avatar-char: "E";
+  --md-avatar-bg: #FFE088;
+  --md-avatar-fg: #261900;
+}
+
+/* Letter F */
+tr.card-layout:is(:has(.sender[title^="F" i]), :has(.sender[title^="\"F" i]), :has(.sender[title^="'F" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="F" i]), :has(.recipient-single-line[title^="\"F" i]), :has(.recipient-single-line[title^="'F" i])) {
+  --md-avatar-char: "F";
+  --md-avatar-bg: #C2F0EB;
+  --md-avatar-fg: #00201D;
+}
+
+/* Letter G */
+tr.card-layout:is(:has(.sender[title^="G" i]), :has(.sender[title^="\"G" i]), :has(.sender[title^="'G" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="G" i]), :has(.recipient-single-line[title^="\"G" i]), :has(.recipient-single-line[title^="'G" i])) {
+  --md-avatar-char: "G";
+  --md-avatar-bg: #FFD8E4;
+  --md-avatar-fg: #3B071E;
+}
+
+/* Letter H */
+tr.card-layout:is(:has(.sender[title^="H" i]), :has(.sender[title^="\"H" i]), :has(.sender[title^="'H" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="H" i]), :has(.recipient-single-line[title^="\"H" i]), :has(.recipient-single-line[title^="'H" i])) {
+  --md-avatar-char: "H";
+  --md-avatar-bg: #C2E7FF;
+  --md-avatar-fg: #001D35;
+}
+
+/* Letter I */
+tr.card-layout:is(:has(.sender[title^="I" i]), :has(.sender[title^="\"I" i]), :has(.sender[title^="'I" i]), :has(.sender[title^="ÃŽ" i]), :has(.sender[title^="\"ÃŽ" i]), :has(.sender[title^="'ÃŽ" i]), :has(.sender[title^="Ã" i]), :has(.sender[title^="\"Ã" i]), :has(.sender[title^="'Ã" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="I" i]), :has(.recipient-single-line[title^="\"I" i]), :has(.recipient-single-line[title^="'I" i]), :has(.recipient-single-line[title^="ÃŽ" i]), :has(.recipient-single-line[title^="\"ÃŽ" i]), :has(.recipient-single-line[title^="'ÃŽ" i]), :has(.recipient-single-line[title^="Ã" i]), :has(.recipient-single-line[title^="\"Ã" i]), :has(.recipient-single-line[title^="'Ã" i])) {
+  --md-avatar-char: "I";
+  --md-avatar-bg: #E1EAAF;
+  --md-avatar-fg: #1B1F00;
+}
+
+/* Letter J */
+tr.card-layout:is(:has(.sender[title^="J" i]), :has(.sender[title^="\"J" i]), :has(.sender[title^="'J" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="J" i]), :has(.recipient-single-line[title^="\"J" i]), :has(.recipient-single-line[title^="'J" i])) {
+  --md-avatar-char: "J";
+  --md-avatar-bg: #FFDBCA;
+  --md-avatar-fg: #360F00;
+}
+
+/* Letter K */
+tr.card-layout:is(:has(.sender[title^="K" i]), :has(.sender[title^="\"K" i]), :has(.sender[title^="'K" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="K" i]), :has(.recipient-single-line[title^="\"K" i]), :has(.recipient-single-line[title^="'K" i])) {
+  --md-avatar-char: "K";
+  --md-avatar-bg: #E8DEF8;
+  --md-avatar-fg: #1D192B;
+}
+
+/* Letter L */
+tr.card-layout:is(:has(.sender[title^="L" i]), :has(.sender[title^="\"L" i]), :has(.sender[title^="'L" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="L" i]), :has(.recipient-single-line[title^="\"L" i]), :has(.recipient-single-line[title^="'L" i])) {
+  --md-avatar-char: "L";
+  --md-avatar-bg: #B9F2D5;
+  --md-avatar-fg: #002114;
+}
+
+/* Letter M */
+tr.card-layout:is(:has(.sender[title^="M" i]), :has(.sender[title^="\"M" i]), :has(.sender[title^="'M" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="M" i]), :has(.recipient-single-line[title^="\"M" i]), :has(.recipient-single-line[title^="'M" i])) {
+  --md-avatar-char: "M";
+  --md-avatar-bg: #FFDAD6;
+  --md-avatar-fg: #410002;
+}
+
+/* Letter N */
+tr.card-layout:is(:has(.sender[title^="N" i]), :has(.sender[title^="\"N" i]), :has(.sender[title^="'N" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="N" i]), :has(.recipient-single-line[title^="\"N" i]), :has(.recipient-single-line[title^="'N" i])) {
+  --md-avatar-char: "N";
+  --md-avatar-bg: #DBE1FF;
+  --md-avatar-fg: #00174B;
+}
+
+/* Letter O */
+tr.card-layout:is(:has(.sender[title^="O" i]), :has(.sender[title^="\"O" i]), :has(.sender[title^="'O" i]), :has(.sender[title^="Ã”" i]), :has(.sender[title^="\"Ã”" i]), :has(.sender[title^="'Ã”" i]), :has(.sender[title^="Ã–" i]), :has(.sender[title^="\"Ã–" i]), :has(.sender[title^="'Ã–" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="O" i]), :has(.recipient-single-line[title^="\"O" i]), :has(.recipient-single-line[title^="'O" i]), :has(.recipient-single-line[title^="Ã”" i]), :has(.recipient-single-line[title^="\"Ã”" i]), :has(.recipient-single-line[title^="'Ã”" i]), :has(.recipient-single-line[title^="Ã–" i]), :has(.recipient-single-line[title^="\"Ã–" i]), :has(.recipient-single-line[title^="'Ã–" i])) {
+  --md-avatar-char: "O";
+  --md-avatar-bg: #FFDDB8;
+  --md-avatar-fg: #2A1700;
+}
+
+/* Letter P */
+tr.card-layout:is(:has(.sender[title^="P" i]), :has(.sender[title^="\"P" i]), :has(.sender[title^="'P" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="P" i]), :has(.recipient-single-line[title^="\"P" i]), :has(.recipient-single-line[title^="'P" i])) {
+  --md-avatar-char: "P";
+  --md-avatar-bg: #F5D9FF;
+  --md-avatar-fg: #2B003A;
+}
+
+/* Letter Q */
+tr.card-layout:is(:has(.sender[title^="Q" i]), :has(.sender[title^="\"Q" i]), :has(.sender[title^="'Q" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="Q" i]), :has(.recipient-single-line[title^="\"Q" i]), :has(.recipient-single-line[title^="'Q" i])) {
+  --md-avatar-char: "Q";
+  --md-avatar-bg: #D7E8CD;
+  --md-avatar-fg: #111F0E;
+}
+
+/* Letter R */
+tr.card-layout:is(:has(.sender[title^="R" i]), :has(.sender[title^="\"R" i]), :has(.sender[title^="'R" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="R" i]), :has(.recipient-single-line[title^="\"R" i]), :has(.recipient-single-line[title^="'R" i])) {
+  --md-avatar-char: "R";
+  --md-avatar-bg: #D8E2FF;
+  --md-avatar-fg: #001944;
+}
+
+/* Letter S */
+tr.card-layout:is(:has(.sender[title^="S" i]), :has(.sender[title^="\"S" i]), :has(.sender[title^="'S" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="S" i]), :has(.recipient-single-line[title^="\"S" i]), :has(.recipient-single-line[title^="'S" i])) {
+  --md-avatar-char: "S";
+  --md-avatar-bg: #FFDAD4;
+  --md-avatar-fg: #3A0905;
+}
+
+/* Letter T */
+tr.card-layout:is(:has(.sender[title^="T" i]), :has(.sender[title^="\"T" i]), :has(.sender[title^="'T" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="T" i]), :has(.recipient-single-line[title^="\"T" i]), :has(.recipient-single-line[title^="'T" i])) {
+  --md-avatar-char: "T";
+  --md-avatar-bg: #BCEBEE;
+  --md-avatar-fg: #002022;
+}
+
+/* Letter U */
+tr.card-layout:is(:has(.sender[title^="U" i]), :has(.sender[title^="\"U" i]), :has(.sender[title^="'U" i]), :has(.sender[title^="Ã›" i]), :has(.sender[title^="\"Ã›" i]), :has(.sender[title^="'Ã›" i]), :has(.sender[title^="Ãœ" i]), :has(.sender[title^="\"Ãœ" i]), :has(.sender[title^="'Ãœ" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="U" i]), :has(.recipient-single-line[title^="\"U" i]), :has(.recipient-single-line[title^="'U" i]), :has(.recipient-single-line[title^="Ã›" i]), :has(.recipient-single-line[title^="\"Ã›" i]), :has(.recipient-single-line[title^="'Ã›" i]), :has(.recipient-single-line[title^="Ãœ" i]), :has(.recipient-single-line[title^="\"Ãœ" i]), :has(.recipient-single-line[title^="'Ãœ" i])) {
+  --md-avatar-char: "U";
+  --md-avatar-bg: #F3DAFF;
+  --md-avatar-fg: #2A003F;
+}
+
+/* Letter V */
+tr.card-layout:is(:has(.sender[title^="V" i]), :has(.sender[title^="\"V" i]), :has(.sender[title^="'V" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="V" i]), :has(.recipient-single-line[title^="\"V" i]), :has(.recipient-single-line[title^="'V" i])) {
+  --md-avatar-char: "V";
+  --md-avatar-bg: #C7EAD4;
+  --md-avatar-fg: #002113;
+}
+
+/* Letter W */
+tr.card-layout:is(:has(.sender[title^="W" i]), :has(.sender[title^="\"W" i]), :has(.sender[title^="'W" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="W" i]), :has(.recipient-single-line[title^="\"W" i]), :has(.recipient-single-line[title^="'W" i])) {
+  --md-avatar-char: "W";
+  --md-avatar-bg: #FFDF9E;
+  --md-avatar-fg: #251A00;
+}
+
+/* Letter X */
+tr.card-layout:is(:has(.sender[title^="X" i]), :has(.sender[title^="\"X" i]), :has(.sender[title^="'X" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="X" i]), :has(.recipient-single-line[title^="\"X" i]), :has(.recipient-single-line[title^="'X" i])) {
+  --md-avatar-char: "X";
+  --md-avatar-bg: #FFD7F1;
+  --md-avatar-fg: #36002D;
+}
+
+/* Letter Y */
+tr.card-layout:is(:has(.sender[title^="Y" i]), :has(.sender[title^="\"Y" i]), :has(.sender[title^="'Y" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="Y" i]), :has(.recipient-single-line[title^="\"Y" i]), :has(.recipient-single-line[title^="'Y" i])) {
+  --md-avatar-char: "Y";
+  --md-avatar-bg: #FFD8D3;
+  --md-avatar-fg: #3A0B07;
+}
+
+/* Letter Z */
+tr.card-layout:is(:has(.sender[title^="Z" i]), :has(.sender[title^="\"Z" i]), :has(.sender[title^="'Z" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="Z" i]), :has(.recipient-single-line[title^="\"Z" i]), :has(.recipient-single-line[title^="'Z" i])) {
+  --md-avatar-char: "Z";
+  --md-avatar-bg: #D3E3FD;
+  --md-avatar-fg: #041E49;
+}
+
+/* Digits 0-9 */
+tr.card-layout:is(:has(.sender[title^="0"]), :has(.sender[title^="\"0"]), :has(.sender[title^="1"]), :has(.sender[title^="\"1"]), :has(.sender[title^="2"]), :has(.sender[title^="\"2"]), :has(.sender[title^="3"]), :has(.sender[title^="\"3"]), :has(.sender[title^="4"]), :has(.sender[title^="\"4"]), :has(.sender[title^="5"]), :has(.sender[title^="\"5"]), :has(.sender[title^="6"]), :has(.sender[title^="\"6"]), :has(.sender[title^="7"]), :has(.sender[title^="\"7"]), :has(.sender[title^="8"]), :has(.sender[title^="\"8"]), :has(.sender[title^="9"]), :has(.sender[title^="\"9"])),
+.header-recipient:is(:has(.recipient-single-line[title^="0"]), :has(.recipient-single-line[title^="\"0"]), :has(.recipient-single-line[title^="1"]), :has(.recipient-single-line[title^="\"1"]), :has(.recipient-single-line[title^="2"]), :has(.recipient-single-line[title^="\"2"]), :has(.recipient-single-line[title^="3"]), :has(.recipient-single-line[title^="\"3"]), :has(.recipient-single-line[title^="4"]), :has(.recipient-single-line[title^="\"4"]), :has(.recipient-single-line[title^="5"]), :has(.recipient-single-line[title^="\"5"]), :has(.recipient-single-line[title^="6"]), :has(.recipient-single-line[title^="\"6"]), :has(.recipient-single-line[title^="7"]), :has(.recipient-single-line[title^="\"7"]), :has(.recipient-single-line[title^="8"]), :has(.recipient-single-line[title^="\"8"]), :has(.recipient-single-line[title^="9"]), :has(.recipient-single-line[title^="\"9"])) {
+  --md-avatar-char: "#";
+  --md-avatar-bg: #E2E2E6;
+  --md-avatar-fg: #191C20;
+}
+
+/* ==========================================================================
+   4. DYNAMIC TONAL COLOR RESOLUTION (Non-blocking Asynchronous)
+   High-entropy palette assignment and sender hashing is performed
+   asynchronously by extension/scripts/thread-assistant.js during idle frames
+   so that rendering is never blocked, with instantaneous placeholder fallback!
+   ========================================================================== */
+
+/* Subtle smooth transition when avatar custom property is resolved */
+#threadTree tr.card-layout .card-container .read-status-column::before {
+  will-change: background-color, color, transform;
+}

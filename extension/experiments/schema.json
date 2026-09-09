@@ -1,0 +1,31 @@
+[
+  {
+    "namespace": "materialAssistant",
+    "functions": [
+      {
+        "name": "showUnsubscribeBanner",
+        "type": "function",
+        "async": true,
+        "description": "Affiche le bandeau Material You de désinscription entre l'en-tête et le corps du mail.",
+        "parameters": [
+          {
+            "name": "unsubscribeUrl",
+            "type": "string"
+          },
+          {
+            "name": "senderName",
+            "type": "string",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "name": "hideUnsubscribeBanner",
+        "type": "function",
+        "async": true,
+        "description": "Masque le bandeau de désinscription.",
+        "parameters": []
+      }
+    ]
+  }
+]

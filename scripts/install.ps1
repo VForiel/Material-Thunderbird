@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Script d'installation 1-Clic pour le theme Material You sur Mozilla Thunderbird.
+    Script unique d'installation globale de Material-Thunderbird (Material You M3).
 .DESCRIPTION
-    Detecte automatiquement le profil Thunderbird actif, configure user.js pour activer
-    toolkit.legacyUserProfileCustomizations.stylesheets et deploie les feuilles de style chrome/.
+    Detecte automatiquement le profil Thunderbird actif, active les preferences necessaires
+    dans user.js, deploie les feuilles de style chrome/, et compile l'extension .xpi.
 .PARAMETER DryRun
     Affiche les actions sans modifier le systeme.
 #>
@@ -15,7 +15,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "   Installation de Material-Thunderbird (Material You M3)   " -ForegroundColor Cyan
+Write-Host "   Installation Globale de Material-Thunderbird (M3)        " -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
 
 # 1. Localiser le dossier Thunderbird dans AppData
@@ -93,7 +93,7 @@ Write-Host "    $ProfileDir" -ForegroundColor Yellow
 $tbProcess = Get-Process -Name "thunderbird" -ErrorAction SilentlyContinue
 if ($tbProcess) {
     Write-Host "[!] Note : Mozilla Thunderbird est actuellement ouvert." -ForegroundColor Magenta
-    Write-Host "    Pensez a redemarrer Thunderbird apres l'installation pour appliquer le theme." -ForegroundColor Magenta
+    Write-Host "    Pensez a fermer et relancer Thunderbird apres l'installation pour appliquer les styles." -ForegroundColor Magenta
 }
 
 # 4. Verifier la source du dossier chrome/ dans le depot
@@ -105,55 +105,107 @@ if (-not (Test-Path $SourceChromeDir)) {
     exit 1
 }
 
-$DestChromeDir = Join-Path $ProfileDir "chrome"
+$AllProfiles = @($ProfileDir)
+$otherProfiles = Get-ChildItem (Join-Path $ThunderbirdDir "Profiles") -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+foreach ($p in $otherProfiles) {
+    if ($AllProfiles -notcontains $p) {
+        $AllProfiles += $p
+    }
+}
+
+Write-Host "[*] Profils cibles pour le deploiement :" -ForegroundColor Cyan
+foreach ($p in $AllProfiles) {
+    Write-Host "    - $p" -ForegroundColor Yellow
+}
 
 if ($DryRun) {
-    Write-Host "[DRY-RUN] Copie prevue de : $SourceChromeDir vers $DestChromeDir" -ForegroundColor Cyan
-    Write-Host "[DRY-RUN] Activation de toolkit.legacyUserProfileCustomizations.stylesheets dans user.js" -ForegroundColor Cyan
+    foreach ($p in $AllProfiles) {
+        Write-Host "[DRY-RUN] Deploiement prevu dans : $p" -ForegroundColor Cyan
+    }
     Write-Host "[DRY-RUN] Test termine avec succes." -ForegroundColor Green
     return
 }
 
-# 5. Copie des fichiers chrome/ vers le profil
-Write-Host "[*] Deploiement des styles Material You dans le profil..." -ForegroundColor Cyan
-if (-not (Test-Path $DestChromeDir)) {
-    New-Item -ItemType Directory -Path $DestChromeDir | Out-Null
-}
-
-Copy-Item -Path "$SourceChromeDir\*" -Destination $DestChromeDir -Recurse -Force
-Write-Host "[+] Fichiers CSS deployes avec succes dans $DestChromeDir" -ForegroundColor Green
-
-# 6. Mise a jour / Creation de user.js pour activer les feuilles de style
-$UserJsPath = Join-Path $ProfileDir "user.js"
+# 5. Deploiement des styles et configuration pour chaque profil
 $PrefsToAdd = @(
     'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);',
-    'user_pref("svg.context-properties.content.enabled", true);'
+    'user_pref("svg.context-properties.content.enabled", true);',
+    'user_pref("extensions.experiments.enabled", true);',
+    'user_pref("xpinstall.signatures.required", false);'
 )
 
-$existingContent = ""
-if (Test-Path $UserJsPath) {
-    $existingContent = Get-Content $UserJsPath -Raw
-}
+foreach ($targetDir in $AllProfiles) {
+    # A. Copie du dossier chrome/
+    $destChrome = Join-Path $targetDir "chrome"
+    if (-not (Test-Path $destChrome)) {
+        New-Item -ItemType Directory -Path $destChrome | Out-Null
+    }
+    Copy-Item -Path "$SourceChromeDir\*" -Destination $destChrome -Recurse -Force
+    Write-Host "[+] Styles CSS deployes dans $destChrome" -ForegroundColor Green
 
-$linesToAppend = @()
-foreach ($pref in $PrefsToAdd) {
-    if ($existingContent -notmatch [regex]::Escape($pref)) {
-        $linesToAppend += $pref
+    # B. Configuration de user.js
+    $uJs = Join-Path $targetDir "user.js"
+    $existing = ""
+    if (Test-Path $uJs) {
+        $existing = Get-Content $uJs -Raw
+    }
+    $toAdd = @()
+    foreach ($pref in $PrefsToAdd) {
+        if ($existing -notmatch [regex]::Escape($pref)) {
+            $toAdd += $pref
+        }
+    }
+    if ($toAdd.Count -gt 0) {
+        Add-Content -Path $uJs -Value ($toAdd -join [Environment]::NewLine) -Encoding UTF8
+        Write-Host "[+] Preferences user.js mises a jour dans $targetDir" -ForegroundColor Green
     }
 }
 
-if ($linesToAppend.Count -gt 0) {
-    Write-Host "[*] Configuration de user.js pour activer le support CSS personnalise..." -ForegroundColor Cyan
-    Add-Content -Path $UserJsPath -Value ($linesToAppend -join [Environment]::NewLine) -Encoding UTF8
-    Write-Host "[+] Preferences activees avec succes dans user.js" -ForegroundColor Green
-} else {
-    Write-Host "[+] Support CSS deja actif dans user.js" -ForegroundColor Green
+# 6. Nettoyage d'anciens fichiers autoconfig residuels
+$tbCandidateDirs = @(
+    "C:\Program Files\Mozilla Thunderbird",
+    "C:\Program Files (x86)\Mozilla Thunderbird"
+)
+foreach ($tbDir in $tbCandidateDirs) {
+    $autoCfg = Join-Path $tbDir "defaults\pref\autoconfig.js"
+    $mozCfg  = Join-Path $tbDir "mozilla.cfg"
+    if (Test-Path $autoCfg) {
+        try { Remove-Item $autoCfg -Force -ErrorAction SilentlyContinue } catch {}
+    }
+    if (Test-Path $mozCfg) {
+        try { Remove-Item $mozCfg -Force -ErrorAction SilentlyContinue } catch {}
+    }
+}
+
+# 7. Recompilation automatique et deploiement de l'extension WebExtension .xpi
+$BuildScript = Join-Path $PSScriptRoot "build.ps1"
+if (Test-Path $BuildScript) {
+    try {
+        & $BuildScript | Out-Null
+        Write-Host "[+] Package WebExtension dist/material-thunderbird.xpi synchronise." -ForegroundColor Green
+        
+        $DistXpi = Join-Path $ProjectRoot "dist\material-thunderbird.xpi"
+        if (Test-Path $DistXpi) {
+            foreach ($targetDir in $AllProfiles) {
+                $extDir = Join-Path $targetDir "extensions"
+                if (-not (Test-Path $extDir)) {
+                    New-Item -ItemType Directory -Path $extDir | Out-Null
+                }
+                $targetXpi = Join-Path $extDir "material-you-thunderbird@vforiel.xpi"
+                Copy-Item -Path $DistXpi -Destination $targetXpi -Force
+                Write-Host "[+] Extension WebExtension synchronisee dans :" -ForegroundColor Green
+                Write-Host "    $targetXpi" -ForegroundColor Yellow
+            }
+        }
+    } catch {
+        Write-Host "[!] Note : Deploiement de l'extension (.xpi) reporte : $_" -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Green
-Write-Host "   Theme Material You installe avec succes !                " -ForegroundColor Green
+Write-Host "   Material-Thunderbird installe avec succes !             " -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Green
 Write-Host "Pour admirer le resultat :" -ForegroundColor Cyan
 Write-Host "  1. Fermez et relancez Mozilla Thunderbird." -ForegroundColor White
-Write-Host "  2. Profitez de votre interface modernisee !" -ForegroundColor White
+Write-Host "  2. Profitez de votre interface Material You !" -ForegroundColor White
