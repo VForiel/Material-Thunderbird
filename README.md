@@ -52,7 +52,7 @@ Un **seul et unique script global** pour tout installer :
 
 Si vous préférez installer le thème sous forme d'extension :
 
-1. Récupérez le fichier prêt à l'emploi **`dist/material-thunderbird.xpi`**.
+1. Générez le package en lançant **`scripts/build.ps1`** (il produit `dist/material-thunderbird.xpi`, non versionné).
 2. Dans Thunderbird, ouvrez le gestionnaire de modules (`Ctrl + Maj + A`).
 3. Cliquez sur la roue crantée en haut à droite > **Installer un module depuis un fichier...**
 4. Sélectionnez le fichier `material-thunderbird.xpi`.
@@ -110,8 +110,8 @@ Material-Thunderbird/
 │   ├── uninstall.bat              # Lanceur de désinstallation (Windows)
 │   ├── uninstall.ps1              # Script PowerShell de restauration
 │   └── build.ps1                  # Script de génération du package .xpi
-├── dist/                          # Fichiers compilés distribuables
-│   └── material-thunderbird.xpi   # Extension packagée prête au déploiement
+├── dist/                          # Sortie de build (ignorée par Git)
+│   └── material-thunderbird.xpi   # Générée par scripts/build.ps1
 └── docs/                          # Documentation complémentaire
     ├── INSTALL.md                 # Guide d'installation complet (Windows, macOS, Linux)
     ├── CUSTOMIZATION.md           # Guide pour changer de palette de couleurs
