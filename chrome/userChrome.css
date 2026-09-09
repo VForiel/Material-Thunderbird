@@ -34,6 +34,15 @@
 @import "components/extras.css";
 
 /* ==========================================================================
+   Personnalisation utilisateur
+   Fichier facultatif, jamais ecrase par install.ps1 ni supprime par
+   uninstall.ps1. Placez-y vos redefinitions de jetons : etant importe en
+   dernier, il l'emporte a specificite egale sur tout ce qui precede.
+   Un @import vers un fichier absent est simplement ignore.
+   ========================================================================== */
+@import "user-overrides.css";
+
+/* ==========================================================================
    Global Material Application Overrides
    ========================================================================== */
 window,

@@ -6,7 +6,40 @@ Le thème **Material-Thunderbird** a été conçu selon les spécifications [Mat
 
 ## 1. Changer la Palette Tonale (Couleurs Material You)
 
-Les couleurs sont définies dans `chrome/tokens/colors-light.css` et `chrome/tokens/colors-dark.css`.
+> [!IMPORTANT]
+> **Écrivez vos réglages dans `chrome/user-overrides.css`**, dans le dossier de votre
+> profil. Ce fichier est créé par l'installateur, importé en dernier par `userChrome.css`,
+> et **jamais écrasé par une réinstallation ni supprimé par la désinstallation**.
+>
+> Modifier directement `tokens/colors-light.css` fonctionne aussi, mais vos changements
+> seront perdus au prochain `install.bat`, puisque le script redéploie ces fichiers.
+
+Les valeurs par défaut sont définies dans `chrome/tokens/colors-light.css` et
+`chrome/tokens/colors-dark.css`. Pour changer de teinte, redéfinissez simplement les
+jetons voulus dans `user-overrides.css` :
+
+```css
+:root {
+  --md-sys-color-primary: #6750a4;
+  --md-sys-color-primary-container: #eaddff;
+  --md-sys-color-secondary-container: #e8def8;
+}
+```
+
+Pour que le mode sombre suive, encadrez les valeurs sombres de la même façon :
+
+```css
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-theme-brighttext="false"]) {
+    --md-sys-color-primary: #d0bcff;
+    --md-sys-color-primary-container: #4f378b;
+  }
+}
+:root[lwt-theme-brighttext="true"] {
+  --md-sys-color-primary: #d0bcff;
+  --md-sys-color-primary-container: #4f378b;
+}
+```
 
 ### Palettes d'accentuation recommandées :
 

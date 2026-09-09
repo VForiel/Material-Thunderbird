@@ -20,7 +20,7 @@
 - **📑 Vue Multi-Messages Material You (`multimessageview`)** : Refonte totale du panneau de sélection multiple / conversation complète sous forme de cartes d'e-mails d'un blanc pur (`#ffffff`), sans bordure, sur fond bleu doux (`surface-container-low`), avec en-tête surélevée, titre en gras et boutons d'action Material 3.
 - **✉️ En-tête de Message Surélevé** : Fiche d'en-tête de courriel élégante avec boutons d'actions en pilules (Répondre, Transférer, Archiver, Supprimer).
 - **⚡ Avatars Non-Bloquants avec Placeholder Instantané** : Placeholder neutre affiché immédiatement lors du défilement, suivi d'une résolution asynchrone progressive sans gel d'affichage. Les avatars proviennent de votre carnet d'adresses puis de l'initiale colorée du contact, **sans aucune requête réseau**. La recherche Gravatar existe mais reste désactivée par défaut ([pourquoi](docs/CUSTOMIZATION.md#2-avatars-gravatar-désactivés-par-défaut)).
-- **🛡️ Détecteur de Désinscription Intelligent** : Script d'arrière-plan non-bloquant analysant les liens de désinscription (mots-clés multilingues, regex, ESP majeurs) et injectant un bandeau d'action Material You au-dessus du message pour se désinscrire en 1 clic.
+- **🛡️ Détecteur de Désinscription Intelligent** : Analyse de l'en-tête `List-Unsubscribe` (RFC 2369) puis du message affiché (mots-clés multilingues, plateformes emailing majeures), et affichage d'un bandeau Material You dans la fenêtre de Thunderbird pour se désinscrire en 1 clic. Seules les URL `http(s)` sont ouvrables, et le domaine de destination est indiqué au survol.
 - **📅 Agenda & Calendrier Modernisés** : Événements sous forme de cartes Material 3 aux coins arrondis, sélecteur de vues en boutons segmentés, badge "Aujourd'hui" en pilule tonale et volet d'agenda restylé.
 - **⚡ Installation Globale en 1 Clic** : Script unique automatique sous Windows qui détecte votre profil, déploie les styles et configure Thunderbird sans manipulation manuelle !
 
@@ -43,11 +43,13 @@ Un **seul et unique script global** pour tout installer :
    - Déploie le thème Material You dans le dossier `chrome/` de votre profil.
    - Compile et synchronise le package WebExtension `dist/material-thunderbird.xpi`.
 
+   - Crée `chrome/user-overrides.css`, le fichier où placer vos personnalisations.
+5. **Fermez et relancez Mozilla Thunderbird** pour admirer votre nouvelle interface !
+
 > [!NOTE]
 > Le script n'écrit que dans votre dossier de profil. Il ne modifie pas le dossier
 > d'installation de Thunderbird et ne désactive aucun contrôle de sécurité.
 > `install.ps1 -DryRun` affiche les actions sans rien modifier.
-5. **Fermez et relancez Mozilla Thunderbird** pour admirer votre nouvelle interface !
 
 > [!TIP]
 > **Pour tout désinstaller :** Double-cliquez simplement sur l'unique script **`scripts/uninstall.bat`** puis redémarrez Thunderbird.
@@ -71,7 +73,7 @@ Si vous préférez installer le thème sous forme d'extension :
 ## 🖥️ Démonstrateur Web Interactif
 
 Vous souhaitez visualiser le rendu avant de l'installer ?
-Ouvrez le fichier **[`docs/preview.html`](file:///e:/Material-Thunderbird/docs/preview.html)** directement dans votre navigateur web favori :
+Ouvrez le fichier **[`docs/preview.html`](docs/preview.html)** directement dans votre navigateur web favori :
 - Testez la bascule entre le **Mode Clair** et le **Mode Sombre**.
 - Essayez les différentes teintes dynamiques : **Google Blue**, **Émeraude**, **Améthyste** et **Corail**.
 
@@ -87,6 +89,7 @@ Material-Thunderbird/
 ├── chrome/                        # Feuilles de style pour le profil Thunderbird
 │   ├── userChrome.css             # Point d'entrée principal des styles
 │   ├── userContent.css            # Styles pour les contenus de courriels et pages internes
+│   ├── user-overrides.css         # Vos personnalisations (créé à l'installation, jamais écrasé)
 │   ├── tokens/                    # Jetons de design Material You
 │   │   ├── shapes.css             # Arrondis, élévations et polices
 │   │   ├── colors-light.css       # Palette tonale claire (Google Blue)
@@ -132,7 +135,7 @@ Material-Thunderbird/
 ## 🛠️ Personnalisation
 
 Envie d'une teinte **Verte Sarcelle**, **Violette** ou **Terracotta** ?
-Consultez le guide détaillé : **[`docs/CUSTOMIZATION.md`](file:///e:/Material-Thunderbird/docs/CUSTOMIZATION.md)** pour savoir comment adapter les variables CSS à vos goûts en quelques secondes.
+Consultez le guide détaillé : **[`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md)** pour savoir comment adapter les variables CSS à vos goûts en quelques secondes.
 
 ---
 

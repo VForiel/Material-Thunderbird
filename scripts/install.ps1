@@ -109,24 +109,50 @@ foreach ($targetDir in $Profiles) {
     }
 
     # 2a. Sauvegarde de toute personnalisation chrome/ preexistante avant ecrasement.
+    #     Une sauvegarde deja presente est reutilisee telle quelle : elle contient
+    #     l etat d origine du profil. En creer une nouvelle a chaque reinstallation
+    #     rendrait la precedente orpheline, et la desinstallation ne restaurerait
+    #     plus les fichiers personnels initiaux.
+    $previous = Read-InstallManifest $targetDir
     $backupDir = $null
+    if ($previous -and $previous.backupDir) {
+        $candidate = Join-Path $targetDir $previous.backupDir
+        if (Test-Path $candidate) { $backupDir = $candidate }
+    }
     $deployed = New-Object System.Collections.Generic.List[string]
     $backedUp = New-Object System.Collections.Generic.List[string]
+    if ($previous -and $previous.backedUp) {
+        foreach ($b in $previous.backedUp) { if ($b) { $backedUp.Add($b) } }
+    }
 
     foreach ($file in $SourceFiles) {
         $rel = $file.FullName.Substring($SourceChromeDir.Length + 1)
         $dest = Join-Path $destChrome $rel
 
+        # Ne sauvegarder que ce qui appartient a utilisateur. Sans ce controle, une
+        # reinstallation archiverait nos propres fichiers deja en place, et la
+        # desinstallation suivante les "restaurerait", remettant le theme entier.
+        $isOurs = $false
         if (Test-Path $dest) {
+            $head = (Get-Content -LiteralPath $dest -TotalCount 8 -ErrorAction SilentlyContinue) -join "`n"
+            $isOurs = $head -match "Material-Thunderbird"
+        }
+
+        if ((Test-Path $dest) -and -not $isOurs) {
             if (-not $backupDir) {
                 $backupDir = Join-Path $targetDir "chrome-backup-$Stamp"
                 New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
             }
             $backupTarget = Join-Path $backupDir $rel
-            $backupParent = Split-Path $backupTarget -Parent
-            if (-not (Test-Path $backupParent)) { New-Item -ItemType Directory -Path $backupParent -Force | Out-Null }
-            Copy-Item -Path $dest -Destination $backupTarget -Force
-            $backedUp.Add($rel)
+            # Ne jamais ecraser une entree deja sauvegardee : la plus ancienne est
+            # celle d avant toute installation.
+            if (-not (Test-Path $backupTarget)) {
+                $backupParent = Split-Path $backupTarget -Parent
+                if (-not (Test-Path $backupParent)) { New-Item -ItemType Directory -Path $backupParent -Force | Out-Null }
+                Copy-Item -Path $dest -Destination $backupTarget -Force
+                $relSlash = $rel -replace "\\", "/"
+                if (-not $backedUp.Contains($relSlash)) { $backedUp.Add($relSlash) }
+            }
         }
 
         $destParent = Split-Path $dest -Parent
@@ -140,6 +166,37 @@ foreach ($targetDir in $Profiles) {
         Write-Host "    $backupDir" -ForegroundColor Yellow
     }
     Write-Host "[+] $($deployed.Count) fichier(s) CSS deploye(s)." -ForegroundColor Green
+
+    # Gabarit de personnalisation. Cree une seule fois, jamais ecrase : c est le
+    # seul endroit ou les reglages de utilisateur survivent a une reinstallation.
+    # Il n est volontairement pas inscrit dans le manifeste, pour que la
+    # desinstallation ne le supprime pas.
+    $overridesPath = Join-Path $destChrome "user-overrides.css"
+    if (-not (Test-Path $overridesPath)) {
+        $template = @"
+/**
+ * Personnalisation de Material-Thunderbird
+ *
+ * Ce fichier vous appartient : ni install.ps1 ni uninstall.ps1 n y touchent.
+ * Importe en dernier par userChrome.css, il l emporte sur le theme.
+ *
+ * Exemple, passer la teinte principale au violet :
+ *
+ * :root {
+ *   --md-sys-color-primary: #6750a4;
+ *   --md-sys-color-primary-container: #eaddff;
+ *   --md-sys-color-secondary-container: #e8def8;
+ * }
+ *
+ * La liste complete des jetons se trouve dans tokens/colors-light.css.
+ * Voir aussi docs/CUSTOMIZATION.md.
+ */
+"@
+        Write-TextFileNoBom -Path $overridesPath -Text $template
+        Write-Host "[+] Gabarit de personnalisation cree : chrome\user-overrides.css" -ForegroundColor Green
+    } else {
+        Write-Host "[i] Personnalisation existante conservee : chrome\user-overrides.css" -ForegroundColor DarkGray
+    }
 
     # 2b. Preferences.
     $uJs = Join-Path $targetDir "user.js"
