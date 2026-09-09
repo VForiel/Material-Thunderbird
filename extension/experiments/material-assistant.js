@@ -440,70 +440,108 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       banner.className = "material-unsubscribe-card";
     }
 
-    const cleanSender = senderName ? senderName.replace(/[<>"]/g, "").trim() : "Cet expéditeur";
+    // Le nom d expediteur vient du courriel. Il est insere en tant que texte, jamais
+    // en tant que balisage : innerHTML dans le document chrome placerait une donnee
+    // non fiable dans un contexte privilegie, et le filtrage de <, > et " qui le
+    // precedait etait la seule barriere.
+    const cleanSender = (senderName || "").trim() || "Cet expéditeur";
 
-    banner.innerHTML = `
-      <div class="material-unsub-left">
-        <div class="material-unsub-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-          </svg>
-        </div>
-        <div class="material-unsub-details">
-          <span class="material-unsub-title">Courrier commercial / Infolettre</span>
-          <span class="material-unsub-desc">Un lien de désinscription a été détecté pour ${cleanSender}.</span>
-        </div>
-      </div>
-      <div class="material-unsub-actions">
-        <button type="button" class="material-unsub-btn" id="material-unsub-trigger-btn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-          </svg>
-          Se désinscrire
-        </button>
-        <button type="button" class="material-unsub-close" id="material-unsub-close-btn" title="Ignorer">&times;</button>
-      </div>
-    `;
+    while (banner.firstChild) banner.removeChild(banner.firstChild);
 
-    const triggerBtn = banner.querySelector("#material-unsub-trigger-btn");
-    if (triggerBtn) {
-      triggerBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const svgIcon = (size, pathData) => {
+      const svg = doc.createElementNS(SVG_NS, "svg");
+      svg.setAttribute("width", String(size));
+      svg.setAttribute("height", String(size));
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("fill", "currentColor");
+      const path = doc.createElementNS(SVG_NS, "path");
+      path.setAttribute("d", pathData);
+      svg.appendChild(path);
+      return svg;
+    };
+    const div = (className) => {
+      const el = doc.createElement("div");
+      el.className = className;
+      return el;
+    };
+    const span = (className, text) => {
+      const el = doc.createElement("span");
+      el.className = className;
+      el.textContent = text;
+      return el;
+    };
 
-        // Dernier controle avant navigation : l URL provient du courriel, donc d une
-        // source non fiable. Sans ce filtre, un lien file:, data: ou chrome: place
-        // par expediteur serait ouvert depuis la fenetre privilegiee.
-        if (!UnsubscribeRules || !UnsubscribeRules.isSafeUrl(unsubscribeUrl)) {
-          Cu.reportError("[Material-Thunderbird] URL de desinscription refusee : " + unsubscribeUrl);
-          return;
-        }
+    const left = div("material-unsub-left");
+    const icon = div("material-unsub-icon");
+    icon.appendChild(svgIcon(18, "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"));
+    const details = div("material-unsub-details");
+    details.appendChild(span("material-unsub-title", "Courrier commercial / Infolettre"));
+    details.appendChild(span("material-unsub-desc", `Un lien de désinscription a été détecté pour ${cleanSender}.`));
+    left.appendChild(icon);
+    left.appendChild(details);
 
-        try {
-          if (typeof win.openContentTab === "function") {
-            win.openContentTab(unsubscribeUrl);
-          } else if (typeof win.openURL === "function") {
-            win.openURL(unsubscribeUrl);
-          } else {
-            const uri = Services.io.newURI(unsubscribeUrl);
-            const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-              .getService(Ci.nsIExternalProtocolService);
-            extProtocolSvc.loadURI(uri);
-          }
-        } catch (err) {
-          Cu.reportError("[Material-Thunderbird] Ouverture du lien impossible : " + err);
-        }
-      };
+    const actions = div("material-unsub-actions");
+    const triggerBtn = doc.createElement("button");
+    triggerBtn.type = "button";
+    triggerBtn.className = "material-unsub-btn";
+    triggerBtn.id = "material-unsub-trigger-btn";
+    triggerBtn.appendChild(svgIcon(13, "M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"));
+    triggerBtn.appendChild(doc.createTextNode(" Se désinscrire"));
+
+    // L URL cible est affichee en infobulle : le bandeau chrome a l apparence d un
+    // element natif de Thunderbird, l utilisateur doit pouvoir verifier la destination.
+    try {
+      triggerBtn.setAttribute("title", `Ouvrir ${new win.URL(unsubscribeUrl).host}`);
+    } catch (e) {
+      triggerBtn.setAttribute("title", "Ouvrir le lien de désinscription");
     }
 
-    const closeBtn = banner.querySelector("#material-unsub-close-btn");
-    if (closeBtn) {
-      closeBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        banner.remove();
-      };
-    }
+    const closeBtn = doc.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "material-unsub-close";
+    closeBtn.id = "material-unsub-close-btn";
+    closeBtn.setAttribute("title", "Ignorer");
+    closeBtn.textContent = "×";
+
+    actions.appendChild(triggerBtn);
+    actions.appendChild(closeBtn);
+    banner.appendChild(left);
+    banner.appendChild(actions);
+
+    triggerBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Dernier controle avant navigation : l URL provient du courriel, donc d une
+      // source non fiable. Sans ce filtre, un lien file:, data: ou chrome: place
+      // par expediteur serait ouvert depuis la fenetre privilegiee.
+      if (!UnsubscribeRules || !UnsubscribeRules.isSafeUrl(unsubscribeUrl)) {
+        Cu.reportError("[Material-Thunderbird] URL de desinscription refusee : " + unsubscribeUrl);
+        return;
+      }
+
+      try {
+        if (typeof win.openContentTab === "function") {
+          win.openContentTab(unsubscribeUrl);
+        } else if (typeof win.openURL === "function") {
+          win.openURL(unsubscribeUrl);
+        } else {
+          const uri = Services.io.newURI(unsubscribeUrl);
+          const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+            .getService(Ci.nsIExternalProtocolService);
+          extProtocolSvc.loadURI(uri);
+        }
+      } catch (err) {
+        Cu.reportError("[Material-Thunderbird] Ouverture du lien impossible : " + err);
+      }
+    };
+
+    closeBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      banner.remove();
+    };
 
     const messageHeader = doc.getElementById("msgHeaderView") || doc.getElementById("messageHeader");
     const messagePaneBox = doc.getElementById("messagepanebox") || doc.getElementById("messagepane");
