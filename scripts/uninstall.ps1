@@ -1,113 +1,172 @@
 <#
 .SYNOPSIS
-    Script unique de desinstallation globale de Material-Thunderbird.
+    Desinstallation de Material-Thunderbird.
 .DESCRIPTION
-    Supprime le dossier chrome/ du profil Thunderbird actif, restaure la configuration
-    initiale dans user.js, et nettoie d'eventuels fichiers residuels.
+    Retire uniquement ce que install.ps1 a deploye, en se basant sur le manifeste ecrit
+    dans <profil>/chrome/. Les personnalisations preexistantes sauvegardees lors de
+    installation sont restaurees. Toutes les preferences posees par installation sont
+    retirees, y compris xpinstall.signatures.required qu une version precedente
+    desactivait a tort.
+
+    Le balayage porte sur tous les profils, car une version precedente de installateur
+    deployait dans chacun. Sans cela, les profils secondaires conserveraient les fichiers.
+.PARAMETER Profile
+    Restreint la desinstallation a ce chemin de profil.
+.PARAMETER DryRun
+    Affiche les actions sans modifier le systeme.
 #>
-$ErrorActionPreference = "Stop"
-
-Write-Host "============================================================" -ForegroundColor Yellow
-Write-Host "  Desinstallation Globale de Material-Thunderbird (M3)      " -ForegroundColor Yellow
-Write-Host "============================================================" -ForegroundColor Yellow
-
-$AppData = [Environment]::GetFolderPath("ApplicationData")
-$ThunderbirdDir = Join-Path $AppData "Thunderbird"
-$ProfilesIni = Join-Path $ThunderbirdDir "profiles.ini"
-
-if (-not (Test-Path $ThunderbirdDir)) {
-    Write-Error "Dossier Thunderbird introuvable dans $ThunderbirdDir."
-    exit 1
-}
-
-$TargetProfileRelPath = $null
-if (Test-Path $ProfilesIni) {
-    $iniContent = Get-Content $ProfilesIni
-    $isDefaultSection = $false
-    foreach ($line in $iniContent) {
-        if ($line -match "^\[(.*)\]$") {
-            $section = $matches[1]
-            if ($section -like "Install*") { $isDefaultSection = $true }
-            else { $isDefaultSection = $false }
-        }
-        elseif ($isDefaultSection -and $line -match "^Default=(.*)$") {
-            $TargetProfileRelPath = $matches[1].Trim()
-            break
-        }
-    }
-
-    if (-not $TargetProfileRelPath) {
-        $profilePath = ""
-        $isDefault = $false
-        foreach ($line in $iniContent) {
-            if ($line -match "^\[(.*)\]$") {
-                if ($isDefault -and $profilePath) { $TargetProfileRelPath = $profilePath; break }
-                $profilePath = ""
-                $isDefault = $false
-            }
-            elseif ($line -match "^Path=(.*)$") { $profilePath = $matches[1].Trim() }
-            elseif ($line -match "^Default=1$") { $isDefault = $true }
-        }
-        if ($isDefault -and $profilePath -and -not $TargetProfileRelPath) {
-            $TargetProfileRelPath = $profilePath
-        }
-    }
-}
-
-if (-not $TargetProfileRelPath) {
-    $fallbackProfiles = Get-ChildItem (Join-Path $ThunderbirdDir "Profiles") -Directory | Where-Object { $_.Name -like "*.default*" }
-    if ($fallbackProfiles.Count -gt 0) {
-        $TargetProfileRelPath = "Profiles/" + $fallbackProfiles[0].Name
-    }
-}
-
-if (-not $TargetProfileRelPath) {
-    Write-Error "Impossible de localiser le profil Thunderbird actif."
-    exit 1
-}
-
-$ProfileDir = Join-Path $ThunderbirdDir $TargetProfileRelPath.Replace("/", "\")
-$DestChromeDir = Join-Path $ProfileDir "chrome"
-
-# 1. Suppression du dossier chrome/
-if (Test-Path $DestChromeDir) {
-    Write-Host "[*] Suppression du dossier chrome/ dans :" -ForegroundColor Cyan
-    Write-Host "    $DestChromeDir" -ForegroundColor Yellow
-    Remove-Item -Path $DestChromeDir -Recurse -Force
-    Write-Host "[+] Dossier de personnalisation CSS supprime avec succes." -ForegroundColor Green
-} else {
-    Write-Host "[i] Aucun dossier chrome/ trouve dans le profil." -ForegroundColor DarkGray
-}
-
-# 2. Nettoyage de user.js
-$UserJsPath = Join-Path $ProfileDir "user.js"
-if (Test-Path $UserJsPath) {
-    $lines = Get-Content $UserJsPath | Where-Object { 
-        $_ -notmatch "toolkit.legacyUserProfileCustomizations.stylesheets" -and
-        $_ -notmatch "svg.context-properties.content.enabled"
-    }
-    Set-Content -Path $UserJsPath -Value $lines -Encoding UTF8
-    Write-Host "[+] Preferences user.js restaurees avec succes." -ForegroundColor Green
-}
-
-# 3. Nettoyage des fichiers autoconfig residuels dans Program Files (si presents)
-$tbCandidateDirs = @(
-    "C:\Program Files\Mozilla Thunderbird",
-    "C:\Program Files (x86)\Mozilla Thunderbird"
+[CmdletBinding()]
+param(
+    [string]$Profile,
+    [switch]$DryRun
 )
-foreach ($tbDir in $tbCandidateDirs) {
-    $autoCfg = Join-Path $tbDir "defaults\pref\autoconfig.js"
-    $mozCfg  = Join-Path $tbDir "mozilla.cfg"
-    if (Test-Path $autoCfg) {
-        try { Remove-Item $autoCfg -Force -ErrorAction SilentlyContinue } catch {}
+
+$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "common.ps1")
+
+Write-Host "============================================================" -ForegroundColor Yellow
+Write-Host "   Desinstallation de Material-Thunderbird                   " -ForegroundColor Yellow
+Write-Host "============================================================" -ForegroundColor Yellow
+
+# Les anciennes versions deployaient dans tous les profils : on les balaie tous.
+$Profiles = if ($Profile) { @($Profile) } else { Get-ThunderbirdProfiles -AllProfiles }
+if ($Profiles.Count -eq 0) {
+    throw "Impossible identifier un profil Thunderbird."
+}
+
+# Fichiers deployes par les versions anterieures au manifeste.
+$LegacyFiles = @(
+    "userChrome.css",
+    "userContent.css",
+    "tokens/shapes.css",
+    "tokens/colors-light.css",
+    "tokens/colors-dark.css",
+    "components/spaces-toolbar.css",
+    "components/unified-toolbar.css",
+    "components/folder-pane.css",
+    "components/thread-tree.css",
+    "components/message-header.css",
+    "components/tabs-and-dialogs.css",
+    "components/calendar.css",
+    "components/addressbook.css",
+    "components/avatars.css",
+    "components/multimessage.css",
+    "components/compose.css"
+)
+
+if ($DryRun) {
+    Write-Host "[DRY-RUN] Aucune modification ne sera ecrite." -ForegroundColor Cyan
+}
+
+$touched = 0
+
+foreach ($profileDir in $Profiles) {
+    $destChrome = Join-Path $profileDir "chrome"
+    $manifest = Read-InstallManifest $profileDir
+
+    $files = if ($manifest -and $manifest.files) { @($manifest.files) } else { $LegacyFiles }
+
+    # Un fichier n est supprime que s il porte encore en-tete du projet. Sans ce
+    # controle, une seconde desinstallation effacerait le userChrome.css personnel
+    # restaure par la premiere, puisque le nom de fichier est identique au notre.
+    $present = @($files | Where-Object {
+        $p = Join-Path $destChrome ($_ -replace "/", "\")
+        (Test-Path $p) -and ((Get-Content -LiteralPath $p -TotalCount 8 -ErrorAction SilentlyContinue) -join "`n") -match "Material-Thunderbird"
+    })
+
+    $uJs = Join-Path $profileDir "user.js"
+    $prefNames = @($script:ManagedPrefs) + @($script:LegacyPrefsToRepair)
+    $hasPrefs = $false
+    if (Test-Path $uJs) {
+        $userJsText = Read-TextFile $uJs
+        foreach ($n in $prefNames) {
+            if ($userJsText -match ('user_pref\(\s*"' + [regex]::Escape($n) + '"')) { $hasPrefs = $true; break }
+        }
     }
-    if (Test-Path $mozCfg) {
-        try { Remove-Item $mozCfg -Force -ErrorAction SilentlyContinue } catch {}
+
+    $xpiRel = if ($manifest -and $manifest.xpi) { $manifest.xpi } else { "extensions/$($script:AddonId).xpi" }
+    $xpiPath = Join-Path $profileDir ($xpiRel -replace "/", "\")
+    $hasXpi = Test-Path $xpiPath
+
+    if ($present.Count -eq 0 -and -not $hasPrefs -and -not $hasXpi) { continue }
+
+    $touched++
+    Write-Host ""
+    Write-Host "[*] Profil : $profileDir" -ForegroundColor Cyan
+
+    if ($DryRun) {
+        if ($present.Count -gt 0) { Write-Host "    - $($present.Count) fichier(s) CSS supprime(s)" -ForegroundColor DarkGray }
+        if ($manifest -and $manifest.backupDir) { Write-Host "    - sauvegarde restauree : $($manifest.backupDir)" -ForegroundColor DarkGray }
+        if ($hasPrefs) { Write-Host "    - preferences retirees de user.js" -ForegroundColor DarkGray }
+        if ($hasXpi)   { Write-Host "    - extension supprimee : $xpiRel" -ForegroundColor DarkGray }
+        continue
+    }
+
+    # 1. Suppression des seuls fichiers deployes. Le dossier chrome/ n est jamais
+    #    supprime en bloc : il peut contenir des personnalisations de utilisateur.
+    foreach ($rel in $present) {
+        Remove-Item -Path (Join-Path $destChrome ($rel -replace "/", "\")) -Force -ErrorAction SilentlyContinue
+    }
+    if ($present.Count -gt 0) {
+        Write-Host "[+] $($present.Count) fichier(s) CSS supprime(s)." -ForegroundColor Green
+    }
+
+    $manifestPath = Get-ManifestPath $profileDir
+    if (Test-Path $manifestPath) { Remove-Item $manifestPath -Force -ErrorAction SilentlyContinue }
+
+    # 2. Restauration des fichiers sauvegardes lors de installation.
+    if ($manifest -and $manifest.backupDir) {
+        $backupDir = Join-Path $profileDir $manifest.backupDir
+        if (Test-Path $backupDir) {
+            $restored = 0
+            foreach ($f in @(Get-ChildItem -Path $backupDir -Recurse -File)) {
+                $rel = $f.FullName.Substring($backupDir.Length + 1)
+                $dest = Join-Path $destChrome $rel
+                $parent = Split-Path $dest -Parent
+                if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+                Copy-Item -Path $f.FullName -Destination $dest -Force
+                $restored++
+            }
+            if ($restored -gt 0) {
+                Write-Host "[+] $restored fichier(s) personnel(s) restaure(s) depuis la sauvegarde." -ForegroundColor Green
+            }
+            Remove-Item -Path $backupDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    # 3. Suppression des sous-dossiers devenus vides, puis de chrome/ si vide.
+    foreach ($sub in @("tokens", "components")) {
+        $subPath = Join-Path $destChrome $sub
+        if ((Test-Path $subPath) -and -not @(Get-ChildItem $subPath -Force -ErrorAction SilentlyContinue)) {
+            Remove-Item $subPath -Force -ErrorAction SilentlyContinue
+        }
+    }
+    if ((Test-Path $destChrome) -and -not @(Get-ChildItem $destChrome -Force -ErrorAction SilentlyContinue)) {
+        Remove-Item $destChrome -Force -ErrorAction SilentlyContinue
+        Write-Host "[+] Dossier chrome/ vide supprime." -ForegroundColor Green
+    } elseif (Test-Path $destChrome) {
+        Write-Host "[i] Dossier chrome/ conserve : il contient encore vos fichiers." -ForegroundColor DarkGray
+    }
+
+    # 4. Preferences, y compris celle qui affaiblissait la verification des signatures.
+    $removed = Remove-UserPrefs -UserJsPath $uJs -PrefNames $prefNames -RemoveMarker
+    if ($removed -gt 0) {
+        Write-Host "[+] $removed ligne(s) retiree(s) de user.js." -ForegroundColor Green
+    }
+
+    # 5. Extension.
+    if ($hasXpi) {
+        Remove-Item -Path $xpiPath -Force -ErrorAction SilentlyContinue
+        Write-Host "[+] Extension supprimee : $xpiPath" -ForegroundColor Green
     }
 }
 
 Write-Host ""
-Write-Host "============================================================" -ForegroundColor Green
-Write-Host "   Desinstallation terminee avec succes !                   " -ForegroundColor Green
-Write-Host "============================================================" -ForegroundColor Green
-Write-Host "Redemarrez Mozilla Thunderbird pour retrouver l'interface par defaut." -ForegroundColor Cyan
+if ($touched -eq 0) {
+    Write-Host "[i] Aucune trace de Material-Thunderbird trouvee." -ForegroundColor DarkGray
+} else {
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "   Desinstallation terminee ($touched profil(s)).           " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "Redemarrez Mozilla Thunderbird pour retrouver interface par defaut." -ForegroundColor Cyan
+}

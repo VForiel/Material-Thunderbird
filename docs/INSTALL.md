@@ -19,14 +19,25 @@ Cette méthode est la plus simple et rapide. Elle configure automatiquement votr
 2. Ouvrez le dossier `scripts/`.
 3. **Double-cliquez sur `install.bat`** (ou exécutez `install.ps1` via PowerShell).
 4. Le script va :
-   - Détecter automatiquement votre profil Thunderbird actif (via `profiles.ini`).
-   - Activer `toolkit.legacyUserProfileCustomizations.stylesheets = true` et `svg.context-properties.content.enabled = true` dans le fichier `user.js` de votre profil.
+   - Détecter automatiquement votre profil Thunderbird par défaut (via `profiles.ini`). Ajoutez `-AllProfiles` pour déployer dans tous vos profils.
+   - Sauvegarder toute personnalisation `chrome/` existante dans `chrome-backup-<date>/` avant de la remplacer.
+   - Activer `toolkit.legacyUserProfileCustomizations.stylesheets`, `svg.context-properties.content.enabled` et `extensions.experiments.enabled` dans le `user.js` de votre profil.
    - Déployer l'ensemble des feuilles de style Material 3 dans le sous-dossier `chrome/`.
+   - Compiler puis déployer le paquet `.xpi` de l'extension.
 5. **Redémarrez Mozilla Thunderbird**.
+
+> [!NOTE]
+> Le script ne modifie **que** votre dossier de profil. Il ne touche pas au dossier
+> d'installation de Thunderbird et ne désactive pas la vérification des signatures de
+> modules. Lancez `install.ps1 -DryRun` pour visualiser les actions sans rien écrire.
 
 ### Pour désinstaller :
 - Double-cliquez sur `scripts/uninstall.bat`.
 - Redémarrez Thunderbird.
+
+La désinstallation ne retire que les fichiers déployés par l'installation, restaure la
+sauvegarde de vos personnalisations et retire les préférences ajoutées. Si une version
+précédente avait désactivé `xpinstall.signatures.required`, elle est également rétablie.
 
 ---
 

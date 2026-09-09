@@ -37,10 +37,16 @@ Un **seul et unique script global** pour tout installer :
 2. Rendez-vous dans le dossier **`scripts/`**.
 3. **Double-cliquez sur `install.bat`** (ou lancez `install.ps1` dans PowerShell).
 4. Le script :
-   - Détecte automatiquement votre profil Thunderbird actif (`profiles.ini`).
-   - Active le support des feuilles de style dans `user.js` (`toolkit.legacyUserProfileCustomizations.stylesheets = true` et `svg.context-properties.content.enabled = true`).
+   - Détecte automatiquement votre profil Thunderbird par défaut (`profiles.ini`). Ajoutez `-AllProfiles` pour cibler tous vos profils.
+   - Sauvegarde toute personnalisation `chrome/` existante avant de la remplacer.
+   - Active le support des feuilles de style dans `user.js` (`toolkit.legacyUserProfileCustomizations.stylesheets` et `svg.context-properties.content.enabled`).
    - Déploie le thème Material You dans le dossier `chrome/` de votre profil.
-   - Synchronise le package WebExtension `dist/material-thunderbird.xpi`.
+   - Compile et synchronise le package WebExtension `dist/material-thunderbird.xpi`.
+
+> [!NOTE]
+> Le script n'écrit que dans votre dossier de profil. Il ne modifie pas le dossier
+> d'installation de Thunderbird et ne désactive aucun contrôle de sécurité.
+> `install.ps1 -DryRun` affiche les actions sans rien modifier.
 5. **Fermez et relancez Mozilla Thunderbird** pour admirer votre nouvelle interface !
 
 > [!TIP]
