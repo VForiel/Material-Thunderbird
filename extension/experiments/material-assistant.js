@@ -324,11 +324,59 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     Services.wm.addListener(this._windowListener);
   }
 
+  /**
+   * Desactivation, mise a jour ou desinstallation : tout ce qui a ete accroche aux
+   * fenetres doit etre relache. Sans cela, les observateurs continuaient de tourner
+   * et le bandeau restait affiche jusqu au prochain redemarrage, et la reactivation
+   * de extension ne rebranchait rien puisque __materialWindowSetup restait pose.
+   */
   onShutdown(isAppShutdown) {
     if (this._windowListener) {
       Services.wm.removeListener(this._windowListener);
       this._windowListener = null;
     }
+
+    // Au redemarrage complet de application, la fenetre disparait de toute facon.
+    if (isAppShutdown) return;
+
+    const windows = Services.wm.getEnumerator("mail:3pane");
+    while (windows.hasMoreElements()) {
+      this._teardownWindow(windows.getNext());
+    }
+  }
+
+  _teardownWindow(win) {
+    if (!win || !win.__materialWindowSetup) return;
+    const state = win.__materialWindowState;
+    win.__materialWindowSetup = false;
+    win.__materialWindowState = null;
+    if (!state) return;
+
+    for (const observer of state.observers) {
+      try { observer.disconnect(); } catch (e) {}
+    }
+    for (const timer of state.timers) {
+      try { win.clearTimeout(timer); } catch (e) {}
+    }
+    for (const [target, type, handler, capture] of state.listeners) {
+      try { target.removeEventListener(type, handler, capture); } catch (e) {}
+    }
+
+    // Retire les elements injectes dans interface de Thunderbird.
+    try {
+      this._removeUnsubscribeBanner(win);
+      const doc = win.document;
+      for (const row of doc.querySelectorAll("tr.material-thread-toggle-row")) {
+        row.remove();
+      }
+      for (const row of doc.querySelectorAll(".material-thread-read-hidden")) {
+        row.classList.remove("material-thread-read-hidden");
+      }
+      for (const row of doc.querySelectorAll("[data-avatar-key]")) {
+        delete row.dataset.avatarKey;
+        row.classList.remove("avatar-loaded");
+      }
+    } catch (e) {}
   }
 
   _initWindows() {
@@ -343,29 +391,57 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     if (!win || !win.document || win.__materialWindowSetup) return;
     win.__materialWindowSetup = true;
 
-    // 1. Hook Message Pane for Unsubscribe detection & Header Recipient Avatars
+    // Tout ce qui est accroche ici est enregistre pour pouvoir etre relache
+    // dans _teardownWindow.
+    const state = { observers: [], timers: [], listeners: [] };
+    win.__materialWindowState = state;
+
+    const listen = (target, type, handler, capture) => {
+      target.addEventListener(type, handler, capture);
+      state.listeners.push([target, type, handler, capture]);
+    };
+    const observe = (target, handler, options) => {
+      const observer = new win.MutationObserver(handler);
+      observer.observe(target, options);
+      state.observers.push(observer);
+      return observer;
+    };
+    // Un seul minuteur en vol par cle : les rafales de mutations en programmaient
+    // un par lot, sans jamais les annuler.
+    const timers = new Map();
+    const debounce = (key, delay, fn) => {
+      if (timers.has(key)) win.clearTimeout(timers.get(key));
+      const id = win.setTimeout(() => { timers.delete(key); fn(); }, delay);
+      timers.set(key, id);
+      state.timers.push(id);
+    };
+    state.debounce = debounce;
+
+    // 1. Volet de lecture : desinscription et avatars des destinataires.
     const messagePane = win.document.getElementById("messagepane");
     if (messagePane) {
       const handleMessageLoaded = () => {
         this._detectAndDisplayUnsubscribe(win);
         this._updateRecipientAvatars(win);
       };
-      messagePane.addEventListener("load", handleMessageLoaded, true);
-      messagePane.addEventListener("DOMContentLoaded", handleMessageLoaded, true);
+      listen(messagePane, "load", handleMessageLoaded, true);
+      listen(messagePane, "DOMContentLoaded", handleMessageLoaded, true);
     }
 
-    // 2. Hook Message Header changes via MutationObserver
+    // 2. En-tete du message.
     const msgHeaderView = win.document.getElementById("msgHeaderView") || win.document.getElementById("messageHeader");
     if (msgHeaderView) {
-      const headerObserver = new win.MutationObserver(() => {
-        this._updateRecipientAvatars(win);
-        this._detectAndDisplayUnsubscribe(win);
-        win.setTimeout(() => this._detectAndDisplayUnsubscribe(win), 300);
-      });
-      headerObserver.observe(msgHeaderView, { childList: true, subtree: true });
+      observe(msgHeaderView, () => {
+        debounce("header", 50, () => {
+          this._updateRecipientAvatars(win);
+          this._detectAndDisplayUnsubscribe(win);
+        });
+        // Second passage : l en-tete se remplit parfois apres coup.
+        debounce("header-late", 300, () => this._detectAndDisplayUnsubscribe(win));
+      }, { childList: true, subtree: true });
     }
 
-    // 3. Hook Multimessage View & Message List (robust browser detection)
+    // 3. Vue multi-messages.
     const hookMultimessage = () => {
       const multiBrowsers = win.document.querySelectorAll("#multiMessageBrowser, #multimessage, browser[src*='multimessageview']");
       multiBrowsers.forEach((browser) => {
@@ -376,18 +452,17 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             }
           } catch (e) {}
         };
-        browser.addEventListener("load", attach, true);
-        browser.addEventListener("DOMContentLoaded", attach, true);
+        listen(browser, "load", attach, true);
+        listen(browser, "DOMContentLoaded", attach, true);
         attach();
       });
     };
     hookMultimessage();
-    win.addEventListener("select", () => win.setTimeout(hookMultimessage, 100), true);
+    listen(win, "select", () => debounce("multimessage", 100, hookMultimessage), true);
 
-    // Also observe the main document in case multimessage list is embedded
     this._setupMultimessageObserver(win, win.document);
 
-    // 4. Hook Thread Tree for card avatars and thread collapsing
+    // 4. Liste des messages : avatars et repli des fils.
     const threadTree = win.document.getElementById("threadTree") || win.document.querySelector("table#threadTree");
     if (threadTree) {
       this._setupThreadTree(win, threadTree);
@@ -694,8 +769,23 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
     const msgList = doc.getElementById("messageList") || doc.body;
     if (msgList) {
-      const listObs = new win.MutationObserver(processItems);
+      // processItems modifie la liste observee : le travail est regroupe sur la
+      // frame suivante et l observateur est suspendu pendant son execution.
+      let pending = false;
+      let applying = false;
+      const listObs = new win.MutationObserver(() => {
+        if (pending || applying) return;
+        pending = true;
+        win.requestAnimationFrame(() => {
+          pending = false;
+          applying = true;
+          try { processItems(); } finally { applying = false; }
+        });
+      });
       listObs.observe(msgList, { childList: true, subtree: true });
+
+      const state = win.__materialWindowState;
+      if (state) state.observers.push(listObs);
     }
   }
 
@@ -709,32 +799,38 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       let lastVisibleAnchor = null;
 
       rows.forEach((row) => {
-        // 1. Unified Avatar Resolution
-        if (!row.dataset.avatarResolved) {
-          const cardContainer = row.querySelector(".card-container");
-          const senderEl = row.querySelector(".sender");
-          if (cardContainer && senderEl) {
-            const senderText = senderEl.getAttribute("title") || senderEl.textContent || "";
-            if (senderText) {
-              const avatarInfo = resolveAvatarInfo(win, senderText, (gravUrl) => {
-                cardContainer.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
-                cardContainer.style.removeProperty("--md-avatar-char");
-              });
+        // 1. Avatar. La liste des messages est virtualisee : Thunderbird reutilise
+        //    les <tr> pour d autres messages pendant le defilement. Un simple
+        //    drapeau "deja resolu" figeait donc avatar du correspondant precedent.
+        //    La cle memorise l expediteur rendu, et declenche un recalcul des qu il
+        //    change.
+        const cardContainer = row.querySelector(".card-container");
+        const senderEl = row.querySelector(".sender");
+        if (cardContainer && senderEl) {
+          const senderText = senderEl.getAttribute("title") || senderEl.textContent || "";
+          if (senderText && row.dataset.avatarKey !== senderText) {
+            row.dataset.avatarKey = senderText;
 
-              cardContainer.style.setProperty("--md-avatar-bg", avatarInfo.bg);
-              cardContainer.style.setProperty("--md-avatar-fg", avatarInfo.fg);
+            const avatarInfo = resolveAvatarInfo(win, senderText, (gravUrl) => {
+              // La reponse Gravatar est asynchrone : la ligne a pu etre recyclee
+              // entre-temps, auquel cas le resultat ne la concerne plus.
+              if (row.dataset.avatarKey !== senderText) return;
+              cardContainer.style.setProperty("--md-avatar-img", `url("${gravUrl}")`);
+              cardContainer.style.removeProperty("--md-avatar-char");
+            });
 
-              if (avatarInfo.type === "img") {
-                cardContainer.style.setProperty("--md-avatar-img", `url("${avatarInfo.url}")`);
-                cardContainer.style.removeProperty("--md-avatar-char");
-              } else {
-                cardContainer.style.removeProperty("--md-avatar-img");
-                cardContainer.style.setProperty("--md-avatar-char", `"${avatarInfo.char}"`);
-              }
+            cardContainer.style.setProperty("--md-avatar-bg", avatarInfo.bg);
+            cardContainer.style.setProperty("--md-avatar-fg", avatarInfo.fg);
 
-              row.classList.add("avatar-loaded");
-              row.dataset.avatarResolved = "true";
+            if (avatarInfo.type === "img") {
+              cardContainer.style.setProperty("--md-avatar-img", `url("${avatarInfo.url}")`);
+              cardContainer.style.removeProperty("--md-avatar-char");
+            } else {
+              cardContainer.style.removeProperty("--md-avatar-img");
+              cardContainer.style.setProperty("--md-avatar-char", `"${avatarInfo.char}"`);
             }
+
+            row.classList.add("avatar-loaded");
           }
         }
 
@@ -799,10 +895,44 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       }
     };
 
-    const treeObserver = new win.MutationObserver(processRows);
-    treeObserver.observe(threadTree, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-expanded", "class", "data-properties"] });
+    /**
+     * processRows parcourt toutes les lignes et ecrit dans arbre, ce qui declenche
+     * a nouveau observateur. Sans regroupement, un defilement dans un dossier
+     * volumineux relancait un balayage complet a chaque mutation d attribut.
+     * Le travail est donc reporte a la frame suivante et fusionne, et le drapeau
+     * suspend les mutations que processRows provoque lui-meme.
+     */
+    let pending = false;
+    let applying = false;
 
-    processRows();
+    const runProcessRows = () => {
+      pending = false;
+      applying = true;
+      try {
+        processRows();
+      } finally {
+        applying = false;
+      }
+    };
+
+    const scheduleProcessRows = () => {
+      if (pending || applying) return;
+      pending = true;
+      win.requestAnimationFrame(runProcessRows);
+    };
+
+    const treeObserver = new win.MutationObserver(scheduleProcessRows);
+    treeObserver.observe(threadTree, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-expanded", "class", "data-properties"]
+    });
+
+    const state = win.__materialWindowState;
+    if (state) state.observers.push(treeObserver);
+
+    runProcessRows();
   }
 
   _ensureShowAllButton(parentRow, anchorRow, hiddenRows) {
