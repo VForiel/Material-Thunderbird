@@ -79,7 +79,7 @@
 #messageHeader .toolbarbutton-1.message-header-view-button,
 #headingWrapper .toolbarbutton-1.message-header-view-button {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   box-shadow: none !important;
@@ -96,7 +96,7 @@
 toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 #messageHeader .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"] {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   box-shadow: none !important;
@@ -584,7 +584,7 @@ notification-message moz-button::part(button):hover {
 #attachmentSaveAllMultiple,
 #attachment-view-toolbar .toolbarbutton-1 {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   box-shadow: none !important;
@@ -642,7 +642,7 @@ notification-message moz-button::part(button):hover {
 
 .attachmentItem {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: 1px solid transparent !important;
   padding: 5px 12px !important;

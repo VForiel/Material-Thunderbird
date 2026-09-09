@@ -99,7 +99,7 @@
   border-radius: var(--md-shape-corner-full) !important;
   border: 1px solid transparent !important;
   outline: none !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface-variant) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -154,7 +154,7 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
   border-color: transparent !important;
   box-shadow: 0 1px 2px rgba(11, 87, 208, 0.3) !important;
 }
@@ -165,8 +165,8 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty label,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  fill: var(--md-sys-color-on-primary, #FFFFFF) !important;
   font-weight: 700 !important;
   opacity: 1 !important;
   text-shadow: none !important;
@@ -176,19 +176,19 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button:hover,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover {
   background-color: var(--md-sys-color-primary-hover, #0842A0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty *,
 tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  fill: var(--md-sys-color-on-primary, #FFFFFF) !important;
   font-weight: 700 !important;
   opacity: 1 !important;
 }

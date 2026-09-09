@@ -1016,7 +1016,7 @@ li[is="folder-tree-row"]:is(.unread) > .container > .name,
   border-radius: var(--md-shape-corner-full) !important;
   border: 1px solid transparent !important;
   outline: none !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface-variant) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -1071,7 +1071,7 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
   border-color: transparent !important;
   box-shadow: 0 1px 2px rgba(11, 87, 208, 0.3) !important;
 }
@@ -1082,8 +1082,8 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty label,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  fill: var(--md-sys-color-on-primary, #FFFFFF) !important;
   font-weight: 700 !important;
   opacity: 1 !important;
   text-shadow: none !important;
@@ -1093,19 +1093,19 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button:hover,
 .children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty:hover {
   background-color: var(--md-sys-color-primary-hover, #0842A0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 tr.card-layout.selected.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty *,
 tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty * {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  fill: var(--md-sys-color-on-primary, #FFFFFF) !important;
   font-weight: 700 !important;
   opacity: 1 !important;
 }
@@ -1486,7 +1486,7 @@ body:has(#messagepanebox) {
 #messageHeader .toolbarbutton-1.message-header-view-button,
 #headingWrapper .toolbarbutton-1.message-header-view-button {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   box-shadow: none !important;
@@ -1503,7 +1503,7 @@ body:has(#messagepanebox) {
 toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
 #messageHeader .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"] {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   box-shadow: none !important;
@@ -1991,7 +1991,7 @@ notification-message moz-button::part(button):hover {
 #attachmentSaveAllMultiple,
 #attachment-view-toolbar .toolbarbutton-1 {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   box-shadow: none !important;
@@ -2049,7 +2049,7 @@ notification-message moz-button::part(button):hover {
 
 .attachmentItem {
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: 1px solid transparent !important;
   padding: 5px 12px !important;
@@ -3243,7 +3243,7 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
 #editButton {
   border-radius: var(--md-shape-corner-full) !important;
   border: none !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   font-family: var(--md-sys-font-family) !important;
   font-size: 12.5px !important;
@@ -3294,7 +3294,7 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
 
 /* Edit Button (Modifier) */
 #editButton {
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   font-weight: 600 !important;
   padding-inline: 20px !important;
@@ -3903,7 +3903,7 @@ body:has(#messageList),
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button,
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton {
   border-radius: var(--md-shape-corner-full, 9999px) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface, #1f1f1f) !important;
   border: none !important;
   outline: none !important;
@@ -3944,7 +3944,7 @@ body:has(#messageList),
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton,
 :is(body:has(#messageList), #multimessage, [data-multimessage]) button.email-action-flagged {
   border-radius: var(--md-shape-corner-full, 9999px) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   border: none !important;
   outline: none !important;
   padding: 6px 10px !important;
@@ -4331,7 +4331,7 @@ body:has(#messageList),
 /* Send Button: Material 3 Primary Filled Extended Button (Envoyer) */
 #button-send {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
   border-radius: var(--md-shape-corner-full, 9999px) !important;
   padding: 6px 18px !important;
   font-weight: 700 !important;
@@ -4355,9 +4355,9 @@ body:has(#messageList),
 }
 
 #button-send * {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  fill: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  stroke: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 /* ==========================================================================
@@ -4446,7 +4446,7 @@ body:has(#messageList),
 .address-pill[aria-selected="true"],
 .address-pill.selected {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 /* Subject Line ("Sujet") */
@@ -4526,7 +4526,7 @@ body:has(#messageList),
 editor,
 #messageEditor {
   border-radius: var(--md-shape-corner-large, 16px) !important;
-  background-color: #ffffff !important;
+  background-color: var(--md-sys-color-surface-container-lowest, #FFFFFF) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
   border: none !important;
   overflow: hidden !important;

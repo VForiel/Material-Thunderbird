@@ -82,7 +82,7 @@ body:has(#messageList),
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button,
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton {
   border-radius: var(--md-shape-corner-full, 9999px) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface, #1f1f1f) !important;
   border: none !important;
   outline: none !important;
@@ -123,7 +123,7 @@ body:has(#messageList),
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton,
 :is(body:has(#messageList), #multimessage, [data-multimessage]) button.email-action-flagged {
   border-radius: var(--md-shape-corner-full, 9999px) !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   border: none !important;
   outline: none !important;
   padding: 6px 10px !important;

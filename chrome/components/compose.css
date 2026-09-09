@@ -60,7 +60,7 @@
 /* Send Button: Material 3 Primary Filled Extended Button (Envoyer) */
 #button-send {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
   border-radius: var(--md-shape-corner-full, 9999px) !important;
   padding: 6px 18px !important;
   font-weight: 700 !important;
@@ -84,9 +84,9 @@
 }
 
 #button-send * {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  fill: var(--md-sys-color-on-primary, #FFFFFF) !important;
+  stroke: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 /* ==========================================================================
@@ -175,7 +175,7 @@
 .address-pill[aria-selected="true"],
 .address-pill.selected {
   background-color: var(--md-sys-color-primary, #0B57D0) !important;
-  color: #FFFFFF !important;
+  color: var(--md-sys-color-on-primary, #FFFFFF) !important;
 }
 
 /* Subject Line ("Sujet") */
@@ -255,7 +255,7 @@
 editor,
 #messageEditor {
   border-radius: var(--md-shape-corner-large, 16px) !important;
-  background-color: #ffffff !important;
+  background-color: var(--md-sys-color-surface-container-lowest, #FFFFFF) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
   border: none !important;
   overflow: hidden !important;

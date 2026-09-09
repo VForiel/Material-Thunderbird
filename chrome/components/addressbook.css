@@ -313,7 +313,7 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
 #editButton {
   border-radius: var(--md-shape-corner-full) !important;
   border: none !important;
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   font-family: var(--md-sys-font-family) !important;
   font-size: 12.5px !important;
@@ -364,7 +364,7 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
 
 /* Edit Button (Modifier) */
 #editButton {
-  background-color: #edf2fa !important;
+  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
   color: var(--md-sys-color-on-surface) !important;
   font-weight: 600 !important;
   padding-inline: 20px !important;
