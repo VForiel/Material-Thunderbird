@@ -3590,8 +3590,8 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
    ========================================================================== */
 
 /* Letter A */
-tr.card-layout:is(:has(.sender[title^="A" i]), :has(.sender[title^="\"A" i]), :has(.sender[title^="'A" i]), :has(.sender[title^="Ã€" i]), :has(.sender[title^="\"Ã€" i]), :has(.sender[title^="'Ã€" i]), :has(.sender[title^="Ã‚" i]), :has(.sender[title^="\"Ã‚" i]), :has(.sender[title^="'Ã‚" i]), :has(.sender[title^="Ã„" i]), :has(.sender[title^="\"Ã„" i]), :has(.sender[title^="'Ã„" i])),
-.header-recipient:is(:has(.recipient-single-line[title^="A" i]), :has(.recipient-single-line[title^="\"A" i]), :has(.recipient-single-line[title^="'A" i]), :has(.recipient-single-line[title^="Ã€" i]), :has(.recipient-single-line[title^="\"Ã€" i]), :has(.recipient-single-line[title^="'Ã€" i]), :has(.recipient-single-line[title^="Ã‚" i]), :has(.recipient-single-line[title^="\"Ã‚" i]), :has(.recipient-single-line[title^="'Ã‚" i]), :has(.recipient-single-line[title^="Ã„" i]), :has(.recipient-single-line[title^="\"Ã„" i]), :has(.recipient-single-line[title^="'Ã„" i])) {
+tr.card-layout:is(:has(.sender[title^="A" i]), :has(.sender[title^="\"A" i]), :has(.sender[title^="'A" i]), :has(.sender[title^="À" i]), :has(.sender[title^="\"À" i]), :has(.sender[title^="'À" i]), :has(.sender[title^="Â" i]), :has(.sender[title^="\"Â" i]), :has(.sender[title^="'Â" i]), :has(.sender[title^="Ä" i]), :has(.sender[title^="\"Ä" i]), :has(.sender[title^="'Ä" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="A" i]), :has(.recipient-single-line[title^="\"A" i]), :has(.recipient-single-line[title^="'A" i]), :has(.recipient-single-line[title^="À" i]), :has(.recipient-single-line[title^="\"À" i]), :has(.recipient-single-line[title^="'À" i]), :has(.recipient-single-line[title^="Â" i]), :has(.recipient-single-line[title^="\"Â" i]), :has(.recipient-single-line[title^="'Â" i]), :has(.recipient-single-line[title^="Ä" i]), :has(.recipient-single-line[title^="\"Ä" i]), :has(.recipient-single-line[title^="'Ä" i])) {
   --md-avatar-char: "A";
   --md-avatar-bg: #FFD8D3;
   --md-avatar-fg: #3A0B07;
@@ -3606,8 +3606,8 @@ tr.card-layout:is(:has(.sender[title^="B" i]), :has(.sender[title^="\"B" i]), :h
 }
 
 /* Letter C */
-tr.card-layout:is(:has(.sender[title^="C" i]), :has(.sender[title^="\"C" i]), :has(.sender[title^="'C" i]), :has(.sender[title^="Ã‡" i]), :has(.sender[title^="\"Ã‡" i]), :has(.sender[title^="'Ã‡" i])),
-.header-recipient:is(:has(.recipient-single-line[title^="C" i]), :has(.recipient-single-line[title^="\"C" i]), :has(.recipient-single-line[title^="'C" i]), :has(.recipient-single-line[title^="Ã‡" i]), :has(.recipient-single-line[title^="\"Ã‡" i]), :has(.recipient-single-line[title^="'Ã‡" i])) {
+tr.card-layout:is(:has(.sender[title^="C" i]), :has(.sender[title^="\"C" i]), :has(.sender[title^="'C" i]), :has(.sender[title^="Ç" i]), :has(.sender[title^="\"Ç" i]), :has(.sender[title^="'Ç" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="C" i]), :has(.recipient-single-line[title^="\"C" i]), :has(.recipient-single-line[title^="'C" i]), :has(.recipient-single-line[title^="Ç" i]), :has(.recipient-single-line[title^="\"Ç" i]), :has(.recipient-single-line[title^="'Ç" i])) {
   --md-avatar-char: "C";
   --md-avatar-bg: #C4EED0;
   --md-avatar-fg: #072711;
@@ -3622,8 +3622,8 @@ tr.card-layout:is(:has(.sender[title^="D" i]), :has(.sender[title^="\"D" i]), :h
 }
 
 /* Letter E */
-tr.card-layout:is(:has(.sender[title^="E" i]), :has(.sender[title^="\"E" i]), :has(.sender[title^="'E" i]), :has(.sender[title^="Ã‰" i]), :has(.sender[title^="\"Ã‰" i]), :has(.sender[title^="'Ã‰" i]), :has(.sender[title^="Ãˆ" i]), :has(.sender[title^="\"Ãˆ" i]), :has(.sender[title^="'Ãˆ" i]), :has(.sender[title^="ÃŠ" i]), :has(.sender[title^="\"ÃŠ" i]), :has(.sender[title^="'ÃŠ" i]), :has(.sender[title^="Ã‹" i]), :has(.sender[title^="\"Ã‹" i]), :has(.sender[title^="'Ã‹" i])),
-.header-recipient:is(:has(.recipient-single-line[title^="E" i]), :has(.recipient-single-line[title^="\"E" i]), :has(.recipient-single-line[title^="'E" i]), :has(.recipient-single-line[title^="Ã‰" i]), :has(.recipient-single-line[title^="\"Ã‰" i]), :has(.recipient-single-line[title^="'Ã‰" i]), :has(.recipient-single-line[title^="Ãˆ" i]), :has(.recipient-single-line[title^="\"Ãˆ" i]), :has(.recipient-single-line[title^="'Ãˆ" i]), :has(.recipient-single-line[title^="ÃŠ" i]), :has(.recipient-single-line[title^="\"ÃŠ" i]), :has(.recipient-single-line[title^="'ÃŠ" i]), :has(.recipient-single-line[title^="Ã‹" i]), :has(.recipient-single-line[title^="\"Ã‹" i]), :has(.recipient-single-line[title^="'Ã‹" i])) {
+tr.card-layout:is(:has(.sender[title^="E" i]), :has(.sender[title^="\"E" i]), :has(.sender[title^="'E" i]), :has(.sender[title^="É" i]), :has(.sender[title^="\"É" i]), :has(.sender[title^="'É" i]), :has(.sender[title^="È" i]), :has(.sender[title^="\"È" i]), :has(.sender[title^="'È" i]), :has(.sender[title^="Ê" i]), :has(.sender[title^="\"Ê" i]), :has(.sender[title^="'Ê" i]), :has(.sender[title^="Ë" i]), :has(.sender[title^="\"Ë" i]), :has(.sender[title^="'Ë" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="E" i]), :has(.recipient-single-line[title^="\"E" i]), :has(.recipient-single-line[title^="'E" i]), :has(.recipient-single-line[title^="É" i]), :has(.recipient-single-line[title^="\"É" i]), :has(.recipient-single-line[title^="'É" i]), :has(.recipient-single-line[title^="È" i]), :has(.recipient-single-line[title^="\"È" i]), :has(.recipient-single-line[title^="'È" i]), :has(.recipient-single-line[title^="Ê" i]), :has(.recipient-single-line[title^="\"Ê" i]), :has(.recipient-single-line[title^="'Ê" i]), :has(.recipient-single-line[title^="Ë" i]), :has(.recipient-single-line[title^="\"Ë" i]), :has(.recipient-single-line[title^="'Ë" i])) {
   --md-avatar-char: "E";
   --md-avatar-bg: #FFE088;
   --md-avatar-fg: #261900;
@@ -3654,8 +3654,8 @@ tr.card-layout:is(:has(.sender[title^="H" i]), :has(.sender[title^="\"H" i]), :h
 }
 
 /* Letter I */
-tr.card-layout:is(:has(.sender[title^="I" i]), :has(.sender[title^="\"I" i]), :has(.sender[title^="'I" i]), :has(.sender[title^="ÃŽ" i]), :has(.sender[title^="\"ÃŽ" i]), :has(.sender[title^="'ÃŽ" i]), :has(.sender[title^="Ã" i]), :has(.sender[title^="\"Ã" i]), :has(.sender[title^="'Ã" i])),
-.header-recipient:is(:has(.recipient-single-line[title^="I" i]), :has(.recipient-single-line[title^="\"I" i]), :has(.recipient-single-line[title^="'I" i]), :has(.recipient-single-line[title^="ÃŽ" i]), :has(.recipient-single-line[title^="\"ÃŽ" i]), :has(.recipient-single-line[title^="'ÃŽ" i]), :has(.recipient-single-line[title^="Ã" i]), :has(.recipient-single-line[title^="\"Ã" i]), :has(.recipient-single-line[title^="'Ã" i])) {
+tr.card-layout:is(:has(.sender[title^="I" i]), :has(.sender[title^="\"I" i]), :has(.sender[title^="'I" i]), :has(.sender[title^="Î" i]), :has(.sender[title^="\"Î" i]), :has(.sender[title^="'Î" i]), :has(.sender[title^="Ï" i]), :has(.sender[title^="\"Ï" i]), :has(.sender[title^="'Ï" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="I" i]), :has(.recipient-single-line[title^="\"I" i]), :has(.recipient-single-line[title^="'I" i]), :has(.recipient-single-line[title^="Î" i]), :has(.recipient-single-line[title^="\"Î" i]), :has(.recipient-single-line[title^="'Î" i]), :has(.recipient-single-line[title^="Ï" i]), :has(.recipient-single-line[title^="\"Ï" i]), :has(.recipient-single-line[title^="'Ï" i])) {
   --md-avatar-char: "I";
   --md-avatar-bg: #E1EAAF;
   --md-avatar-fg: #1B1F00;
@@ -3702,8 +3702,8 @@ tr.card-layout:is(:has(.sender[title^="N" i]), :has(.sender[title^="\"N" i]), :h
 }
 
 /* Letter O */
-tr.card-layout:is(:has(.sender[title^="O" i]), :has(.sender[title^="\"O" i]), :has(.sender[title^="'O" i]), :has(.sender[title^="Ã”" i]), :has(.sender[title^="\"Ã”" i]), :has(.sender[title^="'Ã”" i]), :has(.sender[title^="Ã–" i]), :has(.sender[title^="\"Ã–" i]), :has(.sender[title^="'Ã–" i])),
-.header-recipient:is(:has(.recipient-single-line[title^="O" i]), :has(.recipient-single-line[title^="\"O" i]), :has(.recipient-single-line[title^="'O" i]), :has(.recipient-single-line[title^="Ã”" i]), :has(.recipient-single-line[title^="\"Ã”" i]), :has(.recipient-single-line[title^="'Ã”" i]), :has(.recipient-single-line[title^="Ã–" i]), :has(.recipient-single-line[title^="\"Ã–" i]), :has(.recipient-single-line[title^="'Ã–" i])) {
+tr.card-layout:is(:has(.sender[title^="O" i]), :has(.sender[title^="\"O" i]), :has(.sender[title^="'O" i]), :has(.sender[title^="Ô" i]), :has(.sender[title^="\"Ô" i]), :has(.sender[title^="'Ô" i]), :has(.sender[title^="Ö" i]), :has(.sender[title^="\"Ö" i]), :has(.sender[title^="'Ö" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="O" i]), :has(.recipient-single-line[title^="\"O" i]), :has(.recipient-single-line[title^="'O" i]), :has(.recipient-single-line[title^="Ô" i]), :has(.recipient-single-line[title^="\"Ô" i]), :has(.recipient-single-line[title^="'Ô" i]), :has(.recipient-single-line[title^="Ö" i]), :has(.recipient-single-line[title^="\"Ö" i]), :has(.recipient-single-line[title^="'Ö" i])) {
   --md-avatar-char: "O";
   --md-avatar-bg: #FFDDB8;
   --md-avatar-fg: #2A1700;
@@ -3750,8 +3750,8 @@ tr.card-layout:is(:has(.sender[title^="T" i]), :has(.sender[title^="\"T" i]), :h
 }
 
 /* Letter U */
-tr.card-layout:is(:has(.sender[title^="U" i]), :has(.sender[title^="\"U" i]), :has(.sender[title^="'U" i]), :has(.sender[title^="Ã›" i]), :has(.sender[title^="\"Ã›" i]), :has(.sender[title^="'Ã›" i]), :has(.sender[title^="Ãœ" i]), :has(.sender[title^="\"Ãœ" i]), :has(.sender[title^="'Ãœ" i])),
-.header-recipient:is(:has(.recipient-single-line[title^="U" i]), :has(.recipient-single-line[title^="\"U" i]), :has(.recipient-single-line[title^="'U" i]), :has(.recipient-single-line[title^="Ã›" i]), :has(.recipient-single-line[title^="\"Ã›" i]), :has(.recipient-single-line[title^="'Ã›" i]), :has(.recipient-single-line[title^="Ãœ" i]), :has(.recipient-single-line[title^="\"Ãœ" i]), :has(.recipient-single-line[title^="'Ãœ" i])) {
+tr.card-layout:is(:has(.sender[title^="U" i]), :has(.sender[title^="\"U" i]), :has(.sender[title^="'U" i]), :has(.sender[title^="Û" i]), :has(.sender[title^="\"Û" i]), :has(.sender[title^="'Û" i]), :has(.sender[title^="Ü" i]), :has(.sender[title^="\"Ü" i]), :has(.sender[title^="'Ü" i])),
+.header-recipient:is(:has(.recipient-single-line[title^="U" i]), :has(.recipient-single-line[title^="\"U" i]), :has(.recipient-single-line[title^="'U" i]), :has(.recipient-single-line[title^="Û" i]), :has(.recipient-single-line[title^="\"Û" i]), :has(.recipient-single-line[title^="'Û" i]), :has(.recipient-single-line[title^="Ü" i]), :has(.recipient-single-line[title^="\"Ü" i]), :has(.recipient-single-line[title^="'Ü" i])) {
   --md-avatar-char: "U";
   --md-avatar-bg: #F3DAFF;
   --md-avatar-fg: #2A003F;
