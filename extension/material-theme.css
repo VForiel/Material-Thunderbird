@@ -1152,6 +1152,38 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
   visibility: hidden !important;
 }
 
+#threadTree button.twisty .thread-replies:not(:empty) {
+  margin-inline-end: 4px !important;
+}
+
+/* La regle ci-dessus masque le chevron natif en meme temps que la pastille verte
+   de non-lu qu il porte : plus rien n indiquait le sens du repli. La pastille
+   dessine donc le sien, place avant le libelle et pivote quand la ligne s ouvre. */
+#threadTree tr.children button.twisty::after,
+#threadTree tr.children .thread-card-button::after,
+.children button.twisty::after {
+  content: "" !important;
+  display: block !important;
+  visibility: visible !important;
+  order: -1 !important;
+  flex: none !important;
+  inline-size: 1.05em !important;
+  block-size: 1.05em !important;
+  background-color: currentColor !important;
+  mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.4 5.6 9 7 7.6l5 5 5-5L18.4 9z'/%3E%3C/svg%3E") !important;
+  mask-repeat: no-repeat !important;
+  mask-position: center !important;
+  mask-size: contain !important;
+  transition: transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#threadTree tr.children[aria-expanded="true"] button.twisty::after,
+#threadTree tr.children[aria-expanded="true"] .thread-card-button::after,
+#threadTree button.twisty[aria-expanded="true"]::after,
+.children[aria-expanded="true"] button.twisty::after {
+  transform: rotate(180deg) !important;
+}
+
 /* When thread has unread replies: turn the twisty button into a vibrant Material You Primary Blue pill with crisp white text */
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
@@ -1327,13 +1359,16 @@ tr.card-layout.material-thread-read-hidden {
 #threadTree .thread-card-button {
   min-block-size: 18px !important;
   height: 18px !important;
+  min-inline-size: 18px !important;
+  inline-size: auto !important;
+  align-self: center !important;
   line-height: 16px !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   padding-block: 1px !important;
   padding-inline: 8px !important;
-  margin-block-start: 2px !important;
-  margin-block-end: 2px !important;
+  margin-block-start: 1px !important;
+  margin-block-end: 1px !important;
   border-radius: var(--md-shape-corner-full) !important;
 }
 
@@ -5070,8 +5105,16 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   height: auto !important;
 }
 
-/* Cartes de reponse (messages enfants d'un fil deploye) : volontairement
-   compactes, elles s'alignent sous la carte parente. */
+/* ATTENTION au sens de .children : tree-view.mjs fait
+   classList.toggle("children", view.isContainer(index)), donc .children marque
+   la ligne QUI A des reponses -- la carte de fil, celle qui porte le bouton de
+   repli. Les reponses elles-memes sont marquees data-properties~="thread-children"
+   (thread-card.mjs). Les deux commentaires de ce fichier disaient l'inverse, et
+   la regle "cartes de fil" ci-dessous, en :not(.children), ne touchait donc
+   aucune carte de fil.
+
+   Cartes de fil (parent portant le bouton de repli) : compactes, la troisieme
+   rangee devant tenir dans le budget de hauteur decrit plus bas. */
 #threadTree tr.card-layout.children .card-container {
   min-block-size: 46px !important;
   max-block-size: none !important;
@@ -5083,12 +5126,20 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   overflow: hidden !important;
 }
 
-/* Cartes de fil (parent portant le bouton de repli).
-   Elles partagent la respiration des cartes simples au lieu du gabarit
-   compact ci-dessus : la regle englobait aussi les parents, dont le nom
-   d'expediteur se retrouvait colle au bord superieur de la carte.
-   La marge haute est legerement superieure a la basse, la pastille
-   "N reponses" apportant deja de l'air en bas. */
+/* Cartes ordinaires et cartes sans reponse (:not(.children)).
+
+   La hauteur de ces lignes n'est pas negociable : about3Pane.js calcule
+   ThreadCard.ROW_HEIGHT (1.5 * rowCount * taille de police + 3 * rowCount + 7,
+   soit 84px en densite normale a 15px) et l'arbre virtuel positionne chaque
+   ligne a index * ROW_HEIGHT. Une carte plus haute que ce budget n'agrandit
+   pas la ligne : overflow: hidden la rogne.
+
+   Les 3px de marge et les 9px/7px de padding d'origine mangeaient 22px des
+   84px alors que Thunderbird n'en prevoit que 7 pour tout le padding de la
+   carte. Il restait 62px pour trois rangees qui en demandent ~69, et la
+   troisieme -- celle qui porte le bouton de repli -- etait tranchee en deux.
+   Les cartes de reponse ci-dessus n'en depensent que 9 et tenaient, elles.
+   On s'aligne sur elles, avec la marge haute toujours egale a la basse. */
 #threadTree tr.card-layout:not(.children):is(:has(button.twisty), [aria-expanded]) .card-container {
   min-block-size: 54px !important;
   max-block-size: none !important;
@@ -5117,7 +5168,11 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   font-size: 12px !important;
 }
 
-#threadTree tr.card-layout.children .card-container .thread-card-dynamic-row,
+/* .thread-card-dynamic-row n'a rien a faire dans cette liste : c'est la grille
+   a deux rangees qui porte le sujet ET la ligne "bouton + icones", pas un
+   bouton. Elle se retrouvait haute de 16px, le sujet la remplissait, la rangee
+   du bouton tombait dehors et overflow: hidden tranchait le bouton en deux.
+   Seul le bouton garde ces mesures. */
 #threadTree tr.card-layout.children .card-container button.twisty {
   min-block-size: 16px !important;
   height: 16px !important;

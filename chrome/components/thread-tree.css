@@ -149,6 +149,38 @@ tr.card-layout[aria-selected="true"].children .thread-card-button:hover {
   visibility: hidden !important;
 }
 
+#threadTree button.twisty .thread-replies:not(:empty) {
+  margin-inline-end: 4px !important;
+}
+
+/* La regle ci-dessus masque le chevron natif en meme temps que la pastille verte
+   de non-lu qu il porte : plus rien n indiquait le sens du repli. La pastille
+   dessine donc le sien, place avant le libelle et pivote quand la ligne s ouvre. */
+#threadTree tr.children button.twisty::after,
+#threadTree tr.children .thread-card-button::after,
+.children button.twisty::after {
+  content: "" !important;
+  display: block !important;
+  visibility: visible !important;
+  order: -1 !important;
+  flex: none !important;
+  inline-size: 1.05em !important;
+  block-size: 1.05em !important;
+  background-color: currentColor !important;
+  mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.4 5.6 9 7 7.6l5 5 5-5L18.4 9z'/%3E%3C/svg%3E") !important;
+  mask-repeat: no-repeat !important;
+  mask-position: center !important;
+  mask-size: contain !important;
+  transition: transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#threadTree tr.children[aria-expanded="true"] button.twisty::after,
+#threadTree tr.children[aria-expanded="true"] .thread-card-button::after,
+#threadTree button.twisty[aria-expanded="true"]::after,
+.children[aria-expanded="true"] button.twisty::after {
+  transform: rotate(180deg) !important;
+}
+
 /* When thread has unread replies: turn the twisty button into a vibrant Material You Primary Blue pill with crisp white text */
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) button.twisty,
 #threadTree tr.children:is([data-properties*="unread" i], [data-properties*="hasUnread" i], .unread, .has-unread-replies) .thread-card-button,
@@ -324,13 +356,16 @@ tr.card-layout.material-thread-read-hidden {
 #threadTree .thread-card-button {
   min-block-size: 18px !important;
   height: 18px !important;
+  min-inline-size: 18px !important;
+  inline-size: auto !important;
+  align-self: center !important;
   line-height: 16px !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   padding-block: 1px !important;
   padding-inline: 8px !important;
-  margin-block-start: 2px !important;
-  margin-block-end: 2px !important;
+  margin-block-start: 1px !important;
+  margin-block-end: 1px !important;
   border-radius: var(--md-shape-corner-full) !important;
 }
 
