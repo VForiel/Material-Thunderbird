@@ -5105,46 +5105,33 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   height: auto !important;
 }
 
-/* ATTENTION au sens de .children : tree-view.mjs fait
-   classList.toggle("children", view.isContainer(index)), donc .children marque
-   la ligne QUI A des reponses -- la carte de fil, celle qui porte le bouton de
-   repli. Les reponses elles-memes sont marquees data-properties~="thread-children"
-   (thread-card.mjs). Les deux commentaires de ce fichier disaient l'inverse, et
-   la regle "cartes de fil" ci-dessous, en :not(.children), ne touchait donc
-   aucune carte de fil.
+/* ==========================================================================
+   Cartes de fil (celles qui portent le bouton de repli)
 
-   Cartes de fil (parent portant le bouton de repli) : compactes, la troisieme
-   rangee devant tenir dans le budget de hauteur decrit plus bas. */
+   ATTENTION au sens de .children : tree-view.mjs fait
+   classList.toggle("children", view.isContainer(index)). La classe marque donc
+   la ligne QUI A des reponses -- la carte de fil -- et non une reponse. Les
+   reponses portent data-properties~="thread-children" (thread-card.mjs). Les
+   commentaires de ce fichier affirmaient l'inverse, si bien que la regle dite
+   "cartes de fil", ecrite en :not(.children), ne touchait aucune carte de fil.
+
+   La hauteur de la ligne n'est pas negociable : about3Pane.js calcule
+   ThreadCard.ROW_HEIGHT et l'arbre virtuel place chaque ligne a
+   index * ROW_HEIGHT. Une carte plus haute n'agrandit pas sa ligne, elle est
+   rognee. D'ou le gabarit compact ci-dessous : les trois rangees de la carte
+   de fil doivent tenir dans ce budget.
+
+   Ces regles etaient dispersees dans le fichier et separees par celle des
+   cartes ordinaires. A specificite egale, les dernieres l'emportaient en
+   silence -- c'est ce qui a laisse passer un height: 16px pose par erreur sur
+   .thread-card-dynamic-row. Elles sont regroupees ici : toute regle visant
+   .children a sa place dans ce bloc.
+   ========================================================================== */
 #threadTree tr.card-layout.children .card-container {
   min-block-size: 46px !important;
   max-block-size: none !important;
   margin: 2px 6px !important;
   padding-block: 2px 3px !important;
-  padding-inline-start: 10px !important;
-  padding-inline-end: 8px !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-}
-
-/* Cartes ordinaires et cartes sans reponse (:not(.children)).
-
-   La hauteur de ces lignes n'est pas negociable : about3Pane.js calcule
-   ThreadCard.ROW_HEIGHT (1.5 * rowCount * taille de police + 3 * rowCount + 7,
-   soit 84px en densite normale a 15px) et l'arbre virtuel positionne chaque
-   ligne a index * ROW_HEIGHT. Une carte plus haute que ce budget n'agrandit
-   pas la ligne : overflow: hidden la rogne.
-
-   Les 3px de marge et les 9px/7px de padding d'origine mangeaient 22px des
-   84px alors que Thunderbird n'en prevoit que 7 pour tout le padding de la
-   carte. Il restait 62px pour trois rangees qui en demandent ~69, et la
-   troisieme -- celle qui porte le bouton de repli -- etait tranchee en deux.
-   Les cartes de reponse ci-dessus n'en depensent que 9 et tenaient, elles.
-   On s'aligne sur elles, avec la marge haute toujours egale a la basse. */
-#threadTree tr.card-layout:not(.children):is(:has(button.twisty), [aria-expanded]) .card-container {
-  min-block-size: 54px !important;
-  max-block-size: none !important;
-  margin: 3px 6px !important;
-  padding-block: 9px 7px !important;
   padding-inline-start: 10px !important;
   padding-inline-end: 8px !important;
   box-sizing: border-box !important;
@@ -5168,11 +5155,10 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   font-size: 12px !important;
 }
 
-/* .thread-card-dynamic-row n'a rien a faire dans cette liste : c'est la grille
-   a deux rangees qui porte le sujet ET la ligne "bouton + icones", pas un
-   bouton. Elle se retrouvait haute de 16px, le sujet la remplissait, la rangee
-   du bouton tombait dehors et overflow: hidden tranchait le bouton en deux.
-   Seul le bouton garde ces mesures. */
+/* Mesures du bouton seul. .thread-card-dynamic-row -- la grille a deux rangees
+   qui porte le sujet ET la ligne "bouton + icones" -- figurait aussi dans cette
+   liste : haute de 16px, le sujet la remplissait, la rangee du bouton tombait
+   dehors et overflow: hidden tranchait le bouton en deux. */
 #threadTree tr.card-layout.children .card-container button.twisty {
   min-block-size: 16px !important;
   height: 16px !important;
@@ -5182,6 +5168,19 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   padding-inline: 7px !important;
   margin-block-start: 1px !important;
   margin-block-end: 0px !important;
+}
+
+/* Cartes ordinaires : pas de reponse, donc pas de troisieme rangee a loger et
+   plus de place pour respirer que les cartes de fil ci-dessus. */
+#threadTree tr.card-layout:not(.children):is(:has(button.twisty), [aria-expanded]) .card-container {
+  min-block-size: 54px !important;
+  max-block-size: none !important;
+  margin: 3px 6px !important;
+  padding-block: 9px 7px !important;
+  padding-inline-start: 10px !important;
+  padding-inline-end: 8px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 #threadTree tr.card-layout:is(
