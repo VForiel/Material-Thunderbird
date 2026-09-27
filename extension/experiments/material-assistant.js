@@ -685,11 +685,8 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     this._attachToCurrentTab(win);
 
     const onKeyDown = (e) => {
-      const isM = e.key === "m" || e.key === "M" || e.code === "KeyM";
-      // Supporte Ctrl+Alt+M, Alt+Shift+M, ou Ctrl+Shift+M (évite le conflit avec le menu Messages de Windows)
-      if (isM && ((e.altKey && e.ctrlKey) || (e.altKey && e.shiftKey) || (e.ctrlKey && e.shiftKey))) {
+      if (e.altKey && (e.key === "m" || e.key === "M")) {
         e.preventDefault();
-        e.stopPropagation();
         this._openCustomizerModal(win);
       }
     };
@@ -700,58 +697,47 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
   _ensureCustomizerButtons(win) {
     if (!win || !win.document) return;
     const doc = win.document;
+    const spaces = doc.querySelector(".spaces-toolbar") || doc.getElementById("spacesToolbar");
+    if (!spaces) return;
 
-    // Trouver le bouton des paramètres dans la Spaces Toolbar (barre latérale)
-    const settingsBtn = doc.getElementById("settingsButton") ||
-                        doc.querySelector('[data-l10n-id*="settings"]') ||
-                        doc.querySelector(".spaces-toolbar-bottom-container .spaces-toolbar-button") ||
-                        doc.querySelector(".spaces-toolbar-pinned-button");
-
-    const bottomContainer = doc.querySelector(".spaces-toolbar-bottom-container") ||
-                            (settingsBtn ? settingsBtn.parentNode : null) ||
-                            doc.querySelector(".spaces-toolbar") ||
-                            doc.getElementById("spacesToolbar");
-
-    if (!bottomContainer && !settingsBtn) return;
+    const spacesSettings = spaces.querySelector('[data-l10n-id="spaces-settings-button"]') || spaces.querySelector('.spaces-toolbar-pinned-button');
 
     // 1. Bouton Personnalisation & Thème Material You
     if (!doc.getElementById("material-theme-settings-btn")) {
-      const customBtn = doc.createElement("button");
-      customBtn.id = "material-theme-settings-btn";
-      customBtn.type = "button";
-      customBtn.className = "spaces-toolbar-button";
-      customBtn.setAttribute("tabindex", "-1");
-      customBtn.setAttribute("title", "Personnaliser Material-Thunderbird (Thème, Couleurs, Émojis) [Ctrl+Alt+M]");
-      customBtn.setAttribute("aria-label", "Personnaliser le thème Material-Thunderbird");
-      customBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;display:block;"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.5a1 1 0 0 0 .15 1.41c.4.32.96.3 1.34-.06l1.39-1.32C8.65 19.38 10.26 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
-      customBtn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;color:var(--md-sys-color-primary, #0b57d0);";
+      const settingsBtn = doc.createElement("button");
+      settingsBtn.id = "material-theme-settings-btn";
+      settingsBtn.type = "button";
+      settingsBtn.className = "spaces-toolbar-button spaces-toolbar-pinned-button";
+      settingsBtn.setAttribute("title", "Personnaliser Material-Thunderbird (Thème, Couleurs, Émojis) [Alt+M]");
+      settingsBtn.setAttribute("aria-label", "Personnaliser le thème Material-Thunderbird");
+      settingsBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;display:block;"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.5a1 1 0 0 0 .15 1.41c.4.32.96.3 1.34-.06l1.39-1.32C8.65 19.38 10.26 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
+      settingsBtn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;color:var(--md-sys-color-primary, #0b57d0);";
 
-      customBtn.addEventListener("click", (e) => {
+      settingsBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         this._openCustomizerModal(win);
       });
 
-      if (settingsBtn && settingsBtn.parentNode) {
-        settingsBtn.parentNode.insertBefore(customBtn, settingsBtn);
-      } else if (bottomContainer) {
-        bottomContainer.appendChild(customBtn);
+      if (spacesSettings && spacesSettings.parentNode === spaces) {
+        spaces.insertBefore(settingsBtn, spacesSettings);
+      } else {
+        spaces.appendChild(settingsBtn);
       }
     }
 
     // 2. Bouton Soutenir / Sponsor (GitHub Sponsors)
     if (!doc.getElementById("material-sponsor-btn")) {
-      const sponsorBtn = doc.createElement("button");
-      sponsorBtn.id = "material-sponsor-btn";
-      sponsorBtn.type = "button";
-      sponsorBtn.className = "spaces-toolbar-button";
-      sponsorBtn.setAttribute("tabindex", "-1");
-      sponsorBtn.setAttribute("title", "Soutenir Material-Thunderbird (GitHub Sponsors)");
-      sponsorBtn.setAttribute("aria-label", "Soutenir le développement du thème");
-      sponsorBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ea4aaa" style="vertical-align:middle;display:block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-      sponsorBtn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;";
+      const btn = doc.createElement("button");
+      btn.id = "material-sponsor-btn";
+      btn.type = "button";
+      btn.className = "spaces-toolbar-button spaces-toolbar-pinned-button";
+      btn.setAttribute("title", "Soutenir Material-Thunderbird (GitHub Sponsors)");
+      btn.setAttribute("aria-label", "Soutenir le développement du thème");
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ea4aaa" style="vertical-align:middle;display:block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+      btn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;";
 
-      sponsorBtn.addEventListener("click", (e) => {
+      btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         const sponsorUrl = "https://github.com/sponsors/VForiel";
@@ -768,36 +754,12 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         }
       });
 
-      if (settingsBtn && settingsBtn.parentNode) {
-        settingsBtn.parentNode.insertBefore(sponsorBtn, settingsBtn);
-      } else if (bottomContainer) {
-        bottomContainer.appendChild(sponsorBtn);
+      if (spacesSettings && spacesSettings.parentNode === spaces) {
+        spaces.insertBefore(btn, spacesSettings);
+      } else {
+        spaces.appendChild(btn);
       }
     }
-
-    // 3. Entrée dans le menu supérieur Outils
-    this._ensureToolsMenuItem(win);
-  }
-
-  _ensureToolsMenuItem(win) {
-    if (!win || !win.document) return;
-    const doc = win.document;
-    if (doc.getElementById("material-theme-tools-menuitem")) return;
-
-    const toolsPopup = doc.getElementById("menu_ToolsPopup") ||
-                       doc.getElementById("mailToolsPopup") ||
-                       doc.querySelector("#tasksMenu > menupopup");
-    if (toolsPopup) {
-      const item = doc.createXULElement ? doc.createXULElement("menuitem") : doc.createElement("menuitem");
-      item.id = "material-theme-tools-menuitem";
-      item.setAttribute("label", "Personnaliser le thème Material (M3)...");
-      item.setAttribute("acceltext", "Ctrl+Alt+M");
-      item.addEventListener("command", () => {
-        this._openCustomizerModal(win);
-      });
-      toolsPopup.appendChild(item);
-    }
-  }
   }
 
   _applyCustomizerStylesToDocument(doc) {

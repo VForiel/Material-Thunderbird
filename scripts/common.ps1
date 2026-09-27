@@ -14,12 +14,14 @@ $script:ManifestName = "material-thunderbird-install.json"
 $script:ManagedPrefs = @(
     "toolkit.legacyUserProfileCustomizations.stylesheets",
     "svg.context-properties.content.enabled",
-    "extensions.experiments.enabled",
-    "xpinstall.signatures.required"
+    "extensions.experiments.enabled"
 )
 
-# Preferences obsoletes a nettoyer lors de la reparation ou mise a jour.
-$script:LegacyPrefsToRepair = @()
+# Preference que des versions precedentes de installateur desactivaient a tort.
+# Elle n est plus jamais posee ; elle est seulement nettoyee pour reparer ces profils.
+$script:LegacyPrefsToRepair = @(
+    "xpinstall.signatures.required"
+)
 
 $script:AddonId = "material-you-thunderbird@vforiel"
 

@@ -53,8 +53,7 @@ if (Get-Process -Name "thunderbird" -ErrorAction SilentlyContinue) {
 $PrefLines = @(
     'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);',
     'user_pref("svg.context-properties.content.enabled", true);',
-    'user_pref("extensions.experiments.enabled", true);',
-    'user_pref("xpinstall.signatures.required", false);'
+    'user_pref("extensions.experiments.enabled", true);'
 )
 
 $SourceFiles = @(Get-ChildItem -Path $SourceChromeDir -Recurse -File)
