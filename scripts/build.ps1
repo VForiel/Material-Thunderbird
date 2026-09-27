@@ -132,7 +132,7 @@ if (Test-Path $DocsDist) {
             }
         }
 
-        $rootItems = @("Installer-Material-Thunderbird.bat", "Desinstaller-Material-Thunderbird.bat", "LICENSE", "README.md")
+        $rootItems = @("Installer-Material-Thunderbird.bat", "Personnaliser-Material-Thunderbird.bat", "Desinstaller-Material-Thunderbird.bat", "LICENSE", "README.md")
         foreach ($rName in $rootItems) {
             $rPath = Join-Path $ProjectRoot $rName
             if (Test-Path $rPath) {
