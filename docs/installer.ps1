@@ -21,6 +21,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue
+
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "   Installation Web de Material-Thunderbird (Material You)  " -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -46,6 +48,11 @@ try {
         if ($found) { $ExtractedRoot = $found.FullName }
     }
 
+    # Débloque les scripts PowerShell extraits pour éviter les blocages de sécurité Windows
+    Get-ChildItem -Path $ExtractedRoot -Recurse -Filter "*.ps1" -ErrorAction SilentlyContinue | ForEach-Object {
+        Unblock-File -LiteralPath $_.FullName -ErrorAction SilentlyContinue
+    }
+
     $InstallerScript = Join-Path $ExtractedRoot "scripts\install.ps1"
     if (-not (Test-Path $InstallerScript)) {
         throw "Script d'installation introuvable dans l'archive téléchargée ($InstallerScript)."
@@ -60,6 +67,10 @@ try {
     if ($DryRun) { $params["DryRun"] = $true }
 
     & $InstallerScript @params
+
+    Write-Host ""
+    Write-Host "💖 Vous aimez ce thème ? Soutenez son auteur (Vincent Foriel) :" -ForegroundColor Magenta
+    Write-Host "   https://github.com/sponsors/VForiel" -ForegroundColor Cyan
 }
 catch {
     Write-Host ""

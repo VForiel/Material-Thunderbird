@@ -42,8 +42,8 @@ jobs:
           zip -r ../docs/dist/material-thunderbird.xpi . -x "*.DS_Store"
           cd ..
 
-          # Création du pack d'installation zippé tout-en-un
-          zip -r docs/dist/material-thunderbird-facile.zip chrome scripts extension *.bat README.md LICENSE -x "*.git*"
+          # Création du pack d'installation zippé tout-en-un (sans les scripts de build développeur)
+          zip -r docs/dist/material-thunderbird-facile.zip chrome scripts extension *.bat README.md LICENSE -x "*.git*" -x "scripts/build.ps1" -x "scripts/theme-colors.ps1"
 
           # Synchronisation de l'installateur web
           cp scripts/web-install.ps1 docs/installer.ps1

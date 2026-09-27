@@ -424,6 +424,20 @@
       text-decoration: none;
     }
 
+    .btn-sponsor {
+      background: #ea4aaa;
+      color: #ffffff !important;
+      box-shadow: var(--elevation-1);
+    }
+
+    .btn-sponsor:hover {
+      background: #db2777;
+      transform: translateY(-2px);
+      box-shadow: var(--elevation-2);
+      text-decoration: none;
+      filter: brightness(1.05);
+    }
+
     /* Section Hero */
     .hero-section {
       background: var(--hero-gradient);
@@ -1291,6 +1305,10 @@
           🌙
         </button>
 
+        <a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="btn-pill btn-sponsor" style="padding: 8px 16px; font-size: 13.5px;" title="Soutenir le projet sur GitHub Sponsors">
+          <span>💖 Soutenir</span>
+        </a>
+
         <a href="#installer" class="btn-pill btn-primary">
           <span>🚀 Installer</span>
         </a>
@@ -1368,9 +1386,9 @@
 
             <div class="mini-mail-card">
               <div class="mini-mail-header">
-                <div class="mini-avatar">VT</div>
+                <div class="mini-avatar">VF</div>
                 <div class="mini-mail-info">
-                  <div class="mini-mail-sender">Vincent Toriel</div>
+                  <div class="mini-mail-sender">Vincent Foriel</div>
                   <div class="mini-mail-subject">Votre messagerie métamorphosée !</div>
                 </div>
                 <span class="mini-mail-badge">Nouveau</span>
@@ -1479,7 +1497,7 @@
 
           <div class="feature-card">
             <div class="feature-icon-wrapper">✏️</div>
-            <h3 class="feature-title">Bouton "Écrire" Agrandir</h3>
+            <h3 class="feature-title">Grand Bouton "Écrire" (FAB)</h3>
             <p class="feature-desc">
               Le bouton pour composer un message adopte le format Extended FAB de Google : large, agréable et toujours à portée de clic.
             </p>
@@ -1731,19 +1749,22 @@
           <div class="step-card">
             <h3 class="step-title">Installation Express via PowerShell (Windows 10/11)</h3>
             <p class="step-desc">
-              Si vous préférez installer le thème sans extraire d'archive, ouvrez simplement <strong>PowerShell</strong> (Touche Windows > tapez <em>PowerShell</em> > Entrée) et collez la commande suivante :
+              Si vous préférez installer le thème directement sans télécharger d'archive : ouvrez <strong>PowerShell</strong> (Menu Démarrer > tapez <em>PowerShell</em>) et collez simplement cette commande :
             </p>
 
             <div class="command-box">
-              <span class="command-text" id="cmdPowerShell">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/VForiel/Material-Thunderbird/main/scripts/web-install.ps1 | iex"</span>
+              <span class="command-text" id="cmdPowerShell">irm https://raw.githubusercontent.com/VForiel/Material-Thunderbird/main/scripts/web-install.ps1 | Invoke-Expression</span>
               <button class="btn-copy" onclick="copyCommand('cmdPowerShell')">
                 <span>📋</span>
                 <span>Copier</span>
               </button>
             </div>
 
-            <p style="font-size: 13.5px; color: var(--md-on-surface-variant);">
+            <p style="font-size: 13.5px; color: var(--md-on-surface-variant); margin-top: 12px;">
               Cette commande télécharge automatiquement les fichiers nécessaires, déploie le thème dans votre profil Thunderbird et configure les paramètres sans rien casser.
+            </p>
+            <p style="font-size: 12.5px; color: var(--md-on-surface-variant); margin-top: 6px;">
+              💡 <em>Depuis l'Invite de commandes (CMD) ou le raccourci Win+R, utilisez : <code style="user-select: all;">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/VForiel/Material-Thunderbird/main/scripts/web-install.ps1 | Invoke-Expression"</code></em>
             </p>
           </div>
         </div>
@@ -1845,6 +1866,16 @@
               Faites simplement un double-clic sur le fichier <strong><code>Desinstaller-Material-Thunderbird.bat</code></strong> présent dans le dossier téléchargé. Vos paramètres d'origine seront restaurés automatiquement et proprement.
             </div>
           </div>
+          <!-- Q7 : Soutien -->
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>Comment soutenir ou remercier l'auteur du projet ?</span>
+              <span class="faq-icon">▼</span>
+            </button>
+            <div class="faq-answer">
+              Material-Thunderbird est développé de manière totalement libre et bénévole par <strong>Vincent Foriel</strong>. Si le thème vous plaît et embellit votre quotidien, vous pouvez lui offrir un café ou devenir sponsor sur <a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" style="color: #db2777; font-weight: 700;">GitHub Sponsors 💖</a>. Un immense merci d'avance !
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1861,8 +1892,13 @@
           Thème Material You (Material Design 3) soigné et moderne pour Mozilla Thunderbird.
         </p>
         <p style="font-size: 13px;">
-          Conçu avec passion pour rendre la messagerie plus belle et accessible à tous.
+          Créé avec passion par <strong>Vincent Foriel</strong> pour rendre la messagerie plus belle et accessible à tous.
         </p>
+        <div style="margin-top: 14px;">
+          <a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="btn-pill btn-sponsor" style="display: inline-flex; font-size: 13px; padding: 8px 16px;">
+            <span>💖 Offrir un café / Devenir Sponsor</span>
+          </a>
+        </div>
       </div>
 
       <div class="footer-links-col">
@@ -1878,6 +1914,7 @@
         <h5>Projet & Liens</h5>
         <ul class="footer-links-list">
           <li><a href="https://github.com/VForiel/Material-Thunderbird" target="_blank">Dépôt GitHub</a></li>
+          <li><a href="https://github.com/sponsors/VForiel" target="_blank" style="color: #db2777; font-weight: 700;">💖 GitHub Sponsors</a></li>
           <li><a href="https://github.com/VForiel/Material-Thunderbird/issues" target="_blank">Signaler un problème</a></li>
           <li><a href="https://github.com/VForiel/Material-Thunderbird/blob/main/LICENSE" target="_blank">Licence MIT</a></li>
         </ul>
@@ -1885,7 +1922,7 @@
     </div>
 
     <div class="container footer-bottom">
-      <p>Projet open source libre sous licence MIT — Non affilié à Mozilla ou Google.</p>
+      <p>Projet open source libre créé par <strong>Vincent Foriel</strong> sous licence MIT — Non affilié à Mozilla ou Google.</p>
     </div>
   </footer>
 

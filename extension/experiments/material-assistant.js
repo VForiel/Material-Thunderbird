@@ -372,6 +372,10 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
     // Retire les elements injectes, dans chacun des sous-documents visites.
     try { this._removeUnsubscribeBanner(win); } catch (e) {}
+    try {
+      const spBtn = win.document && win.document.getElementById("material-sponsor-btn");
+      if (spBtn) spBtn.remove();
+    } catch (e) {}
     for (const doc of state.documents) {
       try {
         delete doc.__materialAbout3PaneSetup;
@@ -444,7 +448,51 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     tabmail.registerTabMonitor(monitor);
     state.tabMonitor = monitor;
 
+    this._ensureSponsorButton(win);
     this._attachToCurrentTab(win);
+  }
+
+  _ensureSponsorButton(win) {
+    if (!win || !win.document) return;
+    const doc = win.document;
+    if (doc.getElementById("material-sponsor-btn")) return;
+
+    // Insertion harmonieuse dans la barre d'espaces (Spaces Toolbar)
+    const spaces = doc.querySelector(".spaces-toolbar") || doc.getElementById("spacesToolbar");
+    if (!spaces) return;
+
+    const btn = doc.createElement("button");
+    btn.id = "material-sponsor-btn";
+    btn.type = "button";
+    btn.className = "spaces-toolbar-button spaces-toolbar-pinned-button";
+    btn.setAttribute("title", "Soutenir Material-Thunderbird (GitHub Sponsors)");
+    btn.setAttribute("aria-label", "Soutenir le développement du thème");
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ea4aaa" style="vertical-align:middle;display:block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+    btn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;";
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const sponsorUrl = "https://github.com/sponsors/VForiel";
+      const host = win.top || win;
+      if (typeof host.openContentTab === "function") {
+        host.openContentTab(sponsorUrl);
+      } else if (typeof host.openURL === "function") {
+        host.openURL(sponsorUrl);
+      } else {
+        const uri = Services.io.newURI(sponsorUrl);
+        const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+          .getService(Ci.nsIExternalProtocolService);
+        extProtocolSvc.loadURI(uri);
+      }
+    });
+
+    const settingsBtn = spaces.querySelector('[data-l10n-id="spaces-settings-button"]') || spaces.querySelector('.spaces-toolbar-pinned-button');
+    if (settingsBtn && settingsBtn.parentNode === spaces) {
+      spaces.insertBefore(btn, settingsBtn);
+    } else {
+      spaces.appendChild(btn);
+    }
   }
 
   /**
