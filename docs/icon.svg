@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Gradient (Surface container high to primary container) -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D3E3FD"/>
+      <stop offset="100%" stop-color="#A8C7FA"/>
+    </linearGradient>
+    
+    <!-- Primary Accent Gradient -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B57D0"/>
+      <stop offset="100%" stop-color="#004A77"/>
+    </linearGradient>
+
+    <!-- Drop Shadow for MD3 Elevation -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#001D35" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base (Material 3 Adaptive Icon Container) -->
+  <rect x="8" y="8" width="112" height="112" rx="32" fill="url(#bgGrad)" />
+
+  <!-- Material You Envelope Container (Surfaced) -->
+  <g filter="url(#shadow)">
+    <!-- Envelope Body -->
+    <rect x="24" y="36" width="80" height="56" rx="14" fill="#FFFFFF" />
+    
+    <!-- Envelope Flap / Thunderbird Wing Accent (Stylized MD3 Fold) -->
+    <path d="M 24 44 
+             C 24 39.58 27.58 36 32 36 
+             L 60 58 
+             C 62.4 59.8 65.6 59.8 68 58 
+             L 96 36 
+             C 100.42 36 104 39.58 104 44 
+             L 66.8 71.6 
+             C 65.1 72.8 62.9 72.8 61.2 71.6 
+             Z" 
+          fill="url(#primaryGrad)"/>
+
+    <!-- Subtle Thunderbird Bird Head / Wing Geometry Accent -->
+    <circle cx="84" cy="48" r="6" fill="#0B57D0" />
+    <path d="M 84 54 C 84 54 94 52 98 44 C 98 48 94 58 84 58 Z" fill="#006399" />
+  </g>
+
+  <!-- Material You Pill Accent Indicator -->
+  <rect x="44" y="104" width="40" height="6" rx="3" fill="#0B57D0" opacity="0.85" />
+</svg>
