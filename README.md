@@ -1,11 +1,16 @@
 # Material-Thunderbird ✉️🎨
 
+[![Site Web & Guide Débutant](https://img.shields.io/badge/Site%20Web-D%C3%A9monstration%20%26%20Installation%20Facile-4285F4?logo=googlechrome&logoColor=white)](https://vforiel.github.io/Material-Thunderbird/)
+[![Sponsor](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VForiel)
 [![Thunderbird](https://img.shields.io/badge/Thunderbird-115%2B%20%7C%20128%2B%20Nebula-0A84FF?logo=thunderbird&logoColor=white)](https://www.thunderbird.net/)
 [![Material Design 3](https://img.shields.io/badge/Design-Material%20You%20(M3)-4285F4?logo=google&logoColor=white)](https://m3.material.io/)
 [![Installation](https://img.shields.io/badge/Installation-1--Clic%20Automatis%C3%A9e-34A853)](#-installation-rapide-en-1-clic-windows)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Material-Thunderbird** métamorphose l'interface de **Mozilla Thunderbird** (compatible avec les versions modernes Supernova 115+ et Nebula 128+) en adoptant le langage visuel **Material You (Material Design 3)** : formes en pilules douces, barres d'outils aérées, palettes tonales dynamiques, cartes surélevées et bouton d'action flottant (Extended FAB).
+
+🌐 **Site Web & Démonstrateur Interactif :** [https://vforiel.github.io/Material-Thunderbird/](https://vforiel.github.io/Material-Thunderbird/)  
+*(Présentation visuelle, simulateur en direct et guide pas à pas pour les personnes non-techniques).*
 
 ---
 
@@ -150,6 +155,13 @@ Consultez le guide détaillé : **[`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.m
 - [Spécifications Material Design 3 (Google Material You)](https://m3.material.io/)
 - [Documentation Mozilla WebExtensions Themes](https://developer.mozilla.org/fr/docs/Mozilla/Add-ons/WebExtensions/manifest.json/theme)
 - [Thunderbird WebExtension APIs - theme_experiment](https://webextension-api.thunderbird.net/)
+
+---
+
+## 💖 Soutenir le projet
+
+Vous appréciez **Material-Thunderbird** et souhaitez encourager son développement libre et bénévole ?  
+Vous pouvez sponsoriser le projet directement sur [**GitHub Sponsors**](https://github.com/sponsors/VForiel) 💖. Merci pour votre soutien !
 
 ---
 

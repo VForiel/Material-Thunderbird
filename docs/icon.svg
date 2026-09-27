@@ -37,10 +37,6 @@
              C 65.1 72.8 62.9 72.8 61.2 71.6 
              Z" 
           fill="url(#primaryGrad)"/>
-
-    <!-- Subtle Thunderbird Bird Head / Wing Geometry Accent -->
-    <circle cx="84" cy="48" r="6" fill="#0B57D0" />
-    <path d="M 84 54 C 84 54 94 52 98 44 C 98 48 94 58 84 58 Z" fill="#006399" />
   </g>
 
   <!-- Material You Pill Accent Indicator -->
