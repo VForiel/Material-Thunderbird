@@ -1087,6 +1087,285 @@
       height: 100vh;
       border-radius: 0;
     }
+
+    /* ==========================================================================
+       Responsive Design & Mobile Pane Navigation
+       ========================================================================== */
+    .tb-mobile-nav-bar {
+      display: none;
+      background: var(--md-surface-low);
+      border-bottom: 1px solid var(--md-outline-variant);
+      padding: 6px 10px;
+      gap: 6px;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .tb-mobile-nav-tab {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--md-on-surface-variant);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .tb-mobile-nav-tab:hover {
+      background: var(--md-state-hover);
+      color: var(--md-on-surface);
+    }
+
+    .tb-mobile-nav-tab.active {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container);
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    .tb-mobile-badge {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+    }
+
+    .tb-mobile-reader-header {
+      display: none;
+      padding: 4px 0 8px 0;
+    }
+
+    .tb-mobile-back-btn {
+      background: var(--md-surface-lowest);
+      color: var(--md-primary);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--radius-full);
+      padding: 7px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition);
+      box-shadow: var(--elevation-1);
+    }
+
+    .tb-mobile-back-btn:hover {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      border-color: var(--md-primary);
+    }
+
+    /* Tablet Landscape & Medium Screens (769px to 1080px) */
+    @media (max-width: 1080px) {
+      .tb-spaces-rail {
+        width: 56px;
+      }
+      .tb-rail-item {
+        width: 44px;
+        height: 38px;
+      }
+      .tb-folder-pane {
+        width: 200px;
+      }
+      .tb-thread-pane {
+        width: 290px;
+      }
+    }
+
+    /* Small Tablet (769px to 900px) */
+    @media (max-width: 900px) {
+      .demo-controls-bar {
+        padding: 8px 16px;
+        gap: 12px;
+      }
+      .demo-branding {
+        gap: 8px;
+      }
+      .demo-title {
+        font-size: 14.5px;
+      }
+      .demo-settings {
+        gap: 10px;
+      }
+      .tb-folder-pane {
+        width: 180px;
+      }
+      .tb-thread-pane {
+        width: 270px;
+      }
+    }
+
+    /* Mobile & Narrow Screens (<= 768px) */
+    @media (max-width: 768px) {
+      .demo-controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px 14px;
+      }
+      .demo-branding {
+        justify-content: space-between;
+      }
+      .demo-settings {
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tb-unified-toolbar {
+        padding: 0 10px;
+        gap: 8px;
+        height: 52px;
+      }
+      .tb-fab-write {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .tb-search-container {
+        max-width: none;
+      }
+      .tb-search-input {
+        padding: 6px 12px 6px 34px;
+        font-size: 13px;
+      }
+      .tb-search-icon {
+        left: 10px;
+        font-size: 14px;
+      }
+      .tb-toolbar-actions .tb-icon-btn:nth-child(2),
+      .tb-toolbar-actions .tb-icon-btn:nth-child(3) {
+        display: none; /* Hide calendar & address book from top bar on mobile */
+      }
+
+      /* Mobile Pane Navigation Tabs */
+      .tb-mobile-nav-bar {
+        display: flex;
+      }
+      .tb-mobile-reader-header {
+        display: flex;
+      }
+
+      /* Hide spaces rail on mobile, folders contain everything */
+      .tb-spaces-rail {
+        display: none !important;
+      }
+
+      /* Single pane visible at a time */
+      .tb-folder-pane,
+      .tb-thread-pane,
+      .tb-reader-pane {
+        display: none !important;
+        width: 100% !important;
+        flex: 1 1 100% !important;
+      }
+
+      .tb-workspace[data-active-pane="dossiers"] .tb-folder-pane {
+        display: flex !important;
+      }
+      .tb-workspace[data-active-pane="liste"] .tb-thread-pane {
+        display: flex !important;
+      }
+      .tb-workspace[data-active-pane="lecture"] .tb-reader-pane {
+        display: flex !important;
+      }
+
+      /* Reader mobile optimizations */
+      .tb-reader-pane {
+        padding: 8px 10px;
+        gap: 10px;
+      }
+      .tb-reader-card {
+        padding: 14px 16px;
+        gap: 12px;
+      }
+      .tb-reader-subject {
+        font-size: 17px;
+      }
+      .tb-reader-sender-row {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .tb-reader-actions {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding-top: 6px;
+        border-top: 1px solid var(--md-outline-variant);
+      }
+      .tb-pill-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      .tb-message-body-card {
+        padding: 16px 18px;
+      }
+      .material-unsubscribe-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 14px;
+      }
+      .tb-notification-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 14px;
+      }
+      .tb-multimessage-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+      }
+      .tb-multimessage-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+    }
+
+    /* Small Mobile (<= 440px) */
+    @media (max-width: 440px) {
+      .tb-fab-write span:last-child {
+        display: none;
+      }
+      .tb-fab-write {
+        padding: 8px 10px;
+        border-radius: var(--radius-full);
+      }
+      .tb-unified-toolbar {
+        padding: 0 8px;
+        gap: 6px;
+      }
+      .color-chip {
+        width: 22px;
+        height: 22px;
+      }
+      .theme-toggle-btn {
+        padding: 4px 10px;
+        font-size: 12px;
+      }
+      .tb-multimessage-title {
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1150,8 +1429,21 @@
       </div>
     </div>
 
+    <!-- Barre de navigation mobile entre les panneaux (Dossiers / Messages / Lecture) -->
+    <nav class="tb-mobile-nav-bar" id="mobileNavBar" aria-label="Navigation mobile">
+      <button class="tb-mobile-nav-tab" id="tabDossiers" data-pane="dossiers" onclick="setMobilePane('dossiers')">
+        <span>📁 Dossiers</span>
+      </button>
+      <button class="tb-mobile-nav-tab active" id="tabListe" data-pane="liste" onclick="setMobilePane('liste')">
+        <span>✉️ Messages <span class="tb-mobile-badge">4</span></span>
+      </button>
+      <button class="tb-mobile-nav-tab" id="tabLecture" data-pane="lecture" onclick="setMobilePane('lecture')">
+        <span>📖 Lecture</span>
+      </button>
+    </nav>
+
     <!-- Main Workspace -->
-    <div class="tb-workspace">
+    <div class="tb-workspace" id="workspaceContainer" data-active-pane="liste">
       <!-- 1. Spaces Toolbar (Navigation Rail) -->
       <nav class="tb-spaces-rail">
         <div class="tb-rail-item active" title="Courrier">
@@ -1186,40 +1478,40 @@
           </button>
         </div>
         <div class="tb-drawer-header">Boîtes aux lettres</div>
-        <div class="tb-drawer-item active">
+        <div class="tb-drawer-item active" onclick="selectFolder(this)">
           <span>📥</span>
           <span>Boîte de réception</span>
           <span class="tb-item-badge">4</span>
         </div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>⭐</span>
           <span>Messages suivis</span>
         </div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>📤</span>
           <span>Messages envoyés</span>
         </div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>📝</span>
           <span>Brouillons</span>
           <span class="tb-item-badge" style="background: var(--md-surface-high); color: var(--md-on-surface);">1</span>
         </div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>📁</span>
           <span>Archives</span>
         </div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>🗑️</span>
           <span>Corbeille</span>
         </div>
 
         <div class="tb-drawer-header" style="margin-top: 16px;">Dossiers personnels</div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>💼</span>
           <span>Projets 2026</span>
           <span class="tb-item-badge">2</span>
         </div>
-        <div class="tb-drawer-item">
+        <div class="tb-drawer-item" onclick="selectFolder(this)">
           <span>✈️</span>
           <span>Voyages</span>
         </div>
@@ -1236,7 +1528,7 @@
         </div>
 
         <!-- Message Card 1 (Thread with Replies & Unread replies) -->
-        <div class="tb-card-message active thread-card-has-children" style="border-inline-start: 4px solid var(--md-primary);">
+        <div class="tb-card-message active thread-card-has-children" style="border-inline-start: 4px solid var(--md-primary);" onclick="selectMessageCard(this)">
           <div class="tb-card-top">
             <span class="tb-card-sender">
               Mozilla Thunderbird Community
@@ -1249,14 +1541,14 @@
           
           <!-- 2. Twisty button strictly AFTER subject: Vibrant primary blue pill for unread replies -->
           <div class="tb-twisty-row">
-            <button class="tb-twisty-btn" data-expanded="false" style="background: var(--md-primary); color: var(--md-on-primary); font-weight: 700;" onclick="toggleThreadReplies(this)">
+            <button class="tb-twisty-btn" data-expanded="false" style="background: var(--md-primary); color: var(--md-on-primary); font-weight: 700;" onclick="event.stopPropagation(); toggleThreadReplies(this);">
               <span>▼</span> 2 réponses
             </button>
           </div>
         </div>
 
         <!-- Message Card 2 (Unread) -->
-        <div class="tb-card-message unread">
+        <div class="tb-card-message unread" onclick="selectMessageCard(this)">
           <div class="tb-card-top">
             <span class="tb-card-sender">
               Équipe Design
@@ -1268,7 +1560,7 @@
         </div>
 
         <!-- Message Card 3 -->
-        <div class="tb-card-message">
+        <div class="tb-card-message" onclick="selectMessageCard(this)">
           <div class="tb-card-top">
             <span class="tb-card-sender">GitHub Notifications</span>
             <span class="tb-card-time">Hier</span>
@@ -1278,7 +1570,7 @@
         </div>
 
         <!-- Message Card 4 -->
-        <div class="tb-card-message">
+        <div class="tb-card-message" onclick="selectMessageCard(this)">
           <div class="tb-card-top">
             <span class="tb-card-sender">Antigravity Pair</span>
             <span class="tb-card-time">07 sept.</span>
@@ -1290,6 +1582,14 @@
 
       <!-- 4. Message Reader Pane -->
       <article class="tb-reader-pane">
+
+        <!-- En-tête de retour sur mobile -->
+        <div class="tb-mobile-reader-header">
+          <button class="tb-mobile-back-btn" onclick="setMobilePane('liste')">
+            <span>←</span>
+            <span>Retour aux messages</span>
+          </button>
+        </div>
 
         <!-- ==================================================================
              Multi-Message Summary View (multimessageview.xhtml modernisé)
@@ -1476,6 +1776,33 @@
   </main>
 
   <script>
+    // Navigation mobile entre les panneaux (Dossiers, Liste, Lecture)
+    function setMobilePane(paneName) {
+      const workspace = document.getElementById('workspaceContainer');
+      if (workspace) {
+        workspace.setAttribute('data-active-pane', paneName);
+      }
+      document.querySelectorAll('.tb-mobile-nav-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-pane') === paneName);
+      });
+    }
+
+    function selectFolder(el) {
+      document.querySelectorAll('.tb-drawer-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+      if (window.innerWidth <= 768) {
+        setMobilePane('liste');
+      }
+    }
+
+    function selectMessageCard(card) {
+      document.querySelectorAll('.tb-card-message').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      if (window.innerWidth <= 768) {
+        setMobilePane('lecture');
+      }
+    }
+
     function setViewMode(mode) {
       const single = document.getElementById('singleMessageView');
       const multi = document.getElementById('multiMessageView');
@@ -1485,13 +1812,18 @@
       if (mode === 'single') {
         single.style.display = 'flex';
         multi.style.display = 'none';
-        btnSingle.classList.add('primary');
-        btnMulti.classList.remove('primary');
+        if (btnSingle) btnSingle.classList.add('primary');
+        if (btnMulti) btnMulti.classList.remove('primary');
       } else {
         single.style.display = 'none';
         multi.style.display = 'flex';
-        btnSingle.classList.remove('primary');
-        btnMulti.classList.add('primary');
+        if (btnSingle) btnSingle.classList.remove('primary');
+        if (btnMulti) btnMulti.classList.add('primary');
+      }
+
+      // Si sur mobile, s'assurer que le lecteur est affiché pour voir le mode choisi
+      if (window.innerWidth <= 768) {
+        setMobilePane('lecture');
       }
     }
 
@@ -1538,7 +1870,7 @@
         const label = document.getElementById('themeLabel');
         if (icon) icon.textContent = isDark ? '☀️' : '🌙';
         if (label) label.textContent = isDark ? 'Mode Clair' : 'Mode Sombre';
-      } else if (data.action === 'setView' && data.mode) {
+      } else if ((data.action === 'setView' || data.action === 'setViewMode') && data.mode) {
         setViewMode(data.mode);
       }
     });

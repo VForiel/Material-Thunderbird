@@ -1241,28 +1241,332 @@
       transform: translateY(0);
     }
 
-    /* Responsive */
-    @media (max-width: 900px) {
+    /* Bouton hamburger mobile */
+    .mobile-menu-toggle {
+      display: none;
+      font-size: 20px;
+    }
+
+    /* Tiroir de navigation mobile */
+    .mobile-nav-drawer {
+      display: block;
+      max-height: 0;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--md-surface-low) 96%, transparent);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--md-outline-variant);
+      transition: max-height 320ms cubic-bezier(0.2, 0, 0, 1), opacity 260ms ease, padding 320ms ease;
+      opacity: 0;
+    }
+
+    .mobile-nav-drawer.open {
+      max-height: 520px;
+      opacity: 1;
+    }
+
+    .mobile-nav-content {
+      padding: 16px 20px 24px;
+    }
+
+    .mobile-nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--md-on-surface);
+      background: var(--md-surface-lowest);
+      border: 1px solid var(--md-outline-variant);
+      text-decoration: none;
+      transition: all var(--transition);
+      box-shadow: var(--elevation-1);
+    }
+
+    .mobile-nav-link:hover,
+    .mobile-nav-link:active {
+      background: var(--md-primary-container);
+      color: var(--md-on-primary-container);
+      border-color: var(--md-primary);
+      text-decoration: none;
+    }
+
+    .mobile-nav-link.sponsor-link {
+      background: rgba(234, 74, 170, 0.1);
+      color: #db2777;
+      border-color: rgba(234, 74, 170, 0.3);
+    }
+
+    /* ==========================================================================
+       MEDIA QUERIES RESPONSIVES COMPLÈTES (DESKTOP, TABLETTE, MOBILE)
+       ========================================================================== */
+
+    /* Tablette Paysage & Écrans Moyens (<= 1024px) */
+    @media (max-width: 1024px) {
+      .container {
+        padding: 0 20px;
+      }
       .hero-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 36px;
       }
       .hero-title {
-        font-size: 36px;
+        font-size: 40px;
+      }
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Tablette Portrait & Écrans Réduits (<= 900px) */
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+      }
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero-title {
+        font-size: clamp(30px, 5.5vw, 38px);
+      }
+      .hero-desc {
+        font-size: 17px;
+        max-width: 100%;
       }
       .comparison-grid {
         grid-template-columns: 1fr;
-      }
-      .features-grid {
-        grid-template-columns: 1fr;
+        gap: 20px;
       }
       .install-steps-grid {
         grid-template-columns: 1fr;
       }
       .footer-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
       }
-      .nav-links {
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+    }
+
+    /* Phablettes & Grands Mobiles (<= 720px) */
+    @media (max-width: 720px) {
+      .container {
+        padding: 0 16px;
+      }
+      .header-sponsor-btn {
+        display: none !important;
+      }
+      .header-actions {
+        gap: 8px;
+      }
+      .palette-chips {
+        gap: 4px;
+        padding: 3px 6px;
+      }
+      .color-chip {
+        width: 20px;
+        height: 20px;
+      }
+      .header-install-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+      .hero-section {
+        padding: 48px 0 40px;
+      }
+      .hero-ctas {
+        gap: 12px;
+      }
+      .hero-ctas .btn-pill {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+      .reassurance-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        max-width: 100%;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .demo-frame-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 14px;
+      }
+      .demo-frame-left {
+        justify-content: space-between;
+      }
+      .demo-frame-controls {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .demo-segmented-btn {
+        flex: 1;
+      }
+      .segmented-item {
+        flex: 1;
+        padding: 6px 8px;
+        font-size: 12px;
+        text-align: center;
+      }
+      .demo-iframe {
+        height: 560px;
+      }
+      .install-tabs {
+        gap: 8px;
+      }
+      .install-tab-btn {
+        flex: 1 1 calc(50% - 8px);
+        padding: 10px 14px;
+        font-size: 13px;
+        justify-content: center;
+        text-align: center;
+      }
+      .smartscreen-card {
+        padding: 18px;
+        gap: 14px;
+      }
+      .uninstall-box {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 20px 16px;
+      }
+      .uninstall-box .btn-pill {
+        width: 100%;
+        text-align: center;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+
+    /* Mobiles Standards & Étroits (<= 480px) */
+    @media (max-width: 480px) {
+      .header-content {
+        height: 62px;
+        gap: 8px;
+      }
+      .brand-logo {
+        width: 36px;
+        height: 36px;
+      }
+      .brand-name {
+        font-size: 17px;
+      }
+      .brand-badge {
         display: none;
+      }
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+      }
+      .palette-chips {
+        padding: 2px 4px;
+        gap: 3px;
+      }
+      .color-chip {
+        width: 18px;
+        height: 18px;
+      }
+      .header-install-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      .hero-title {
+        font-size: 27px;
+        letter-spacing: -0.5px;
+      }
+      .hero-desc {
+        font-size: 15px;
+        line-height: 1.5;
+        margin-bottom: 24px;
+      }
+      .section-header {
+        margin-bottom: 36px;
+      }
+      .section-title {
+        font-size: 24px;
+      }
+      .section-subtitle {
+        font-size: 14.5px;
+      }
+      .comparison-section,
+      .features-section,
+      .demo-section,
+      .install-section,
+      .faq-section {
+        padding: 48px 0;
+      }
+      .comparison-card {
+        padding: 20px 16px;
+      }
+      .feature-card {
+        padding: 20px 16px;
+      }
+      .install-tab-btn {
+        flex: 1 1 100%;
+        font-size: 13.5px;
+      }
+      .step-card {
+        padding: 20px 16px;
+      }
+      .smartscreen-card {
+        flex-direction: column;
+        padding: 16px;
+      }
+      .smartscreen-step {
+        width: 100%;
+      }
+      .command-box {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+      }
+      .command-text {
+        font-size: 12px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .btn-copy {
+        align-self: flex-end;
+      }
+      .demo-iframe {
+        height: 520px;
+      }
+      .faq-question {
+        padding: 14px 16px;
+        font-size: 14.5px;
+      }
+      .faq-answer {
+        padding: 0 16px 16px;
+        font-size: 13.5px;
+      }
+      .toast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        text-align: center;
       }
     }
   </style>
@@ -1305,13 +1609,33 @@
           🌙
         </button>
 
-        <a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="btn-pill btn-sponsor" style="padding: 8px 16px; font-size: 13.5px;" title="Soutenir le projet sur GitHub Sponsors">
+        <a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="btn-pill btn-sponsor header-sponsor-btn" style="padding: 8px 16px; font-size: 13.5px;" title="Soutenir le projet sur GitHub Sponsors">
           <span>💖 Soutenir</span>
         </a>
 
-        <a href="#installer" class="btn-pill btn-primary">
+        <a href="#installer" class="btn-pill btn-primary header-install-btn">
           <span>🚀 Installer</span>
         </a>
+
+        <!-- Bouton Menu Mobile (Hamburger) -->
+        <button class="icon-btn mobile-menu-toggle" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Menu principal" aria-expanded="false">
+          <span class="hamburger-icon">☰</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tiroir de Navigation Mobile (Slide-down) -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true">
+      <div class="container mobile-nav-content">
+        <ul class="mobile-nav-links">
+          <li><a href="#presentation" class="mobile-nav-link" onclick="closeMobileMenu()">✨ Nouveautés & Comparatif</a></li>
+          <li><a href="#demo" class="mobile-nav-link" onclick="closeMobileMenu()">👁️ Aperçu en direct</a></li>
+          <li><a href="#installer" class="mobile-nav-link" onclick="closeMobileMenu()">🚀 Guide d'installation</a></li>
+          <li><a href="#faq" class="mobile-nav-link" onclick="closeMobileMenu()">❓ Foire Aux Questions (FAQ)</a></li>
+          <li><a href="preview.html" target="_blank" class="mobile-nav-link" onclick="closeMobileMenu()">🖥️ Simulateur plein écran</a></li>
+          <li><a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="mobile-nav-link sponsor-link" onclick="closeMobileMenu()">💖 Soutenir sur GitHub Sponsors</a></li>
+          <li><a href="https://github.com/VForiel/Material-Thunderbird" target="_blank" class="mobile-nav-link" onclick="closeMobileMenu()">📦 Code source GitHub</a></li>
+        </ul>
       </div>
     </div>
   </header>
@@ -2043,6 +2367,35 @@
       setTimeout(() => {
         toast.classList.remove('show');
       }, 2500);
+    }
+
+    // Gestion du menu mobile
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      const btn = document.getElementById('mobileMenuBtn');
+      if (!drawer || !btn) return;
+      const isOpen = drawer.classList.contains('open');
+      
+      if (isOpen) {
+        drawer.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.querySelector('.hamburger-icon').textContent = '☰';
+      } else {
+        drawer.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.querySelector('.hamburger-icon').textContent = '✕';
+      }
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById('mobileNavDrawer');
+      const btn = document.getElementById('mobileMenuBtn');
+      if (drawer) drawer.classList.remove('open');
+      if (btn) {
+        btn.setAttribute('aria-expanded', 'false');
+        const icon = btn.querySelector('.hamburger-icon');
+        if (icon) icon.textContent = '☰';
+      }
     }
 
     // Restauration des préférences au chargement
