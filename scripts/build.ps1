@@ -109,3 +109,42 @@ finally {
 
 Write-Host "[+] Extension (.xpi) creee avec succes :" -ForegroundColor Green
 Write-Host "    $OutputFile" -ForegroundColor Yellow
+
+$DocsDist = Join-Path $ProjectRoot "docs\dist"
+if (Test-Path $DocsDist) {
+    Copy-Item $OutputFile (Join-Path $DocsDist "material-thunderbird.xpi") -Force
+    Write-Host "[+] Synchronise dans docs/dist/material-thunderbird.xpi" -ForegroundColor Green
+
+    $FacileZip = Join-Path $DocsDist "material-thunderbird-facile.zip"
+    if (Test-Path $FacileZip) { Remove-Item $FacileZip -Force }
+
+    $facileArchive = [System.IO.Compression.ZipFile]::Open($FacileZip, [System.IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $dirsToPack = @("chrome", "extension", "scripts")
+        foreach ($dName in $dirsToPack) {
+            $dPath = Join-Path $ProjectRoot $dName
+            if (Test-Path $dPath) {
+                foreach ($f in (Get-ChildItem -Path $dPath -Recurse -File)) {
+                    $rel = $dName + "/" + $f.FullName.Substring($dPath.Length + 1).Replace("\", "/")
+                    [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                        $facileArchive, $f.FullName, $rel, [System.IO.Compression.CompressionLevel]::Optimal)
+                }
+            }
+        }
+
+        $rootItems = @("Installer-Material-Thunderbird.bat", "Desinstaller-Material-Thunderbird.bat", "LICENSE", "README.md")
+        foreach ($rName in $rootItems) {
+            $rPath = Join-Path $ProjectRoot $rName
+            if (Test-Path $rPath) {
+                [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                    $facileArchive, $rPath, $rName, [System.IO.Compression.CompressionLevel]::Optimal)
+            }
+        }
+    }
+    finally {
+        $facileArchive.Dispose()
+    }
+    Write-Host "[+] Pack Facile cree avec succes :" -ForegroundColor Green
+    Write-Host "    $FacileZip" -ForegroundColor Yellow
+}
+

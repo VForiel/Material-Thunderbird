@@ -1579,6 +1579,15 @@
           <!-- Intégration de l'iframe du simulateur -->
           <iframe id="simIframe" src="preview.html" class="demo-iframe" title="Simulateur Material-Thunderbird"></iframe>
         </div>
+
+        <!-- Note explicative sur la démo de concept vs logiciel réel -->
+        <div class="demo-notice-card" style="margin-top: 18px; background: var(--md-surface-container); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: flex-start; gap: 14px; font-size: 13.5px; line-height: 1.5; color: var(--md-on-surface-variant); border-left: 4px solid var(--md-primary);">
+          <span style="font-size: 20px; line-height: 1;">💡</span>
+          <div>
+            <strong style="color: var(--md-on-surface);">Démonstration web & concept visuel :</strong>
+            Cet aperçu interactif illustre les principes graphiques du design <em>Material You</em> (formes en pilules, palettes tonales, hiérarchie aérée). La modification en profondeur d'un logiciel comme Mozilla Thunderbird étant techniquement plus complexe et contrainte par son moteur interne que cette page web, de légères différences visuelles ou d'agencement peuvent exister avec le rendu réel dans le logiciel.
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1683,12 +1692,26 @@
              ONGLET 2 : EXTENSION THUNDERBIRD (.XPI)
              ================================================================== -->
         <div id="tab-extension" class="tab-content">
+          <div style="background: rgba(234, 67, 53, 0.08); border-left: 4px solid #ea4335; border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: #b3261e; margin-bottom: 8px;">
+              <span style="font-size: 20px;">⚠️</span>
+              <span style="font-size: 15px;">Information importante sur l'extension .XPI</span>
+            </div>
+            <p style="font-size: 13.5px; line-height: 1.5; color: var(--md-on-surface); margin: 0 0 10px 0;">
+              <strong>1. Message « Ce module semble corrompu » :</strong> Dans les versions officielles stables de Mozilla Thunderbird, glisser-déposer un fichier <code>.xpi</code> externe affiche cette fausse alerte de corruption, car Thunderbird bloque par défaut les extensions non signées sur addons.thunderbird.net.<br>
+              <strong>2. Personnalisation incomplète via .XPI seul :</strong> Par mesure de sécurité, Thunderbird interdit aux extensions WebExtensions d'injecter des styles dans l'interface interne (panneau des dossiers, barre d'outils unifiée, cartes de conversation, etc.).
+            </p>
+            <div style="background: var(--md-surface-lowest); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13.5px;">
+              👉 <strong>Méthode complète et recommandée :</strong> Utilisez l'onglet <a href="#tab-windows" onclick="switchTab('windows')" style="color: var(--md-primary); font-weight: 700; text-decoration: underline;">🪟 Windows (1-Clic Recommandé)</a> ci-dessus avec le <strong>Pack Facile (.bat)</strong>. Il installe automatiquement tous les styles Material 3, active les préférences nécessaires et déploie l'assistant sans aucun avertissement !
+            </div>
+          </div>
+
           <div class="install-steps-grid">
             <div class="step-card">
               <div class="step-number">1</div>
               <h3 class="step-title">Télécharger le fichier .xpi</h3>
               <p class="step-desc">
-                Téléchargez l'extension Material-Thunderbird prête à être ajoutée à votre logiciel.
+                Si vous développez ou utilisez Thunderbird Developer Edition / Beta avec signatures désactivées :
               </p>
               <div class="step-action">
                 <a href="dist/material-thunderbird.xpi" download class="btn-pill btn-primary" style="width: 100%;">
@@ -1699,17 +1722,17 @@
 
             <div class="step-card">
               <div class="step-number">2</div>
-              <h3 class="step-title">Ouvrir les modules</h3>
+              <h3 class="step-title">Mode Développeur ou Profil</h3>
               <p class="step-desc">
-                Dans Thunderbird, ouvrez le menu en haut à droite (☰) puis cliquez sur <strong>Modules complémentaires et thèmes</strong> (ou utilisez le raccourci <code>Ctrl + Maj + A</code>).
+                Dans Thunderbird, ouvrez <code>about:debugging</code> puis cliquez sur <strong>Ce Thunderbird</strong> &gt; <strong>Charger un module temporaire...</strong> ou placez le fichier dans le dossier <code>extensions/</code> de votre profil.
               </p>
             </div>
 
             <div class="step-card">
               <div class="step-number">3</div>
-              <h3 class="step-title">Glisser-déposer</h3>
+              <h3 class="step-title">Activer les styles chrome/</h3>
               <p class="step-desc">
-                Glissez simplement le fichier <code>material-thunderbird.xpi</code> dans la fenêtre des modules de Thunderbird, puis confirmez en cliquant sur <strong>Ajouter</strong>.
+                Pour profiter de l'intégralité du design (dossiers, barre de navigation, cartes), copiez également le dossier <code>chrome/</code> dans votre profil.
               </p>
             </div>
           </div>

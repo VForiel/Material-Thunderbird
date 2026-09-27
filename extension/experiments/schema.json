@@ -31,6 +31,13 @@
         "async": true,
         "description": "Masque le bandeau de désinscription.",
         "parameters": []
+      },
+      {
+        "name": "openSettingsModal",
+        "type": "function",
+        "async": true,
+        "description": "Ouvre la fenêtre contextuelle de personnalisation du thème Material-Thunderbird.",
+        "parameters": []
       }
     ]
   }

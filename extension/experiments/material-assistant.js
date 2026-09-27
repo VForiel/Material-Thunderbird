@@ -51,6 +51,238 @@ const M3_AVATAR_PALETTES = [
   { bg: "#D7E8CD", fg: "#111F0E" }  // Sage
 ];
 
+// Configuration des palettes et options Material You
+const PREF_PALETTE = "extensions.material-thunderbird.palette";
+const PREF_THEME_MODE = "extensions.material-thunderbird.theme-mode";
+const PREF_EMOJIS = "extensions.material-thunderbird.emojis";
+
+const PALETTES_CONFIG = {
+  blue: {
+    name: "Bleu Google",
+    color: "#0b57d0",
+    desc: "Classique M3",
+    css: `
+:root {
+  --md-sys-color-primary: #0b57d0;
+  --md-sys-color-primary-container: #d3e3fd;
+  --md-sys-color-secondary-container: #c2e7ff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-theme-brighttext="false"]) {
+    --md-sys-color-primary: #a8c7fa;
+    --md-sys-color-primary-container: #004a77;
+    --md-sys-color-secondary-container: #004b72;
+  }
+}
+:root[lwt-theme-brighttext="true"] {
+  --md-sys-color-primary: #a8c7fa;
+  --md-sys-color-primary-container: #004a77;
+  --md-sys-color-secondary-container: #004b72;
+}`
+  },
+  emerald: {
+    name: "Émeraude",
+    color: "#006a60",
+    desc: "Nature & Sérénité",
+    css: `
+:root {
+  --md-sys-color-primary: #006a60;
+  --md-sys-color-primary-container: #74f8e5;
+  --md-sys-color-secondary-container: #cce8e3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-theme-brighttext="false"]) {
+    --md-sys-color-primary: #53dbc9;
+    --md-sys-color-primary-container: #005048;
+    --md-sys-color-secondary-container: #334b46;
+  }
+}
+:root[lwt-theme-brighttext="true"] {
+  --md-sys-color-primary: #53dbc9;
+  --md-sys-color-primary-container: #005048;
+  --md-sys-color-secondary-container: #334b46;
+}`
+  },
+  purple: {
+    name: "Améthyste",
+    color: "#6750a4",
+    desc: "Violet élégant",
+    css: `
+:root {
+  --md-sys-color-primary: #6750a4;
+  --md-sys-color-primary-container: #eaddff;
+  --md-sys-color-secondary-container: #e8def8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-theme-brighttext="false"]) {
+    --md-sys-color-primary: #d0bcff;
+    --md-sys-color-primary-container: #4f378b;
+    --md-sys-color-secondary-container: #4a4458;
+  }
+}
+:root[lwt-theme-brighttext="true"] {
+  --md-sys-color-primary: #d0bcff;
+  --md-sys-color-primary-container: #4f378b;
+  --md-sys-color-secondary-container: #4a4458;
+}`
+  },
+  coral: {
+    name: "Corail",
+    color: "#9c4125",
+    desc: "Terracotta chaud",
+    css: `
+:root {
+  --md-sys-color-primary: #9c4125;
+  --md-sys-color-primary-container: #ffdbd1;
+  --md-sys-color-secondary-container: #f5ddd6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-theme-brighttext="false"]) {
+    --md-sys-color-primary: #ffb59f;
+    --md-sys-color-primary-container: #7d2b11;
+    --md-sys-color-secondary-container: #5c2a1a;
+  }
+}
+:root[lwt-theme-brighttext="true"] {
+  --md-sys-color-primary: #ffb59f;
+  --md-sys-color-primary-container: #7d2b11;
+  --md-sys-color-secondary-container: #5c2a1a;
+}`
+  }
+};
+
+const THEME_MODE_CSS = {
+  light: `
+:root, :root:not([lwt-theme-brighttext="false"]), :root[lwt-theme-brighttext="true"] {
+  --md-sys-color-surface: #f0f4fa !important;
+  --md-sys-color-surface-dim: #ded8e1 !important;
+  --md-sys-color-surface-bright: #fdf8fd !important;
+  --md-sys-color-surface-container-lowest: #ffffff !important;
+  --md-sys-color-surface-container-low: #edf2fa !important;
+  --md-sys-color-surface-container: #e2e8f0 !important;
+  --md-sys-color-surface-container-high: #dbe3f0 !important;
+  --md-sys-color-surface-container-highest: #cfd8e8 !important;
+  --md-sys-color-on-surface: #1f1f1f !important;
+  --md-sys-color-on-surface-variant: #444746 !important;
+  --md-sys-color-outline: #747775 !important;
+  --md-sys-color-outline-variant: #c4c7c5 !important;
+  --md-sys-color-inverse-surface: #303030 !important;
+  --md-sys-color-inverse-on-surface: #f2f2f2 !important;
+}`,
+  dark: `
+:root, :root[lwt-theme-brighttext="false"] {
+  --md-sys-color-surface: #111315 !important;
+  --md-sys-color-surface-dim: #111315 !important;
+  --md-sys-color-surface-bright: #37393b !important;
+  --md-sys-color-surface-container-lowest: #0c0e10 !important;
+  --md-sys-color-surface-container-low: #191c1e !important;
+  --md-sys-color-surface-container: #1d2023 !important;
+  --md-sys-color-surface-container-high: #272a2d !important;
+  --md-sys-color-surface-container-highest: #323538 !important;
+  --md-sys-color-on-surface: #e2e2e5 !important;
+  --md-sys-color-on-surface-variant: #c4c7c5 !important;
+  --md-sys-color-outline: #8e918f !important;
+  --md-sys-color-outline-variant: #444746 !important;
+  --md-sys-color-inverse-surface: #e2e2e5 !important;
+  --md-sys-color-inverse-on-surface: #303030 !important;
+}`,
+  auto: ""
+};
+
+function getCustomizerSettings() {
+  let palette = "blue";
+  let themeMode = "auto";
+  let emojis = false;
+  try { palette = Services.prefs.getStringPref(PREF_PALETTE, "blue"); } catch (e) {}
+  try { themeMode = Services.prefs.getStringPref(PREF_THEME_MODE, "auto"); } catch (e) {}
+  try { emojis = Services.prefs.getBoolPref(PREF_EMOJIS, false); } catch (e) {}
+  if (!PALETTES_CONFIG[palette]) palette = "blue";
+  return { palette, themeMode, emojis };
+}
+
+function saveCustomizerSettings(settings) {
+  try {
+    if (settings.palette) Services.prefs.setStringPref(PREF_PALETTE, settings.palette);
+    if (settings.themeMode) Services.prefs.setStringPref(PREF_THEME_MODE, settings.themeMode);
+    if (typeof settings.emojis === "boolean") Services.prefs.setBoolPref(PREF_EMOJIS, settings.emojis);
+  } catch (e) {
+    console.error("[Material-Thunderbird] Error saving prefs:", e);
+  }
+}
+
+function generateOverridesCss(settings) {
+  const pal = PALETTES_CONFIG[settings.palette] || PALETTES_CONFIG.blue;
+  const themeCss = THEME_MODE_CSS[settings.themeMode] || "";
+  let emojiCss = "";
+  if (settings.emojis) {
+    emojiCss = `
+/* Modern Emoji Icons Mode */
+:root[data-material-emojis="true"] #folderTree li .icon {
+  background-image: none !important;
+  -moz-context-properties: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+:root[data-material-emojis="true"] #folderTree li .icon::before {
+  content: "📁" !important;
+  font-size: 14px !important;
+}
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="inbox"], [data-properties~="specialFolder-Inbox"]) .icon::before { content: "📥" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="sent"], [data-properties~="specialFolder-Sent"]) .icon::before { content: "📤" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="drafts"], [data-folder-type="draft"], [data-properties~="specialFolder-Drafts"]) .icon::before { content: "📝" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="archive"], [data-folder-type="archives"], [data-properties~="specialFolder-Archive"]) .icon::before { content: "📁" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="trash"], [data-properties~="specialFolder-Trash"]) .icon::before { content: "🗑️" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="junk"], [data-properties~="specialFolder-Junk"]) .icon::before { content: "🚫" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="starred"], [data-properties~="starred"], [data-properties~="specialFolder-Starred"]) .icon::before { content: "⭐" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="outbox"], [data-properties~="specialFolder-Outbox"]) .icon::before { content: "📨" !important; }
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="templates"], [data-properties~="specialFolder-Templates"]) .icon::before { content: "📋" !important; }
+
+:root[data-material-emojis="true"] .spaces-toolbar-button > img { display: none !important; }
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#mail-button, [data-l10n-id*="mail"])::before { content: "✉️" !important; font-size: 18px !important; }
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#addressbook-button, [data-l10n-id*="address"])::before { content: "📇" !important; font-size: 18px !important; }
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#calendar-button, [data-l10n-id*="calendar"])::before { content: "📆" !important; font-size: 18px !important; }
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#tasks-button, [data-l10n-id*="tasks"])::before { content: "✔️" !important; font-size: 18px !important; }
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#chat-button, [data-l10n-id*="chat"])::before { content: "💬" !important; font-size: 18px !important; }
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#settings-button, [data-l10n-id*="settings"])::before { content: "⚙️" !important; font-size: 18px !important; }
+
+:root[data-material-emojis="true"] #folderPaneWriteMessage .button-icon { display: none !important; }
+:root[data-material-emojis="true"] #folderPaneWriteMessage::before { content: "✏️ " !important; font-size: 14px !important; }
+`;
+  }
+
+  return `/**
+ * Personnalisation Material-Thunderbird (Généré automatiquement)
+ */
+${pal.css}
+${themeCss}
+${emojiCss}
+`;
+}
+
+function saveUserOverridesFile(cssContent) {
+  try {
+    const profDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const chromeDir = profDir.clone();
+    chromeDir.append("chrome");
+    if (!chromeDir.exists()) {
+      chromeDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
+    }
+    const overridesFile = chromeDir.clone();
+    overridesFile.append("user-overrides.css");
+
+    const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
+    fos.init(overridesFile, 0x02 | 0x08 | 0x20, 0o644, 0);
+    const cos = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
+    cos.init(fos, "UTF-8", 0, 0);
+    cos.writeString(cssContent);
+    cos.close();
+    fos.close();
+  } catch (e) {
+    console.error("[Material-Thunderbird] Error saving user-overrides.css:", e);
+  }
+}
+
 // Fast 32-bit FNV-1a string hash
 function hashString(str) {
   if (!str) return 0;
@@ -448,50 +680,550 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     tabmail.registerTabMonitor(monitor);
     state.tabMonitor = monitor;
 
-    this._ensureSponsorButton(win);
+    this._ensureCustomizerButtons(win);
+    this._applyCustomizerStylesToWindow(win);
     this._attachToCurrentTab(win);
+
+    const onKeyDown = (e) => {
+      if (e.altKey && (e.key === "m" || e.key === "M")) {
+        e.preventDefault();
+        this._openCustomizerModal(win);
+      }
+    };
+    win.addEventListener("keydown", onKeyDown);
+    state.listeners.push([win, "keydown", onKeyDown, false]);
   }
 
-  _ensureSponsorButton(win) {
+  _ensureCustomizerButtons(win) {
     if (!win || !win.document) return;
     const doc = win.document;
-    if (doc.getElementById("material-sponsor-btn")) return;
-
-    // Insertion harmonieuse dans la barre d'espaces (Spaces Toolbar)
     const spaces = doc.querySelector(".spaces-toolbar") || doc.getElementById("spacesToolbar");
     if (!spaces) return;
 
-    const btn = doc.createElement("button");
-    btn.id = "material-sponsor-btn";
-    btn.type = "button";
-    btn.className = "spaces-toolbar-button spaces-toolbar-pinned-button";
-    btn.setAttribute("title", "Soutenir Material-Thunderbird (GitHub Sponsors)");
-    btn.setAttribute("aria-label", "Soutenir le développement du thème");
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ea4aaa" style="vertical-align:middle;display:block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-    btn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;";
+    const spacesSettings = spaces.querySelector('[data-l10n-id="spaces-settings-button"]') || spaces.querySelector('.spaces-toolbar-pinned-button');
 
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const sponsorUrl = "https://github.com/sponsors/VForiel";
-      const host = win.top || win;
-      if (typeof host.openContentTab === "function") {
-        host.openContentTab(sponsorUrl);
-      } else if (typeof host.openURL === "function") {
-        host.openURL(sponsorUrl);
+    // 1. Bouton Personnalisation & Thème Material You
+    if (!doc.getElementById("material-theme-settings-btn")) {
+      const settingsBtn = doc.createElement("button");
+      settingsBtn.id = "material-theme-settings-btn";
+      settingsBtn.type = "button";
+      settingsBtn.className = "spaces-toolbar-button spaces-toolbar-pinned-button";
+      settingsBtn.setAttribute("title", "Personnaliser Material-Thunderbird (Thème, Couleurs, Émojis) [Alt+M]");
+      settingsBtn.setAttribute("aria-label", "Personnaliser le thème Material-Thunderbird");
+      settingsBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;display:block;"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.5a1 1 0 0 0 .15 1.41c.4.32.96.3 1.34-.06l1.39-1.32C8.65 19.38 10.26 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
+      settingsBtn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;color:var(--md-sys-color-primary, #0b57d0);";
+
+      settingsBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this._openCustomizerModal(win);
+      });
+
+      if (spacesSettings && spacesSettings.parentNode === spaces) {
+        spaces.insertBefore(settingsBtn, spacesSettings);
       } else {
-        const uri = Services.io.newURI(sponsorUrl);
-        const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-          .getService(Ci.nsIExternalProtocolService);
-        extProtocolSvc.loadURI(uri);
+        spaces.appendChild(settingsBtn);
       }
+    }
+
+    // 2. Bouton Soutenir / Sponsor (GitHub Sponsors)
+    if (!doc.getElementById("material-sponsor-btn")) {
+      const btn = doc.createElement("button");
+      btn.id = "material-sponsor-btn";
+      btn.type = "button";
+      btn.className = "spaces-toolbar-button spaces-toolbar-pinned-button";
+      btn.setAttribute("title", "Soutenir Material-Thunderbird (GitHub Sponsors)");
+      btn.setAttribute("aria-label", "Soutenir le développement du thème");
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ea4aaa" style="vertical-align:middle;display:block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+      btn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;";
+
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const sponsorUrl = "https://github.com/sponsors/VForiel";
+        const host = win.top || win;
+        if (typeof host.openContentTab === "function") {
+          host.openContentTab(sponsorUrl);
+        } else if (typeof host.openURL === "function") {
+          host.openURL(sponsorUrl);
+        } else {
+          const uri = Services.io.newURI(sponsorUrl);
+          const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+            .getService(Ci.nsIExternalProtocolService);
+          extProtocolSvc.loadURI(uri);
+        }
+      });
+
+      if (spacesSettings && spacesSettings.parentNode === spaces) {
+        spaces.insertBefore(btn, spacesSettings);
+      } else {
+        spaces.appendChild(btn);
+      }
+    }
+  }
+
+  _applyCustomizerStylesToDocument(doc) {
+    if (!doc) return;
+    const settings = getCustomizerSettings();
+    const cssContent = generateOverridesCss(settings);
+    try {
+      let style = doc.getElementById("material-live-customizer");
+      if (!style) {
+        style = doc.createElement("style");
+        style.id = "material-live-customizer";
+        const targetHead = doc.head || doc.documentElement;
+        if (targetHead) targetHead.appendChild(style);
+      }
+      style.textContent = cssContent;
+
+      if (doc.documentElement) {
+        if (settings.emojis) {
+          doc.documentElement.setAttribute("data-material-emojis", "true");
+          doc.documentElement.classList.add("material-emojis-active");
+        } else {
+          doc.documentElement.removeAttribute("data-material-emojis");
+          doc.documentElement.classList.remove("material-emojis-active");
+        }
+      }
+    } catch (e) {
+      console.error("[Material-Thunderbird] Error applying customizer styles to doc:", e);
+    }
+  }
+
+  _applyCustomizerStylesToWindow(win) {
+    if (!win || !win.document) return;
+    this._applyCustomizerStylesToDocument(win.document);
+    const state = win.__materialWindowState;
+    if (state && Array.isArray(state.documents)) {
+      for (const d of state.documents) {
+        this._applyCustomizerStylesToDocument(d);
+      }
+    }
+  }
+
+  _applyStylesToAllWindows() {
+    const settings = getCustomizerSettings();
+    const css = generateOverridesCss(settings);
+    saveUserOverridesFile(css);
+
+    const windows = Services.wm.getEnumerator("mail:3pane");
+    while (windows.hasMoreElements()) {
+      const win = windows.getNext();
+      this._applyCustomizerStylesToWindow(win);
+    }
+  }
+
+  _openCustomizerModal(win) {
+    if (!win || !win.document) return;
+    const doc = win.document;
+    let backdrop = doc.getElementById("material-customizer-backdrop");
+    if (backdrop) {
+      backdrop.classList.add("active");
+      return;
+    }
+
+    const settings = getCustomizerSettings();
+    backdrop = doc.createElement("div");
+    backdrop.id = "material-customizer-backdrop";
+    backdrop.setAttribute("role", "dialog");
+    backdrop.setAttribute("aria-modal", "true");
+    backdrop.setAttribute("aria-labelledby", "material-customizer-title");
+
+    const dialog = doc.createElement("div");
+    dialog.id = "material-customizer-dialog";
+
+    dialog.innerHTML = `
+      <div class="material-modal-header">
+        <div class="material-modal-title-group">
+          <div class="material-modal-icon">🎨</div>
+          <div>
+            <h2 id="material-customizer-title" class="material-modal-title">Material-Thunderbird</h2>
+            <div style="font-size: 11.5px; color: var(--md-sys-color-primary, #0b57d0); font-weight: 600;">Personnalisation & Options du thème</div>
+          </div>
+        </div>
+        <button id="material-modal-close" class="material-modal-close-btn" title="Fermer (Échap)">✕</button>
+      </div>
+
+      <!-- Section 1 : Mode d'affichage -->
+      <div>
+        <div class="material-modal-section-title">Mode d'affichage</div>
+        <div class="material-segmented-group" id="material-mode-group">
+          <button type="button" class="material-segmented-btn \${settings.themeMode === 'light' ? 'active' : ''}" data-mode="light">☀️ Clair</button>
+          <button type="button" class="material-segmented-btn \${settings.themeMode === 'dark' ? 'active' : ''}" data-mode="dark">🌙 Sombre</button>
+          <button type="button" class="material-segmented-btn \${settings.themeMode === 'auto' ? 'active' : ''}" data-mode="auto">💻 Système</button>
+        </div>
+      </div>
+
+      <!-- Section 2 : Palettes de couleurs -->
+      <div>
+        <div class="material-modal-section-title">Palette de couleurs Material You</div>
+        <div class="material-palette-grid" id="material-palette-group">
+          <div class="material-palette-card \${settings.palette === 'blue' ? 'active' : ''}" data-pal="blue">
+            <div class="material-palette-dot" style="background: #0b57d0;"></div>
+            <div>
+              <div class="material-palette-name">Bleu Google</div>
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Classique M3</div>
+            </div>
+          </div>
+          <div class="material-palette-card \${settings.palette === 'emerald' ? 'active' : ''}" data-pal="emerald">
+            <div class="material-palette-dot" style="background: #006a60;"></div>
+            <div>
+              <div class="material-palette-name">Émeraude</div>
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Nature & Sérénité</div>
+            </div>
+          </div>
+          <div class="material-palette-card \${settings.palette === 'purple' ? 'active' : ''}" data-pal="purple">
+            <div class="material-palette-dot" style="background: #6750a4;"></div>
+            <div>
+              <div class="material-palette-name">Améthyste</div>
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Violet élégant</div>
+            </div>
+          </div>
+          <div class="material-palette-card \${settings.palette === 'coral' ? 'active' : ''}" data-pal="coral">
+            <div class="material-palette-dot" style="background: #9c4125;"></div>
+            <div>
+              <div class="material-palette-name">Corail</div>
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Terracotta chaud</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3 : Emojis Modernes -->
+      <div>
+        <div class="material-modal-section-title">Icônes de l'interface</div>
+        <div class="material-option-row">
+          <div class="material-option-info">
+            <div class="material-option-title">Icônes Émojis Modernes</div>
+            <div class="material-option-desc">Remplace les icônes de dossiers et d'onglets par des émojis colorés (📥 📤 ⭐ 📝 📁 🗑️ ✉️ 📇 📆).</div>
+          </div>
+          <label class="material-switch">
+            <input type="checkbox" id="material-emoji-toggle" \${settings.emojis ? 'checked' : ''}>
+            <span class="material-switch-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Section 4 : Soutenir le projet -->
+      <div class="material-sponsor-banner">
+        <div>
+          <div style="font-size: 13.5px; font-weight: 700; color: #ea4aaa; display: flex; align-items: center; gap: 6px;">
+            <span>💖</span> Soutenir le développement
+          </div>
+          <div style="font-size: 11.5px; color: var(--md-sys-color-on-surface-variant, #444746); margin-top: 2px;">
+            Material-Thunderbird est 100% gratuit et bénévole.
+          </div>
+        </div>
+        <button type="button" class="material-sponsor-btn" id="material-modal-sponsor-link">
+          💖 Soutenir
+        </button>
+      </div>
+
+      <!-- Section 5 : Actions & Désinstallation -->
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);">
+        <button type="button" class="material-btn-pill material-btn-danger" id="material-btn-uninstall" title="Désinstaller complètement le thème">
+          🗑️ Désinstaller
+        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="material-btn-pill material-btn-secondary" id="material-btn-restart" title="Recharger complètement l'application">
+            🔄 Redémarrer Thunderbird
+          </button>
+          <button type="button" class="material-btn-pill material-btn-primary" id="material-btn-done">
+            Terminé
+          </button>
+        </div>
+      </div>
+
+      <!-- Zone de confirmation de désinstallation -->
+      <div id="material-uninstall-confirm" style="display: none; background: rgba(186, 26, 26, 0.08); border: 1px solid #ba1a1a; border-radius: 16px; padding: 14px 18px; margin-top: 10px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: #ba1a1a; margin-bottom: 6px;">
+          ⚠️ Confirmer la désinstallation de Material-Thunderbird ?
+        </div>
+        <div style="font-size: 12.5px; color: var(--md-sys-color-on-surface, #1f1f1f); margin-bottom: 12px; line-height: 1.4;">
+          Cette action retirera tous les fichiers de style du dossier <code>chrome/</code> de votre profil et rétablira l'apparence par défaut de Thunderbird. Vos courriels et paramètres ne seront pas touchés.
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+          <button type="button" class="material-btn-pill material-btn-secondary" id="material-uninstall-cancel">Annuler</button>
+          <button type="button" class="material-btn-pill material-btn-danger" id="material-uninstall-proceed" style="background: #ba1a1a !important; color: #fff !important;">Confirmer et Désinstaller</button>
+        </div>
+      </div>
+    `;
+
+    backdrop.appendChild(dialog);
+    (doc.body || doc.documentElement).appendChild(backdrop);
+    win.setTimeout(() => backdrop.classList.add("active"), 20);
+
+    const closeBtn = dialog.querySelector("#material-modal-close");
+    const doneBtn = dialog.querySelector("#material-btn-done");
+    const handleClose = (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      this._closeCustomizerModal(win);
+    };
+    if (closeBtn) closeBtn.addEventListener("click", handleClose);
+    if (doneBtn) doneBtn.addEventListener("click", handleClose);
+
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) handleClose(e);
     });
 
-    const settingsBtn = spaces.querySelector('[data-l10n-id="spaces-settings-button"]') || spaces.querySelector('.spaces-toolbar-pinned-button');
-    if (settingsBtn && settingsBtn.parentNode === spaces) {
-      spaces.insertBefore(btn, settingsBtn);
-    } else {
-      spaces.appendChild(btn);
+    const keyListener = (e) => {
+      if (e.key === "Escape") {
+        handleClose(e);
+        win.removeEventListener("keydown", keyListener);
+      }
+    };
+    win.addEventListener("keydown", keyListener);
+
+    // Mode segmented
+    const modeBtns = dialog.querySelectorAll("#material-mode-group .material-segmented-btn");
+    modeBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        modeBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const mode = btn.getAttribute("data-mode");
+        const cur = getCustomizerSettings();
+        cur.themeMode = mode;
+        saveCustomizerSettings(cur);
+        this._applyStylesToAllWindows();
+      });
+    });
+
+    // Palette cards
+    const palCards = dialog.querySelectorAll("#material-palette-group .material-palette-card");
+    palCards.forEach(card => {
+      card.addEventListener("click", () => {
+        palCards.forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const pal = card.getAttribute("data-pal");
+        const cur = getCustomizerSettings();
+        cur.palette = pal;
+        saveCustomizerSettings(cur);
+        this._applyStylesToAllWindows();
+      });
+    });
+
+    // Emoji toggle
+    const emojiToggle = dialog.querySelector("#material-emoji-toggle");
+    if (emojiToggle) {
+      emojiToggle.addEventListener("change", () => {
+        const cur = getCustomizerSettings();
+        cur.emojis = emojiToggle.checked;
+        saveCustomizerSettings(cur);
+        this._applyStylesToAllWindows();
+      });
+    }
+
+    // Sponsor button
+    const sponsorBtn = dialog.querySelector("#material-modal-sponsor-link");
+    if (sponsorBtn) {
+      sponsorBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const sponsorUrl = "https://github.com/sponsors/VForiel";
+        const host = win.top || win;
+        if (typeof host.openContentTab === "function") {
+          host.openContentTab(sponsorUrl);
+        } else if (typeof host.openURL === "function") {
+          host.openURL(sponsorUrl);
+        } else {
+          const uri = Services.io.newURI(sponsorUrl);
+          const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+            .getService(Ci.nsIExternalProtocolService);
+          extProtocolSvc.loadURI(uri);
+        }
+      });
+    }
+
+    // Restart button
+    const restartBtn = dialog.querySelector("#material-btn-restart");
+    if (restartBtn) {
+      restartBtn.addEventListener("click", () => {
+        this._restartThunderbird();
+      });
+    }
+
+    // Uninstall
+    const uninstBtn = dialog.querySelector("#material-btn-uninstall");
+    const confirmBox = dialog.querySelector("#material-uninstall-confirm");
+    const cancelUninstBtn = dialog.querySelector("#material-uninstall-cancel");
+    const proceedUninstBtn = dialog.querySelector("#material-uninstall-proceed");
+
+    if (uninstBtn && confirmBox) {
+      uninstBtn.addEventListener("click", () => {
+        confirmBox.style.display = confirmBox.style.display === "none" ? "block" : "none";
+        confirmBox.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+
+    if (cancelUninstBtn && confirmBox) {
+      cancelUninstBtn.addEventListener("click", () => {
+        confirmBox.style.display = "none";
+      });
+    }
+
+    if (proceedUninstBtn) {
+      proceedUninstBtn.addEventListener("click", async () => {
+        proceedUninstBtn.disabled = true;
+        proceedUninstBtn.textContent = "Désinstallation...";
+        await this._performUninstall(win);
+        dialog.innerHTML = `
+          <div style="text-align: center; padding: 20px 10px;">
+            <div style="font-size: 44px; margin-bottom: 12px;">✅</div>
+            <h2 class="material-modal-title" style="margin-bottom: 8px;">Désinstallation effectuée</h2>
+            <p style="font-size: 13.5px; color: var(--md-sys-color-on-surface-variant, #444746); line-height: 1.5; margin-bottom: 24px;">
+              Les fichiers de style ont été retirés de votre profil Thunderbird.<br>
+              Veuillez redémarrer Mozilla Thunderbird pour retrouver l'interface par défaut.
+            </p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+              <button type="button" class="material-btn-pill material-btn-primary" id="material-uninst-restart">
+                🔄 Redémarrer Thunderbird
+              </button>
+              <button type="button" class="material-btn-pill material-btn-secondary" id="material-uninst-close">
+                Fermer
+              </button>
+            </div>
+          </div>
+        `;
+        const postRestart = dialog.querySelector("#material-uninst-restart");
+        const postClose = dialog.querySelector("#material-uninst-close");
+        if (postRestart) postRestart.addEventListener("click", () => this._restartThunderbird());
+        if (postClose) postClose.addEventListener("click", () => this._closeCustomizerModal(win));
+      });
+    }
+  }
+
+  _closeCustomizerModal(win) {
+    if (!win || !win.document) return;
+    const backdrop = win.document.getElementById("material-customizer-backdrop");
+    if (!backdrop) return;
+    backdrop.classList.remove("active");
+    win.setTimeout(() => {
+      try { backdrop.remove(); } catch (e) {}
+    }, 220);
+  }
+
+  _restartThunderbird() {
+    try {
+      const appStartup = Services.startup;
+      appStartup.quit(Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart);
+    } catch (e) {
+      console.error("[Material-Thunderbird] Restart failed:", e);
+    }
+  }
+
+  async _performUninstall(win) {
+    try {
+      const profDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      const chromeDir = profDir.clone();
+      chromeDir.append("chrome");
+
+      if (chromeDir.exists()) {
+        const manifestFile = chromeDir.clone();
+        manifestFile.append("material-thunderbird-install.json");
+        let manifest = null;
+        if (manifestFile.exists()) {
+          try {
+            const fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+            fis.init(manifestFile, 0x01, 0o444, 0);
+            const cis = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(Ci.nsIConverterInputStream);
+            cis.init(fis, "UTF-8", 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+            let str = {};
+            let jsonText = "";
+            while (cis.readString(4096, str) != 0) { jsonText += str.value; }
+            cis.close();
+            fis.close();
+            manifest = JSON.parse(jsonText);
+          } catch (e) {}
+        }
+
+        const legacyFiles = [
+          "userChrome.css", "userContent.css", "user-overrides.css",
+          "tokens/shapes.css", "tokens/colors-light.css", "tokens/colors-dark.css", "tokens/bridge.css",
+          "components/spaces-toolbar.css", "components/unified-toolbar.css", "components/folder-pane.css",
+          "components/thread-tree.css", "components/message-header.css", "components/tabs-and-dialogs.css",
+          "components/calendar.css", "components/addressbook.css", "components/avatars.css",
+          "components/multimessage.css", "components/compose.css", "components/extras.css"
+        ];
+
+        const filesToDelete = (manifest && Array.isArray(manifest.files)) ? manifest.files : legacyFiles;
+        for (const rel of filesToDelete) {
+          try {
+            const f = chromeDir.clone();
+            const parts = rel.split("/");
+            for (const p of parts) f.append(p);
+            if (f.exists()) f.remove(false);
+          } catch (e) {}
+        }
+
+        if (manifest && manifest.backupDir) {
+          try {
+            const bDir = profDir.clone();
+            bDir.append(manifest.backupDir);
+            if (bDir.exists()) {
+              const entries = bDir.directoryEntries;
+              while (entries.hasMoreElements()) {
+                const entry = entries.getNext().QueryInterface(Ci.nsIFile);
+                entry.moveTo(chromeDir, entry.leafName);
+              }
+              bDir.remove(true);
+            }
+          } catch (e) {}
+        }
+
+        try {
+          if (manifestFile.exists()) manifestFile.remove(false);
+          const ov = chromeDir.clone();
+          ov.append("user-overrides.css");
+          if (ov.exists()) ov.remove(false);
+        } catch (e) {}
+      }
+
+      try {
+        const userJs = profDir.clone();
+        userJs.append("user.js");
+        if (userJs.exists()) {
+          const fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+          fis.init(userJs, 0x01, 0o444, 0);
+          const cis = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(Ci.nsIConverterInputStream);
+          cis.init(fis, "UTF-8", 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+          let str = {};
+          let content = "";
+          while (cis.readString(4096, str) != 0) { content += str.value; }
+          cis.close();
+          fis.close();
+
+          const prefsToClean = [
+            "toolkit.legacyUserProfileCustomizations.stylesheets",
+            "svg.context-properties.content.enabled",
+            "extensions.experiments.enabled"
+          ];
+          const lines = content.split(/\r?\n/).filter(line => {
+            if (line.trim() === "// Material-Thunderbird") return false;
+            for (const p of prefsToClean) {
+              if (line.includes(`user_pref("\${p}"`)) return false;
+            }
+            return true;
+          });
+
+          const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
+          fos.init(userJs, 0x02 | 0x08 | 0x20, 0o644, 0);
+          const cos = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
+          cos.init(fos, "UTF-8", 0, 0);
+          cos.writeString(lines.join("\r\n") + "\r\n");
+          cos.close();
+          fos.close();
+        }
+      } catch (e) {}
+
+      try {
+        Services.prefs.clearUserPref(PREF_PALETTE);
+        Services.prefs.clearUserPref(PREF_THEME_MODE);
+        Services.prefs.clearUserPref(PREF_EMOJIS);
+      } catch (e) {}
+
+      return true;
+    } catch (err) {
+      console.error("[Material-Thunderbird] Uninstall error:", err);
+      return false;
     }
   }
 
@@ -515,7 +1247,10 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
   _rememberDocument(win, doc) {
     const state = win.__materialWindowState;
-    if (state && !state.documents.includes(doc)) state.documents.push(doc);
+    if (state && !state.documents.includes(doc)) {
+      state.documents.push(doc);
+      this._applyCustomizerStylesToDocument(doc);
+    }
   }
 
   /**
@@ -1168,6 +1903,12 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           while (windows.hasMoreElements()) {
             const win = windows.getNext();
             this._removeUnsubscribeBanner(win);
+          }
+        },
+        openSettingsModal: async () => {
+          const win = Services.wm.getMostRecentWindow("mail:3pane");
+          if (win) {
+            this._openCustomizerModal(win);
           }
         }
       }

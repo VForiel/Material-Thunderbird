@@ -525,3 +525,474 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
     justify-content: flex-start !important;
   }
 }
+
+/* ==========================================================================
+   Modern Emoji Icons Mode (Material Design 3 - Option)
+   Remplace les icones classiques de Thunderbird par des emojis nets et modernes
+   ========================================================================== */
+:root[data-material-emojis="true"] #folderTree li .icon,
+:root.material-emojis-active #folderTree li .icon {
+  background-image: none !important;
+  -moz-context-properties: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+}
+
+:root[data-material-emojis="true"] #folderTree li .icon::before,
+:root.material-emojis-active #folderTree li .icon::before {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+}
+
+/* Dossier par defaut */
+:root[data-material-emojis="true"] #folderTree li .icon::before,
+:root.material-emojis-active #folderTree li .icon::before {
+  content: "📁" !important;
+}
+
+/* Serveur / Compte */
+:root[data-material-emojis="true"] #folderTree li[data-server-type] .icon::before,
+:root.material-emojis-active #folderTree li[data-server-type] .icon::before {
+  content: "📬" !important;
+}
+
+/* Boite de reception */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="inbox"], [data-properties~="specialFolder-Inbox"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="inbox"], [data-properties~="specialFolder-Inbox"]) .icon::before {
+  content: "📥" !important;
+}
+
+/* Messages envoyes */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="sent"], [data-properties~="specialFolder-Sent"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="sent"], [data-properties~="specialFolder-Sent"]) .icon::before {
+  content: "📤" !important;
+}
+
+/* Brouillons */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="drafts"], [data-folder-type="draft"], [data-properties~="specialFolder-Drafts"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="drafts"], [data-folder-type="draft"], [data-properties~="specialFolder-Drafts"]) .icon::before {
+  content: "📝" !important;
+}
+
+/* Archives */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="archive"], [data-folder-type="archives"], [data-properties~="specialFolder-Archive"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="archive"], [data-folder-type="archives"], [data-properties~="specialFolder-Archive"]) .icon::before {
+  content: "📁" !important;
+}
+
+/* Corbeille */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="trash"], [data-properties~="specialFolder-Trash"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="trash"], [data-properties~="specialFolder-Trash"]) .icon::before {
+  content: "🗑️" !important;
+}
+
+/* Indesirables / Spams */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="junk"], [data-properties~="specialFolder-Junk"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="junk"], [data-properties~="specialFolder-Junk"]) .icon::before {
+  content: "🚫" !important;
+}
+
+/* Messages suivis / Etoiles */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="starred"], [data-properties~="starred"], [data-properties~="specialFolder-Starred"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="starred"], [data-properties~="starred"], [data-properties~="specialFolder-Starred"]) .icon::before {
+  content: "⭐" !important;
+}
+
+/* Dossier d'envoi / Outbox */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="outbox"], [data-properties~="specialFolder-Outbox"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="outbox"], [data-properties~="specialFolder-Outbox"]) .icon::before {
+  content: "📨" !important;
+}
+
+/* Modeles / Templates */
+:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="templates"], [data-properties~="specialFolder-Templates"]) .icon::before,
+:root.material-emojis-active #folderTree li:is([data-folder-type="templates"], [data-properties~="specialFolder-Templates"]) .icon::before {
+  content: "📋" !important;
+}
+
+/* Emojis dans la barre des espaces (Navigation Rail a gauche) */
+:root[data-material-emojis="true"] .spaces-toolbar-button > img,
+:root.material-emojis-active .spaces-toolbar-button > img {
+  display: none !important;
+}
+
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#mail-button, [data-l10n-id*="mail"])::before,
+:root.material-emojis-active .spaces-toolbar-button:is(#mail-button, [data-l10n-id*="mail"])::before {
+  content: "✉️" !important;
+  font-size: 18px !important;
+}
+
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#addressbook-button, [data-l10n-id*="address"])::before,
+:root.material-emojis-active .spaces-toolbar-button:is(#addressbook-button, [data-l10n-id*="address"])::before {
+  content: "📇" !important;
+  font-size: 18px !important;
+}
+
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#calendar-button, [data-l10n-id*="calendar"])::before,
+:root.material-emojis-active .spaces-toolbar-button:is(#calendar-button, [data-l10n-id*="calendar"])::before {
+  content: "📆" !important;
+  font-size: 18px !important;
+}
+
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#tasks-button, [data-l10n-id*="tasks"])::before,
+:root.material-emojis-active .spaces-toolbar-button:is(#tasks-button, [data-l10n-id*="tasks"])::before {
+  content: "✔️" !important;
+  font-size: 18px !important;
+}
+
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#chat-button, [data-l10n-id*="chat"])::before,
+:root.material-emojis-active .spaces-toolbar-button:is(#chat-button, [data-l10n-id*="chat"])::before {
+  content: "💬" !important;
+  font-size: 18px !important;
+}
+
+:root[data-material-emojis="true"] .spaces-toolbar-button:is(#settings-button, [data-l10n-id*="settings"])::before,
+:root.material-emojis-active .spaces-toolbar-button:is(#settings-button, [data-l10n-id*="settings"])::before {
+  content: "⚙️" !important;
+  font-size: 18px !important;
+}
+
+/* Bouton Ecrire dans le panneau des dossiers */
+:root[data-material-emojis="true"] #folderPaneWriteMessage .button-icon,
+:root.material-emojis-active #folderPaneWriteMessage .button-icon {
+  display: none !important;
+}
+
+:root[data-material-emojis="true"] #folderPaneWriteMessage::before,
+:root.material-emojis-active #folderPaneWriteMessage::before {
+  content: "✏️ " !important;
+  font-size: 14px !important;
+}
+
+/* ==========================================================================
+   Boîte de dialogue de personnalisation Material-Thunderbird (M3 Dialog)
+   ========================================================================== */
+#material-customizer-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(6px) !important;
+  z-index: 2147483640 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+#material-customizer-backdrop.active {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#material-customizer-dialog {
+  width: 540px !important;
+  max-width: 92vw !important;
+  max-height: 88vh !important;
+  background-color: var(--md-sys-color-surface-container-high, #dbe3f0) !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  border-radius: var(--md-shape-corner-extra-large, 28px) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28) !important;
+  overflow-y: auto !important;
+  padding: 24px 28px !important;
+  font-family: var(--md-sys-font-family, sans-serif) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
+  transform: scale(0.92) !important;
+  transition: transform 240ms cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+#material-customizer-backdrop.active #material-customizer-dialog {
+  transform: scale(1) !important;
+}
+
+.material-modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.material-modal-title-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.material-modal-icon {
+  font-size: 24px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.material-modal-title {
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  margin: 0 !important;
+}
+
+.material-modal-close-btn {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 150ms ease !important;
+}
+
+.material-modal-close-btn:hover {
+  background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
+}
+
+.material-modal-section-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: var(--md-sys-color-primary, #0b57d0) !important;
+  margin: 0 0 8px 0 !important;
+}
+
+/* Palette chips grid */
+.material-palette-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.material-palette-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border: 2px solid transparent !important;
+  border-radius: var(--md-shape-corner-medium, 16px) !important;
+  padding: 10px 14px !important;
+  cursor: pointer !important;
+  transition: all 180ms ease !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+.material-palette-card:hover {
+  box-shadow: var(--md-sys-elevation-2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.material-palette-card.active {
+  border-color: var(--md-sys-color-primary, #0b57d0) !important;
+  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
+}
+
+.material-palette-dot {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9999px !important;
+  flex-shrink: 0 !important;
+}
+
+.material-palette-name {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+/* Segmented Theme Buttons */
+.material-segmented-group {
+  display: flex !important;
+  background: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border-radius: 9999px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+.material-segmented-btn {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 7px 12px !important;
+  border-radius: 9999px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 180ms ease !important;
+}
+
+.material-segmented-btn.active {
+  background: var(--md-sys-color-primary, #0b57d0) !important;
+  color: var(--md-sys-color-on-primary, #ffffff) !important;
+  font-weight: 700 !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+/* Toggle Option Row */
+.material-option-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border-radius: var(--md-shape-corner-medium, 16px) !important;
+  padding: 12px 16px !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+.material-option-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.material-option-title {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+.material-option-desc {
+  font-size: 12px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+}
+
+/* Material Switch */
+.material-switch {
+  position: relative !important;
+  width: 48px !important;
+  height: 28px !important;
+  cursor: pointer !important;
+}
+
+.material-switch input {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.material-switch-slider {
+  position: absolute !important;
+  inset: 0 !important;
+  background-color: var(--md-sys-color-surface-container-highest, #cfd8e8) !important;
+  border-radius: 9999px !important;
+  transition: 200ms ease !important;
+}
+
+.material-switch-slider::before {
+  position: absolute !important;
+  content: "" !important;
+  height: 20px !important;
+  width: 20px !important;
+  left: 4px !important;
+  bottom: 4px !important;
+  background-color: #ffffff !important;
+  border-radius: 50% !important;
+  transition: 200ms ease !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+.material-switch input:checked + .material-switch-slider {
+  background-color: var(--md-sys-color-primary, #0b57d0) !important;
+}
+
+.material-switch input:checked + .material-switch-slider::before {
+  transform: translateX(20px) !important;
+}
+
+/* Action Buttons */
+.material-btn-pill {
+  border: none !important;
+  border-radius: 9999px !important;
+  padding: 9px 18px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 180ms ease !important;
+  text-decoration: none !important;
+}
+
+.material-btn-primary {
+  background: var(--md-sys-color-primary, #0b57d0) !important;
+  color: var(--md-sys-color-on-primary, #ffffff) !important;
+}
+
+.material-btn-primary:hover {
+  filter: brightness(1.08) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+}
+
+.material-btn-secondary {
+  background: var(--md-sys-color-secondary-container, #c2e7ff) !important;
+  color: var(--md-sys-color-on-secondary-container, #001d35) !important;
+}
+
+.material-btn-secondary:hover {
+  filter: brightness(1.05) !important;
+}
+
+.material-btn-danger {
+  background: transparent !important;
+  color: var(--md-sys-color-error, #ba1a1a) !important;
+  border: 1px solid var(--md-sys-color-error, #ba1a1a) !important;
+}
+
+.material-btn-danger:hover {
+  background: rgba(186, 26, 26, 0.08) !important;
+}
+
+/* Sponsor Card */
+.material-sponsor-banner {
+  background: linear-gradient(135deg, rgba(234, 74, 170, 0.12) 0%, rgba(103, 80, 164, 0.10) 100%) !important;
+  border: 1px solid rgba(234, 74, 170, 0.25) !important;
+  border-radius: var(--md-shape-corner-medium, 16px) !important;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+.material-sponsor-btn {
+  background: #ea4aaa !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 9999px !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  border: none !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: transform 150ms ease, box-shadow 150ms ease !important;
+}
+
+.material-sponsor-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(234, 74, 170, 0.4) !important;
+}
+

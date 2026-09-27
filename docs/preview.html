@@ -1077,6 +1077,16 @@
       align-items: center;
       justify-content: center;
     }
+
+    /* Masquage de la barre d'outils dupliquée quand preview.html est intégré dans index.html */
+    body.is-embedded .demo-controls-bar {
+      display: none !important;
+    }
+
+    body.is-embedded .tb-window-frame {
+      height: 100vh;
+      border-radius: 0;
+    }
   </style>
 </head>
 <body>
@@ -1509,8 +1519,33 @@
       const newTheme = isDark ? 'light' : 'dark';
       html.setAttribute('data-theme', newTheme);
       
-      document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
-      document.getElementById('themeLabel').textContent = isDark ? 'Mode Sombre' : 'Mode Clair';
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+      if (label) label.textContent = isDark ? 'Mode Clair' : 'Mode Sombre';
+    }
+
+    // Gestion de la communication avec la page d'accueil (index.html)
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      if (!data) return;
+      if (data.action === 'setPalette' && data.palette) {
+        setPalette(data.palette);
+      } else if (data.action === 'setTheme' && data.theme) {
+        document.documentElement.setAttribute('data-theme', data.theme);
+        const isDark = data.theme === 'dark';
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+        if (label) label.textContent = isDark ? 'Mode Clair' : 'Mode Sombre';
+      } else if (data.action === 'setView' && data.mode) {
+        setViewMode(data.mode);
+      }
+    });
+
+    // Détection de l'intégration dans une iframe pour éviter la duplication des contrôles
+    if (window.self !== window.top) {
+      document.body.classList.add('is-embedded');
     }
   </script>
 </body>
