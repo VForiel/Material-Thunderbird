@@ -1,0 +1,63 @@
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions nécessaires pour déployer sur GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Permet un seul déploiement simultané pour éviter les conflits
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Exécution des tests de validation
+        run: npm test
+
+      - name: Préparation des paquets téléchargeables pour le site
+        run: |
+          mkdir -p docs/dist
+          # Empaquetage de l'extension WebExtension (.xpi)
+          cd extension
+          zip -r ../docs/dist/material-thunderbird.xpi . -x "*.DS_Store"
+          cd ..
+
+          # Création du pack d'installation zippé tout-en-un
+          zip -r docs/dist/material-thunderbird-facile.zip chrome scripts extension *.bat README.md LICENSE -x "*.git*"
+
+          # Synchronisation de l'installateur web
+          cp scripts/web-install.ps1 docs/installer.ps1
+
+          echo "Paquets téléchargeables générés avec succès dans docs/dist/"
+
+      - name: Configuration de GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Téléversement de l'artefact GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'docs'
+
+      - name: Déploiement sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
