@@ -14,11 +14,14 @@
     Restreint la desinstallation a ce chemin de profil.
 .PARAMETER DryRun
     Affiche les actions sans modifier le systeme.
+.PARAMETER ThunderbirdDir
+    Dossier d installation de Thunderbird, s il n est pas a l emplacement habituel.
 #>
 [CmdletBinding()]
 param(
     [string]$Profile,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [string]$ThunderbirdDir
 )
 
 $ErrorActionPreference = "Stop"
@@ -161,8 +164,29 @@ foreach ($profileDir in $Profiles) {
     }
 }
 
+# 6. Politique d entreprise posee par install.ps1 (deploy-policy.ps1). Les droits
+#    administrateur ne sont demandes que si policies.json mentionne l extension.
+$tbInstallDir = if ($ThunderbirdDir) { $ThunderbirdDir } else { Get-ThunderbirdInstallDir }
+$policyFile = if ($tbInstallDir) { Join-Path $tbInstallDir "distribution\policies.json" } else { $null }
+$policyTouched = $false
+if ($policyFile -and (Test-PolicyMentionsAddon $policyFile)) {
+    $policyTouched = $true
+    Write-Host ""
+    if ($DryRun) {
+        Write-Host "    - extension retiree de $policyFile (droits administrateur)" -ForegroundColor DarkGray
+    } else {
+        Write-Host "[*] Retrait de l extension de la politique Thunderbird..." -ForegroundColor Cyan
+        & (Join-Path $PSScriptRoot "deploy-policy.ps1") -Uninstall -ThunderbirdDir $tbInstallDir
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "[!] Politique non modifiee : relancez la desinstallation en acceptant" -ForegroundColor Yellow
+            Write-Host "    la demande de droits administrateur, sinon Thunderbird reinstallera" -ForegroundColor Yellow
+            Write-Host "    l extension au prochain demarrage." -ForegroundColor Yellow
+        }
+    }
+}
+
 Write-Host ""
-if ($touched -eq 0) {
+if ($touched -eq 0 -and -not $policyTouched) {
     Write-Host "[i] Aucune trace de Material-Thunderbird trouvee." -ForegroundColor DarkGray
 } else {
     Write-Host "============================================================" -ForegroundColor Green

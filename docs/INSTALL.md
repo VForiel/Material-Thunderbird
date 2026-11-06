@@ -23,12 +23,20 @@ Cette méthode est la plus simple et rapide. Elle configure automatiquement votr
    - Sauvegarder toute personnalisation `chrome/` existante dans `chrome-backup-<date>/` avant de la remplacer.
    - Activer `toolkit.legacyUserProfileCustomizations.stylesheets`, `svg.context-properties.content.enabled` et `extensions.experiments.enabled` dans le `user.js` de votre profil.
    - Déployer l'ensemble des feuilles de style Material 3 dans le sous-dossier `chrome/`.
-   - Compiler puis déployer le paquet `.xpi` de l'extension.
+   - Compiler le paquet `.xpi` de l'extension et le faire installer par une politique Thunderbird
+     (`distribution\policies.json`, voir plus bas). Windows demande alors les droits administrateur
+     pour cette seule étape.
 5. **Redémarrez Mozilla Thunderbird**.
 
 > [!NOTE]
-> Le script ne modifie **que** votre dossier de profil. Il ne touche pas au dossier
-> d'installation de Thunderbird et ne désactive pas la vérification des signatures de
+> Une extension simplement copiée dans le profil reste désactivée au démarrage
+> (`extensions.autoDisableScopes`) : il faudrait l'activer à la main dans le gestionnaire de
+> modules. La politique `ExtensionSettings` (`force_installed`) l'installe et l'active d'office.
+> Le `.xpi` est copié dans `C:\Program Files\Mozilla Thunderbird\distribution\`, modifiable
+> seulement en administrateur, et Thunderbird le relit à chaque démarrage.
+>
+> Si vous refusez les droits administrateur, l'extension est copiée dans le profil comme avant
+> (à activer avec `Ctrl+Maj+A`). Le script ne désactive jamais la vérification des signatures de
 > modules. Lancez `install.ps1 -DryRun` pour visualiser les actions sans rien écrire.
 
 ### Pour désinstaller :
@@ -36,7 +44,8 @@ Cette méthode est la plus simple et rapide. Elle configure automatiquement votr
 - Redémarrez Thunderbird.
 
 La désinstallation ne retire que les fichiers déployés par l'installation, restaure la
-sauvegarde de vos personnalisations et retire les préférences ajoutées. Si une version
+sauvegarde de vos personnalisations et retire les préférences ajoutées. Si l'extension a été
+installée par politique, elle en est retirée (droits administrateur demandés). Si une version
 précédente avait désactivé `xpinstall.signatures.required`, elle est également rétablie.
 
 ---

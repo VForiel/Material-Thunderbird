@@ -4,7 +4,8 @@
 .DESCRIPTION
     Detecte le profil Thunderbird par defaut, sauvegarde toute personnalisation chrome/
     existante, deploie les feuilles de style, active les preferences necessaires puis
-    compile et deploie extension .xpi.
+    compile extension .xpi et la fait installer par une politique Thunderbird
+    (deploy-policy.ps1, seule etape qui demande les droits administrateur).
 
     Chaque fichier deploye est consigne dans un manifeste lu par uninstall.ps1, afin que
     la desinstallation ne retire que ce que installation a ajoute.
@@ -14,12 +15,15 @@
     Restreint le deploiement a ce chemin de profil.
 .PARAMETER DryRun
     Affiche les actions sans modifier le systeme.
+.PARAMETER ThunderbirdDir
+    Dossier d installation de Thunderbird, s il n est pas a l emplacement habituel.
 #>
 [CmdletBinding()]
 param(
     [string]$Profile,
     [switch]$AllProfiles,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [string]$ThunderbirdDir
 )
 
 $ErrorActionPreference = "Stop"
@@ -76,7 +80,8 @@ if ($DryRun) {
             foreach ($c in $clashes) { Write-Host "              $c" -ForegroundColor DarkGray }
         }
         Write-Host "          - preferences ajoutees a user.js : $($PrefLines.Count)" -ForegroundColor DarkGray
-        Write-Host "          - extension deployee dans extensions" -ForegroundColor DarkGray
+        Write-Host "          - extension installee par politique (droits administrateur demandes)," -ForegroundColor DarkGray
+        Write-Host "            sinon copiee dans extensions/" -ForegroundColor DarkGray
     }
     Write-Host "[DRY-RUN] Termine." -ForegroundColor Green
     return
@@ -97,6 +102,32 @@ if (Test-Path $BuildScript) {
         Write-Host "[!] Compilation du .xpi echouee, deploiement CSS seul : $_" -ForegroundColor Yellow
     }
 }
+
+# 1b. Installation de l extension par politique d entreprise. Une simple copie dans
+#     le dossier extensions/ du profil laisse l extension desactivee
+#     (extensions.autoDisableScopes) ; la politique l installe et l active d office.
+#     deploy-policy.ps1 demande lui-meme les droits administrateur, pour cette seule
+#     etape. En cas de refus, on revient a la copie dans le profil.
+$PolicyDeployed = $false
+if ($XpiPath) {
+    Write-Host ""
+    Write-Host "[*] Installation de l extension (politique Thunderbird)..." -ForegroundColor Cyan
+    $policyArgs = @{ XpiPath = $XpiPath }
+    if ($ThunderbirdDir) { $policyArgs.ThunderbirdDir = $ThunderbirdDir }
+    try {
+        & (Join-Path $PSScriptRoot "deploy-policy.ps1") @policyArgs
+        $PolicyDeployed = ($LASTEXITCODE -eq 0)
+    } catch {
+        Write-Host "[!] $_" -ForegroundColor Yellow
+    }
+    if ($PolicyDeployed) {
+        Write-Host "[+] Extension installee et activee au prochain demarrage de Thunderbird." -ForegroundColor Green
+    } else {
+        Write-Host "[!] Politique non installee : extension copiee dans le profil a la place." -ForegroundColor Yellow
+    }
+}
+
+$ThunderbirdRunning = [bool](Get-Process -Name "thunderbird" -ErrorAction SilentlyContinue)
 
 # 2. Deploiement par profil.
 foreach ($targetDir in $Profiles) {
@@ -210,19 +241,26 @@ foreach ($targetDir in $Profiles) {
     # Repare les profils ou une version precedente avait desactive la verification des
     # signatures de modules : cela affaiblit la securite et ne sert pas au theme.
     $repaired = Remove-UserPrefs -UserJsPath $uJs -PrefNames $script:LegacyPrefsToRepair
+    # La valeur posee par user.js reste dans prefs.js tant qu on ne l y retire pas.
+    if (-not $ThunderbirdRunning) {
+        $repaired += Remove-PrefsJsEntries -PrefsJsPath (Join-Path $targetDir "prefs.js") -PrefNames $script:LegacyPrefsToRepair
+    }
     if ($repaired -gt 0) {
         Write-Host "[+] Verification des signatures de modules retablie." -ForegroundColor Green
     }
 
-    # 2c. Extension.
+    # 2c. Extension. Avec la politique, Thunderbird l installe lui-meme dans
+    #     extensions/ au demarrage ; sinon on l y copie (a activer a la main).
     $xpiDeployed = $null
     if ($XpiPath) {
-        $extDir = Join-Path $targetDir "extensions"
-        if (-not (Test-Path $extDir)) { New-Item -ItemType Directory -Path $extDir -Force | Out-Null }
-        $targetXpi = Join-Path $extDir "$($script:AddonId).xpi"
-        Copy-Item -Path $XpiPath -Destination $targetXpi -Force
         $xpiDeployed = "extensions/$($script:AddonId).xpi"
-        Write-Host "[+] Extension deployee : $targetXpi" -ForegroundColor Green
+        if (-not $PolicyDeployed) {
+            $extDir = Join-Path $targetDir "extensions"
+            if (-not (Test-Path $extDir)) { New-Item -ItemType Directory -Path $extDir -Force | Out-Null }
+            $targetXpi = Join-Path $extDir "$($script:AddonId).xpi"
+            Copy-Item -Path $XpiPath -Destination $targetXpi -Force
+            Write-Host "[+] Extension copiee : $targetXpi" -ForegroundColor Green
+        }
     }
 
     # 2d. Manifeste de deploiement, lu par uninstall.ps1.
@@ -243,7 +281,8 @@ Write-Host "============================================================" -Foreg
 Write-Host "   Material-Thunderbird installe !                          " -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Green
 Write-Host "Fermez et relancez Mozilla Thunderbird pour appliquer le theme." -ForegroundColor Cyan
-if ($XpiPath) {
-    Write-Host "Si extension apparait desactivee, activez-la dans le gestionnaire de" -ForegroundColor DarkGray
-    Write-Host "modules (Ctrl+Maj+A)." -ForegroundColor DarkGray
+if ($XpiPath -and -not $PolicyDeployed) {
+    Write-Host "L extension sera desactivee au demarrage : activez-la dans le gestionnaire" -ForegroundColor DarkGray
+    Write-Host "de modules (Ctrl+Maj+A), ou relancez l installation en acceptant la" -ForegroundColor DarkGray
+    Write-Host "demande de droits administrateur." -ForegroundColor DarkGray
 }

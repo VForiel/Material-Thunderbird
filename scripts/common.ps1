@@ -19,11 +19,77 @@ $script:ManagedPrefs = @(
 
 # Preference que des versions precedentes de installateur desactivaient a tort.
 # Elle n est plus jamais posee ; elle est seulement nettoyee pour reparer ces profils.
+# Le theme n en a pas besoin : ce qui empechait l extension de s activer etait
+# extensions.autoDisableScopes, contourne proprement par deploy-policy.ps1.
 $script:LegacyPrefsToRepair = @(
     "xpinstall.signatures.required"
 )
 
+# Preferences que des versions precedentes de deploy-policy.ps1 ajoutaient dans
+# policies.json. Retirees a chaque passage du script.
+$script:LegacyPolicyPrefs = @(
+    "xpinstall.signatures.required",
+    "extensions.experiments.enabled"
+)
+
 $script:AddonId = "material-you-thunderbird@vforiel"
+
+function Get-ThunderbirdInstallDir {
+    # Emplacement declare par l installateur de Mozilla, puis emplacements par defaut.
+    foreach ($root in @("HKLM:\SOFTWARE\Mozilla\Mozilla Thunderbird", "HKLM:\SOFTWARE\WOW6432Node\Mozilla\Mozilla Thunderbird")) {
+        try {
+            $current = (Get-ItemProperty -Path $root -ErrorAction Stop).CurrentVersion
+            if ($current) {
+                $dir = (Get-ItemProperty -Path "$root\$current\Main" -ErrorAction Stop)."Install Directory"
+                if ($dir -and (Test-Path $dir)) { return $dir }
+            }
+        } catch {}
+    }
+    foreach ($dir in @("$env:ProgramFiles\Mozilla Thunderbird", "${env:ProgramFiles(x86)}\Mozilla Thunderbird")) {
+        if ($dir -and (Test-Path $dir)) { return $dir }
+    }
+    return $null
+}
+
+function Test-IsAdmin {
+    $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+    return ([Security.Principal.WindowsPrincipal]$id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Test-DirectoryWritable {
+    param([string]$Path)
+    $probe = Join-Path $Path ".material-thunderbird-write-test"
+    try {
+        [System.IO.File]::WriteAllText($probe, "")
+        Remove-Item $probe -Force -ErrorAction SilentlyContinue
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+# Vrai si policies.json contient quelque chose que ce projet y a mis (lisible sans droits).
+function Test-PolicyMentionsAddon {
+    param([string]$PolicyPath)
+    if (-not (Test-Path $PolicyPath)) { return $false }
+    $text = Read-TextFile $PolicyPath
+    return ($text -match [regex]::Escape($script:AddonId)) -or ($text -match "material-thunderbird\.xpi")
+}
+
+# Retire des preferences de prefs.js, que Thunderbird reecrit en quittant :
+# a ne faire que Thunderbird ferme, sinon la modification est perdue.
+function Remove-PrefsJsEntries {
+    param([string]$PrefsJsPath, [string[]]$PrefNames)
+    if (-not (Test-Path $PrefsJsPath)) { return 0 }
+    $lines = [System.IO.File]::ReadAllLines($PrefsJsPath)
+    $kept = @($lines | Where-Object {
+        $line = $_
+        -not ($PrefNames | Where-Object { $line -match ('user_pref\(\s*"' + [regex]::Escape($_) + '"') })
+    })
+    $removed = $lines.Count - $kept.Count
+    if ($removed -gt 0) { Write-TextFileNoBom -Path $PrefsJsPath -Text (($kept -join "`r`n") + "`r`n") }
+    return $removed
+}
 
 function Get-ThunderbirdDir {
     $appData = [Environment]::GetFolderPath("ApplicationData")
