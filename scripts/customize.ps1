@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Interface graphique de personnalisation pour Material-Thunderbird.
 .DESCRIPTION
