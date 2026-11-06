@@ -1,6 +1,18 @@
 # Guide de Personnalisation de Material-Thunderbird
 
-Le thème **Material-Thunderbird** a été conçu selon les spécifications [Material Design 3](https://m3.material.io) avec des jetons de design modulaires (`tokens/`). Vous pouvez facilement adapter la palette tonale et l'apparence à vos préférences.
+Le thème **Material-Thunderbird** propose plusieurs manières simples et rapides de personnaliser votre expérience :
+
+1. **Directement dans Thunderbird (Bouton d'interface) :**
+   - Cliquez sur le bouton palette [🎨] situé dans la barre latérale gauche (directement au-dessus de l'icône Paramètres ⚙️).
+   - Ou utilisez le raccourci clavier **`Alt+M`** (ou `Ctrl+Alt+M`).
+   - Ou passez par le menu supérieur : **Outils > Personnaliser le thème Material (M3)...**
+   *(Installé et configuré automatiquement par `Installer-Material-Thunderbird.bat`)*
+
+2. **Sans ouvrir Thunderbird (Outil graphique en 1 clic) :**
+   - Double-cliquez sur **`Personnaliser-Material-Thunderbird.bat`** à la racine du projet. Une fenêtre interactive s'ouvre pour choisir votre palette, mode d'affichage et icônes émojis.
+
+3. **Manuellement via CSS (`user-overrides.css`) :**
+   - Modifiez directement les variables dans `chrome/user-overrides.css` de votre profil.
 
 ---
 

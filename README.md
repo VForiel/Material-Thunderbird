@@ -145,8 +145,11 @@ Material-Thunderbird/
 
 ## 🛠️ Personnalisation
 
-Envie d'une teinte **Verte Sarcelle**, **Violette** ou **Terracotta** ?
-Consultez le guide détaillé : **[`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md)** pour savoir comment adapter les variables CSS à vos goûts en quelques secondes.
+Vous pouvez personnaliser votre thème de plusieurs façons selon vos préférences :
+
+- 🎨 **Dans Thunderbird directement :** Cliquez sur le bouton palette [🎨] situé dans la barre latérale gauche (au-dessus du bouton Paramètres ⚙️), ou utilisez le raccourci **`Alt+M`**, ou via **Outils > Personnaliser le thème Material (M3)...** *(installé et activé automatiquement par `Installer-Material-Thunderbird.bat`)*.
+- ⚡ **Outil 1-Clic :** Double-cliquez sur **`Personnaliser-Material-Thunderbird.bat`** pour ouvrir l'interface graphique de configuration rapide.
+- 📝 **Fichier de réglages :** Modifiez vos préférences dans `chrome/user-overrides.css`. Consultez le guide complet : **[`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md)**.
 
 ---
 
