@@ -4741,6 +4741,525 @@ editor,
   }
 }
 
+/* ===== components/search.css ===== */
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: page de resultats de la recherche globale (recherche a facettes)
+ * Reference: chrome/classic/skin/classic/messenger/glodaFacetView.css
+ *
+ * Document chrome://messenger/content/glodaFacetView.xhtml, ouvert dans un
+ * onglet. Toutes les regles partent de #gloda-facet-view ou de #body, qui
+ * n existent que dans cette page.
+ *
+ * La feuille native etait faite de liens bleus soulignes, de listes a filets
+ * gris, d extraits en police a chasse fixe avec leurs lignes vides, et de
+ * surlignages en bloc bleu plein : on la remplace par des puces de filtre, des
+ * listes en pilules et des resultats en cartes.
+ */
+
+/* ===== Couleurs reprises par la frise chronologique (protovis) ===== */
+#body {
+  --barColor: var(--md-sys-color-primary-container) !important;
+  --barHlColor: var(--md-sys-color-primary) !important;
+  --dateColor: transparent !important;
+  --dateHLColor: var(--md-sys-color-secondary-container) !important;
+  --dateTextColor: var(--md-sys-color-on-surface-variant) !important;
+  --linkColor: var(--md-sys-color-primary) !important;
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+}
+
+/* ===== Mise en page ===== */
+#gloda-facet-view {
+  grid-template-columns: 18rem 1fr !important;
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 14px !important;
+}
+
+#gloda-facet-view .facets-sidebar {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  padding: 20px 12px 24px 16px !important;
+  border-inline-end: 1px solid var(--md-sys-color-outline-variant) !important;
+}
+
+#gloda-facet-view #main-column {
+  padding: 0 24px 32px !important;
+  max-inline-size: 960px !important;
+}
+
+/* ===== Titres ===== */
+#gloda-facet-view #filter-header-label {
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  line-height: 28px !important;
+  margin: 0 0 12px 4px !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#gloda-facet-view .facet > h2 {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  margin: 20px 4px 6px !important;
+}
+
+#gloda-facet-view .facet-content h3 {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  margin: 10px 8px 4px !important;
+}
+
+/* ===== Filtres oui / non : puces de filtre M3 ===== */
+#gloda-facet-view :is(#facet-fromMe, #facet-toMe, #facet-star, #facet-attachmentTypes) {
+  margin: 0 6px 8px 0 !important;
+  padding: 0 !important;
+}
+
+#gloda-facet-view .facet-checkbox-bubble {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--md-sys-color-outline) !important;
+  border-radius: var(--md-shape-corner-small, 8px) !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  box-sizing: border-box !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: background-color 150ms ease, border-color 150ms ease !important;
+}
+
+#gloda-facet-view :is(facet-boolean, facet-boolean-filtered):not([disabled]):hover > .facet-checkbox-bubble {
+  background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#gloda-facet-view :is(facet-boolean, facet-boolean-filtered)[checked]:not([disabled]) > .facet-checkbox-bubble {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+#gloda-facet-view .facet-checkbox-label,
+#gloda-facet-view .facet-checkbox-count {
+  margin: 0 !important;
+}
+
+/* Le nombre se lit sans parentheses, en plus discret. */
+#gloda-facet-view .facet-checkbox-count::before,
+#gloda-facet-view .facet-checkbox-count::after {
+  content: none !important;
+}
+
+#gloda-facet-view .facet-checkbox-count {
+  color: inherit !important;
+  opacity: 0.7 !important;
+  font-weight: 400 !important;
+}
+
+#gloda-facet-view :is(facet-boolean, facet-boolean-filtered)[disabled] {
+  opacity: 0.45 !important;
+}
+
+/* ===== Listes de facettes : elements de navigation en pilules ===== */
+#gloda-facet-view .barry {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#gloda-facet-view .bar {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 36px !important;
+  margin: 1px 0 !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: transparent !important;
+  transition: background-color 120ms ease !important;
+}
+
+#gloda-facet-view .bar:is(:hover, :focus-visible) {
+  background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
+}
+
+#gloda-facet-view .bar[selected] {
+  background-color: var(--md-sys-color-secondary-container) !important;
+}
+
+#gloda-facet-view .bar-link {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding: 0 8px 0 14px !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-size: 13.5px !important;
+  text-decoration: none !important;
+}
+
+#gloda-facet-view .bar:is(:hover, :focus) > .bar-link,
+#gloda-facet-view .bar[selected] > :is(.bar-link, .bar-count) {
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+#gloda-facet-view .facet-excluded > .bar > .bar-link {
+  text-decoration: line-through !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+#gloda-facet-view .bar-count {
+  position: static !important;
+  flex: none !important;
+  /* Le nombre precede le nom dans le DOM : il est replace a droite. */
+  order: 1 !important;
+  margin: 0 14px 0 0 !important;
+  font-size: 12px !important;
+  line-height: normal !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Liste de facette longue : defilement discret plutot qu un cadre. */
+#gloda-facet-view .facet-content {
+  scrollbar-width: thin !important;
+}
+
+/* ===== Boutons de la page ===== */
+#gloda-facet-view :is(.facet-more, .show-more, .gloda-timeline-button),
+#gloda-facet-view .results-message-showall-button {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 36px !important;
+  padding: 0 16px !important;
+  margin: 0 !important;
+  border: 1px solid var(--md-sys-color-outline) !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: var(--md-sys-color-primary) !important;
+  font: 500 13.5px var(--md-sys-font-family) !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: background-color 150ms ease !important;
+}
+
+#gloda-facet-view .facet-more {
+  margin: 6px 0 0 6px !important;
+  border-color: transparent !important;
+  padding: 0 12px !important;
+}
+
+#gloda-facet-view .facet-more:not([needed="true"]) {
+  display: none !important;
+}
+
+#gloda-facet-view .show-more {
+  align-self: center !important;
+  margin: 8px 0 24px !important;
+  background-color: var(--md-sys-color-secondary-container) !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  float: none !important;
+}
+
+#gloda-facet-view :is(.facet-more, .show-more, .gloda-timeline-button, .results-message-showall-button):is(:hover, :focus-visible) {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+#gloda-facet-view .gloda-timeline-button[checked] {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+#gloda-facet-view .gloda-timeline-button > img {
+  inline-size: 16px !important;
+  block-size: 12px !important;
+  margin: 0 !important;
+}
+
+/* "Afficher sous forme de liste" : bouton tonal, l icone d ouverture a droite. */
+#gloda-facet-view .results-message-showall-button {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  flex: none !important;
+}
+
+#gloda-facet-view .results-message-showall-button::after {
+  content: "" !important;
+  inline-size: 12px !important;
+  block-size: 12px !important;
+  background: url("chrome://messenger/skin/icons/new-window.svg") center / contain no-repeat !important;
+  -moz-context-properties: fill !important;
+  fill: currentColor !important;
+}
+
+/* Liste de tri : meme pilule que les boutons. */
+#gloda-facet-view #sortby {
+  appearance: none !important;
+  min-height: 36px !important;
+  padding: 0 36px 0 16px !important;
+  border: 1px solid var(--md-sys-color-outline) !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: transparent !important;
+  background-image: url("chrome://global/skin/icons/arrow-down-12.svg") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  -moz-context-properties: fill !important;
+  fill: currentColor !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font: 500 13.5px var(--md-sys-font-family) !important;
+  cursor: pointer !important;
+}
+
+/* ===== En-tete : requete et bouton liste ===== */
+#gloda-facet-view #header {
+  margin-block-start: 24px !important;
+  gap: 16px !important;
+}
+
+#gloda-facet-view #query-explanation {
+  font-size: 22px !important;
+  line-height: 28px !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#gloda-facet-view :is(.explanation-fulltext-label, .explanation-query-label) {
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+#gloda-facet-view .explanation-fulltext-term {
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#gloda-facet-view .explanation-fulltext-criteria {
+  font-size: 14px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+/* ===== Frise chronologique ===== */
+#gloda-facet-view #facet-date {
+  margin: 8px 0 4px !important;
+  padding: 16px 16px 8px !important;
+  max-block-size: none !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  box-sizing: border-box !important;
+}
+
+#gloda-facet-view #facet-date[hide="true"] {
+  max-block-size: 0 !important;
+  padding: 0 16px !important;
+  overflow: hidden !important;
+}
+
+/* ===== Barre de resultats : nombre, frise, tri ===== */
+#gloda-facet-view .results-message-header {
+  gap: 12px !important;
+  padding: 16px 0 8px !important;
+  margin: 0 0 8px !important;
+  border: none !important;
+}
+
+#gloda-facet-view .results-message-count {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+/* ===== Resultats en cartes ===== */
+#gloda-facet-view .messages {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+#gloda-facet-view .message {
+  display: block !important;
+  padding: 14px 20px 16px !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  box-shadow: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 13px !important;
+  transition: box-shadow 150ms ease !important;
+}
+
+#gloda-facet-view .message:hover {
+  box-shadow: var(--md-sys-elevation-1) !important;
+}
+
+#gloda-facet-view .message:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary) !important;
+  outline-offset: 2px !important;
+  padding: 14px 20px 16px !important;
+}
+
+#gloda-facet-view .message-header {
+  margin: 0 0 6px !important;
+}
+
+#gloda-facet-view .message-meta {
+  padding-inline-start: 24px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12.5px !important;
+  line-height: 18px !important;
+}
+
+#gloda-facet-view :is(.message-author, .message-recipients) {
+  color: var(--md-sys-color-on-surface) !important;
+  font-weight: 500 !important;
+}
+
+#gloda-facet-view .message-date {
+  margin-top: 2px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+#gloda-facet-view .message-subject-group {
+  padding: 0 !important;
+}
+
+#gloda-facet-view .message-subject {
+  color: var(--md-sys-color-on-surface) !important;
+  background: none !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 22px !important;
+  text-decoration: none !important;
+}
+
+#gloda-facet-view .message:hover .message-subject,
+#gloda-facet-view .message .message-subject:is(:hover, :focus) {
+  color: var(--md-sys-color-primary) !important;
+  background: none !important;
+}
+
+#gloda-facet-view .message-recipients-group {
+  margin: 2px 0 0 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12.5px !important;
+}
+
+/* Extrait : police du theme, lignes vides fusionnees, trois lignes au plus. La
+   police a chasse fixe et le pre-wrap natifs etalaient chaque resultat sur une
+   dizaine de lignes, la plupart vides. */
+#gloda-facet-view .message-body {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+  overflow: hidden !important;
+  margin: 6px 0 0 !important;
+  white-space: normal !important;
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 13.5px !important;
+  line-height: 20px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+#gloda-facet-view .message-body-fulltext-match {
+  padding: 0 3px !important;
+  border-radius: 4px !important;
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  font-weight: 500 !important;
+}
+
+#gloda-facet-view .message-attachments {
+  margin-top: 8px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12px !important;
+}
+
+#gloda-facet-view .message-tag {
+  border: none !important;
+  border-radius: var(--md-shape-corner-small, 8px) !important;
+  padding: 1px 8px !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  font-size: 11.5px !important;
+}
+
+/* ===== Chargement et absence de resultats ===== */
+#gloda-facet-view span:is(.loading, .empty) {
+  display: inline-block !important;
+  padding: 24px 32px !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 15px !important;
+}
+
+#gloda-facet-view img.loading {
+  fill: var(--md-sys-color-primary) !important;
+}
+
+/* ===== Menu inclure / exclure d une facette ===== */
+#body .popup-menu {
+  padding: 4px !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-medium, 12px) !important;
+  background-color: var(--md-sys-color-surface-container) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  box-shadow: var(--md-sys-elevation-2) !important;
+}
+
+#body .popup-menuitem {
+  padding: 8px 12px !important;
+  border-radius: var(--md-shape-corner-small, 8px) !important;
+  font: 13.5px var(--md-sys-font-family) !important;
+}
+
+#body .popup-menuitem:is(:hover, :focus) {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* ===== Champ de recherche de l onglet (fenetre principale) ===== */
+.glodaTabToolbar {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+  padding: 6px 12px !important;
+}
+
+.glodaTabToolbar input.remote-gloda-search {
+  appearance: none !important;
+  min-height: 36px !important;
+  padding-block: 0 !important;
+  padding-inline: 36px 16px !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  background-position: 14px center !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font: 14px var(--md-sys-font-family) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.glodaTabToolbar input.remote-gloda-search:focus {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-color: var(--md-sys-color-primary) !important;
+}
+
 /* ===== components/extras.css ===== */
 /**
  * Material-Thunderbird - Material Design 3 (Material You)

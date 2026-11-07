@@ -51,6 +51,7 @@ $Sources = @(
     "components/avatars.css",
     "components/multimessage.css",
     "components/compose.css",
+    "components/search.css",
     "components/extras.css"
 )
 

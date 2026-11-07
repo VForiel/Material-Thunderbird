@@ -84,6 +84,7 @@ Material-Thunderbird/
 │       ├── calendar.css           # Agenda, vues du calendrier et volet Aujourd'hui
 │       ├── avatars.css            # Cercles avatars non-bloquants avec placeholder neutre
 │       ├── multimessage.css       # Vue multi-messages / conversation (Material You)
+│       ├── search.css             # Page de résultats de la recherche globale
 │       └── extras.css             # Règles complémentaires, chargées en dernier
 ├── extension/                     # Sources de l'extension WebExtension
 │   ├── manifest.json              # Déclaration de l'extension et de son experiment
