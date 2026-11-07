@@ -527,146 +527,40 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
 }
 
 /* ==========================================================================
-   Modern Emoji Icons Mode (Material Design 3 - Option)
-   Remplace les icones classiques de Thunderbird par des emojis nets et modernes
+   Boutons ajoutes a la barre des espaces (personnalisation et don)
+   Meme gabarit que les boutons natifs ; l icone est un SVG en ligne, pas une
+   <img>, d ou les regles propres.
    ========================================================================== */
-:root[data-material-emojis="true"] #folderTree li .icon,
-:root.material-emojis-active #folderTree li .icon {
-  background-image: none !important;
-  -moz-context-properties: none !important;
-  display: inline-flex !important;
+.material-rail-btn {
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
+  cursor: pointer !important;
+  border: none !important;
+  background-color: transparent;
+  color: var(--md-sys-color-on-surface-variant) !important;
 }
 
-:root[data-material-emojis="true"] #folderTree li .icon::before,
-:root.material-emojis-active #folderTree li .icon::before {
-  font-size: 14px !important;
-  line-height: 1 !important;
-  display: inline-block !important;
+/* Meme rendu que les icones natives de la barre (spaces-toolbar.css) :
+   20 px, contour plein, remplissage a 22 % de la couleur du texte. */
+.material-rail-btn > svg {
+  width: 20px !important;
+  height: 20px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
 }
 
-/* Dossier par defaut */
-:root[data-material-emojis="true"] #folderTree li .icon::before,
-:root.material-emojis-active #folderTree li .icon::before {
-  content: "📁" !important;
+.material-rail-btn .material-icon-tone {
+  fill: color-mix(in srgb, currentColor 22%, transparent) !important;
+  stroke: currentColor !important;
+  stroke-width: 1.4px !important;
+  stroke-linejoin: round !important;
 }
 
-/* Serveur / Compte */
-:root[data-material-emojis="true"] #folderTree li[data-server-type] .icon::before,
-:root.material-emojis-active #folderTree li[data-server-type] .icon::before {
-  content: "📬" !important;
-}
-
-/* Boite de reception */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="inbox"], [data-properties~="specialFolder-Inbox"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="inbox"], [data-properties~="specialFolder-Inbox"]) .icon::before {
-  content: "📥" !important;
-}
-
-/* Messages envoyes */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="sent"], [data-properties~="specialFolder-Sent"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="sent"], [data-properties~="specialFolder-Sent"]) .icon::before {
-  content: "📤" !important;
-}
-
-/* Brouillons */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="drafts"], [data-folder-type="draft"], [data-properties~="specialFolder-Drafts"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="drafts"], [data-folder-type="draft"], [data-properties~="specialFolder-Drafts"]) .icon::before {
-  content: "📝" !important;
-}
-
-/* Archives */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="archive"], [data-folder-type="archives"], [data-properties~="specialFolder-Archive"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="archive"], [data-folder-type="archives"], [data-properties~="specialFolder-Archive"]) .icon::before {
-  content: "📁" !important;
-}
-
-/* Corbeille */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="trash"], [data-properties~="specialFolder-Trash"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="trash"], [data-properties~="specialFolder-Trash"]) .icon::before {
-  content: "🗑️" !important;
-}
-
-/* Indesirables / Spams */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="junk"], [data-properties~="specialFolder-Junk"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="junk"], [data-properties~="specialFolder-Junk"]) .icon::before {
-  content: "🚫" !important;
-}
-
-/* Messages suivis / Etoiles */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="starred"], [data-properties~="starred"], [data-properties~="specialFolder-Starred"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="starred"], [data-properties~="starred"], [data-properties~="specialFolder-Starred"]) .icon::before {
-  content: "⭐" !important;
-}
-
-/* Dossier d'envoi / Outbox */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="outbox"], [data-properties~="specialFolder-Outbox"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="outbox"], [data-properties~="specialFolder-Outbox"]) .icon::before {
-  content: "📨" !important;
-}
-
-/* Modeles / Templates */
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="templates"], [data-properties~="specialFolder-Templates"]) .icon::before,
-:root.material-emojis-active #folderTree li:is([data-folder-type="templates"], [data-properties~="specialFolder-Templates"]) .icon::before {
-  content: "📋" !important;
-}
-
-/* Emojis dans la barre des espaces (Navigation Rail a gauche) */
-:root[data-material-emojis="true"] .spaces-toolbar-button > img,
-:root.material-emojis-active .spaces-toolbar-button > img {
-  display: none !important;
-}
-
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#mail-button, [data-l10n-id*="mail"])::before,
-:root.material-emojis-active .spaces-toolbar-button:is(#mail-button, [data-l10n-id*="mail"])::before {
-  content: "✉️" !important;
-  font-size: 18px !important;
-}
-
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#addressbook-button, [data-l10n-id*="address"])::before,
-:root.material-emojis-active .spaces-toolbar-button:is(#addressbook-button, [data-l10n-id*="address"])::before {
-  content: "📇" !important;
-  font-size: 18px !important;
-}
-
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#calendar-button, [data-l10n-id*="calendar"])::before,
-:root.material-emojis-active .spaces-toolbar-button:is(#calendar-button, [data-l10n-id*="calendar"])::before {
-  content: "📆" !important;
-  font-size: 18px !important;
-}
-
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#tasks-button, [data-l10n-id*="tasks"])::before,
-:root.material-emojis-active .spaces-toolbar-button:is(#tasks-button, [data-l10n-id*="tasks"])::before {
-  content: "✔️" !important;
-  font-size: 18px !important;
-}
-
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#chat-button, [data-l10n-id*="chat"])::before,
-:root.material-emojis-active .spaces-toolbar-button:is(#chat-button, [data-l10n-id*="chat"])::before {
-  content: "💬" !important;
-  font-size: 18px !important;
-}
-
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#settings-button, [data-l10n-id*="settings"])::before,
-:root.material-emojis-active .spaces-toolbar-button:is(#settings-button, [data-l10n-id*="settings"])::before {
-  content: "⚙️" !important;
-  font-size: 18px !important;
-}
-
-/* Bouton Ecrire dans le panneau des dossiers */
-:root[data-material-emojis="true"] #folderPaneWriteMessage .button-icon,
-:root.material-emojis-active #folderPaneWriteMessage .button-icon {
-  display: none !important;
-}
-
-:root[data-material-emojis="true"] #folderPaneWriteMessage::before,
-:root.material-emojis-active #folderPaneWriteMessage::before {
-  content: "✏️ " !important;
-  font-size: 14px !important;
+.material-rail-btn .material-icon-dot {
+  fill: currentColor !important;
+  stroke: none !important;
 }
 
 /* ==========================================================================
@@ -675,15 +569,14 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
 #material-customizer-backdrop {
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(6px) !important;
+  background: rgba(0, 0, 0, 0.32) !important;
   z-index: 2147483640 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   opacity: 0 !important;
   pointer-events: none !important;
-  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1) !important;
+  transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1) !important;
 }
 
 #material-customizer-backdrop.active {
@@ -692,245 +585,313 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
 }
 
 #material-customizer-dialog {
-  width: 540px !important;
-  max-width: 92vw !important;
-  max-height: 88vh !important;
+  width: 460px !important;
+  max-width: calc(100vw - 48px) !important;
+  max-height: calc(100vh - 48px) !important;
   background-color: var(--md-sys-color-surface-container-high, #dbe3f0) !important;
   color: var(--md-sys-color-on-surface, #1f1f1f) !important;
   border-radius: var(--md-shape-corner-extra-large, 28px) !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28) !important;
+  box-shadow: var(--md-sys-elevation-3) !important;
   overflow-y: auto !important;
-  padding: 24px 28px !important;
-  font-family: var(--md-sys-font-family, sans-serif) !important;
+  padding: 24px !important;
+  font-family: var(--md-sys-font-family, system-ui, sans-serif) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 20px !important;
   box-sizing: border-box !important;
-  transform: scale(0.92) !important;
-  transition: transform 240ms cubic-bezier(0.2, 0, 0, 1) !important;
+  transform: translateY(12px) !important;
+  transition: transform 260ms cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+#material-customizer-dialog * {
+  box-sizing: border-box !important;
 }
 
 #material-customizer-backdrop.active #material-customizer-dialog {
-  transform: scale(1) !important;
+  transform: none !important;
+}
+
+#material-customizer-dialog button {
+  font: inherit !important;
+  appearance: none !important;
+  margin: 0 !important;
+}
+
+#material-customizer-dialog button:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary, #0b57d0) !important;
+  outline-offset: 2px !important;
 }
 
 .material-modal-header {
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   justify-content: space-between !important;
-}
-
-.material-modal-title-group {
-  display: flex !important;
-  align-items: center !important;
   gap: 12px !important;
 }
 
-.material-modal-icon {
-  font-size: 24px !important;
-  line-height: 1 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
 .material-modal-title {
-  font-size: 19px !important;
-  font-weight: 700 !important;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  line-height: 28px !important;
   color: var(--md-sys-color-on-surface, #1f1f1f) !important;
   margin: 0 !important;
 }
 
-.material-modal-close-btn {
+.material-modal-subtitle {
+  font-size: 13px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  margin-top: 2px !important;
+}
+
+#material-customizer-dialog .material-modal-close-btn {
   background: transparent !important;
   border: none !important;
   border-radius: 9999px !important;
-  width: 32px !important;
-  height: 32px !important;
-  font-size: 16px !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin: -8px -8px 0 0 !important;
+  padding: 0 !important;
   cursor: pointer !important;
   color: var(--md-sys-color-on-surface-variant, #444746) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transition: background-color 150ms ease !important;
+  flex-shrink: 0 !important;
 }
 
 .material-modal-close-btn:hover {
   background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
 }
 
-.material-modal-section-title {
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  color: var(--md-sys-color-primary, #0b57d0) !important;
-  margin: 0 0 8px 0 !important;
-}
-
-/* Palette chips grid */
-.material-palette-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
+.material-modal-section {
+  display: flex !important;
+  flex-direction: column !important;
   gap: 10px !important;
 }
 
-.material-palette-card {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  background: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
-  border: 2px solid transparent !important;
-  border-radius: var(--md-shape-corner-medium, 16px) !important;
-  padding: 10px 14px !important;
-  cursor: pointer !important;
-  transition: all 180ms ease !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+.material-modal-section-title {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  margin: 0 !important;
 }
 
-.material-palette-card:hover {
-  box-shadow: var(--md-sys-elevation-2) !important;
-  transform: translateY(-1px) !important;
-}
-
-.material-palette-card.active {
-  border-color: var(--md-sys-color-primary, #0b57d0) !important;
-  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
-}
-
-.material-palette-dot {
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: 9999px !important;
+/* Coche partagee par les boutons segmentes et les pastilles : visible
+   seulement sur l element selectionne. */
+.material-dlg-check {
+  display: none !important;
   flex-shrink: 0 !important;
 }
 
-.material-palette-name {
-  font-size: 13.5px !important;
-  font-weight: 600 !important;
-  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
-}
-
-/* Segmented Theme Buttons */
+/* Segmented button (M3) : contour, selection en secondary-container + coche */
 .material-segmented-group {
   display: flex !important;
-  background: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
+  border: 1px solid var(--md-sys-color-outline, #747775) !important;
   border-radius: 9999px !important;
-  padding: 4px !important;
-  gap: 4px !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+  overflow: hidden !important;
 }
 
 .material-segmented-btn {
-  flex: 1 !important;
+  flex: 1 1 0 !important;
+  height: 40px !important;
   border: none !important;
+  border-inline-start: 1px solid var(--md-sys-color-outline, #747775) !important;
+  border-radius: 0 !important;
   background: transparent !important;
-  color: var(--md-sys-color-on-surface-variant, #444746) !important;
-  font-size: 13px !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
-  padding: 7px 12px !important;
-  border-radius: 9999px !important;
+  padding: 0 12px !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
-  transition: all 180ms ease !important;
+  gap: 8px !important;
+  transition: background-color 150ms ease !important;
+}
+
+.material-segmented-btn:first-child {
+  border-inline-start: none !important;
+}
+
+.material-segmented-btn:hover:not(.active) {
+  background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
 }
 
 .material-segmented-btn.active {
-  background: var(--md-sys-color-primary, #0b57d0) !important;
-  color: var(--md-sys-color-on-primary, #ffffff) !important;
-  font-weight: 700 !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
+  color: var(--md-sys-color-on-secondary-container, #001d35) !important;
 }
 
-/* Toggle Option Row */
+.material-segmented-btn.active .material-dlg-check {
+  display: block !important;
+}
+
+/* Pastilles de couleur */
+.material-palette-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 8px !important;
+}
+
+.material-palette-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-medium, 12px) !important;
+  padding: 10px 4px !important;
+  cursor: pointer !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+  transition: background-color 150ms ease !important;
+}
+
+.material-palette-card:hover {
+  background-color: var(--md-sys-state-hover, rgba(0, 0, 0, 0.08)) !important;
+}
+
+.material-palette-dot {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffffff !important;
+  transition: box-shadow 150ms ease !important;
+}
+
+.material-palette-card.active .material-palette-dot {
+  box-shadow: 0 0 0 3px var(--md-sys-color-surface-container-high, #dbe3f0),
+              0 0 0 5px var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+.material-palette-card.active .material-dlg-check {
+  display: block !important;
+}
+
+.material-palette-name {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-align: center !important;
+}
+
+/* Ligne d option avec interrupteur */
 .material-option-row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  background: var(--md-sys-color-surface-container-lowest, #ffffff) !important;
-  border-radius: var(--md-shape-corner-medium, 16px) !important;
+  gap: 16px !important;
+  background: var(--md-sys-color-surface-container-low, #edf2fa) !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
   padding: 12px 16px !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+  cursor: pointer !important;
 }
 
 .material-option-info {
   display: flex !important;
   flex-direction: column !important;
   gap: 2px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
 }
 
 .material-option-title {
-  font-size: 13.5px !important;
-  font-weight: 600 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
   color: var(--md-sys-color-on-surface, #1f1f1f) !important;
 }
 
 .material-option-desc {
-  font-size: 12px !important;
+  font-size: 12.5px !important;
   color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  margin: 0 !important;
 }
 
-/* Material Switch */
+/* Switch M3 : piste 52x32 a contour, poignee qui grandit une fois active */
 .material-switch {
   position: relative !important;
-  width: 48px !important;
-  height: 28px !important;
-  cursor: pointer !important;
+  display: block !important;
+  width: 52px !important;
+  height: 32px !important;
+  flex-shrink: 0 !important;
 }
 
 .material-switch input {
+  position: absolute !important;
   opacity: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  z-index: 1 !important;
 }
 
 .material-switch-slider {
   position: absolute !important;
   inset: 0 !important;
   background-color: var(--md-sys-color-surface-container-highest, #cfd8e8) !important;
+  border: 2px solid var(--md-sys-color-outline, #747775) !important;
   border-radius: 9999px !important;
-  transition: 200ms ease !important;
+  transition: background-color 150ms ease, border-color 150ms ease !important;
 }
 
 .material-switch-slider::before {
   position: absolute !important;
   content: "" !important;
-  height: 20px !important;
-  width: 20px !important;
-  left: 4px !important;
-  bottom: 4px !important;
-  background-color: #ffffff !important;
+  width: 16px !important;
+  height: 16px !important;
+  top: 6px !important;
+  left: 6px !important;
+  background-color: var(--md-sys-color-outline, #747775) !important;
   border-radius: 50% !important;
-  transition: 200ms ease !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+  transition: all 200ms cubic-bezier(0.2, 0, 0, 1) !important;
 }
 
 .material-switch input:checked + .material-switch-slider {
   background-color: var(--md-sys-color-primary, #0b57d0) !important;
+  border-color: var(--md-sys-color-primary, #0b57d0) !important;
 }
 
 .material-switch input:checked + .material-switch-slider::before {
-  transform: translateX(20px) !important;
+  width: 24px !important;
+  height: 24px !important;
+  top: 2px !important;
+  left: 22px !important;
+  background-color: var(--md-sys-color-on-primary, #ffffff) !important;
 }
 
-/* Action Buttons */
+.material-switch input:focus-visible + .material-switch-slider {
+  outline: 2px solid var(--md-sys-color-primary, #0b57d0) !important;
+  outline-offset: 2px !important;
+}
+
+/* Boutons */
 .material-btn-pill {
   border: none !important;
   border-radius: 9999px !important;
-  padding: 9px 18px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
+  height: 40px !important;
+  padding: 0 20px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1px !important;
   cursor: pointer !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
-  transition: all 180ms ease !important;
-  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: background-color 150ms ease, box-shadow 150ms ease !important;
+}
+
+.material-btn-pill:disabled {
+  opacity: 0.6 !important;
+  cursor: default !important;
 }
 
 .material-btn-primary {
@@ -939,60 +900,86 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
 }
 
 .material-btn-primary:hover {
-  filter: brightness(1.08) !important;
-  box-shadow: var(--md-sys-elevation-2) !important;
+  box-shadow: var(--md-sys-elevation-1) !important;
+  background: color-mix(in srgb, var(--md-sys-color-primary, #0b57d0) 92%, var(--md-sys-color-on-primary, #ffffff)) !important;
 }
 
-.material-btn-secondary {
+.material-btn-tonal {
   background: var(--md-sys-color-secondary-container, #c2e7ff) !important;
   color: var(--md-sys-color-on-secondary-container, #001d35) !important;
 }
 
-.material-btn-secondary:hover {
-  filter: brightness(1.05) !important;
+.material-btn-tonal:hover {
+  box-shadow: var(--md-sys-elevation-1) !important;
 }
 
-.material-btn-danger {
+.material-btn-text {
   background: transparent !important;
+  color: var(--md-sys-color-primary, #0b57d0) !important;
+  padding: 0 12px !important;
+}
+
+.material-btn-text:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent) !important;
+}
+
+.material-btn-text.material-btn-danger {
   color: var(--md-sys-color-error, #ba1a1a) !important;
-  border: 1px solid var(--md-sys-color-error, #ba1a1a) !important;
 }
 
-.material-btn-danger:hover {
-  background: rgba(186, 26, 26, 0.08) !important;
+.material-btn-error {
+  background: var(--md-sys-color-error, #ba1a1a) !important;
+  color: var(--md-sys-color-on-error, #ffffff) !important;
 }
 
-/* Sponsor Card */
-.material-sponsor-banner {
-  background: linear-gradient(135deg, rgba(234, 74, 170, 0.12) 0%, rgba(103, 80, 164, 0.10) 100%) !important;
-  border: 1px solid rgba(234, 74, 170, 0.25) !important;
-  border-radius: var(--md-shape-corner-medium, 16px) !important;
-  padding: 14px 18px !important;
+.material-modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.material-modal-footer {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
+  gap: 8px !important;
+  margin: 4px -8px -8px !important;
+}
+
+/* Carte de soutien */
+.material-sponsor-banner {
+  background: var(--md-sys-color-surface-container-low, #edf2fa) !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  padding: 12px 12px 12px 16px !important;
+  display: flex !important;
+  align-items: center !important;
   gap: 14px !important;
 }
 
-.material-sponsor-btn {
-  background: #ea4aaa !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  border-radius: 9999px !important;
-  padding: 8px 16px !important;
-  font-size: 13px !important;
-  border: none !important;
-  cursor: pointer !important;
-  white-space: nowrap !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: transform 150ms ease, box-shadow 150ms ease !important;
+.material-sponsor-icon {
+  display: flex !important;
+  color: #c2185b !important;
+  flex-shrink: 0 !important;
 }
 
-.material-sponsor-btn:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 3px 8px rgba(234, 74, 170, 0.4) !important;
+/* Confirmation de desinstallation */
+.material-uninstall-confirm {
+  flex-direction: column !important;
+  gap: 8px !important;
+  background: var(--md-sys-color-error-container, #ffdad6) !important;
+  border-radius: var(--md-shape-corner-large, 16px) !important;
+  padding: 16px !important;
 }
 
+.material-uninstall-confirm .material-option-title,
+.material-uninstall-confirm .material-option-desc,
+.material-uninstall-confirm .material-btn-text {
+  color: var(--md-sys-color-on-error-container, #410002) !important;
+}
+
+.material-modal-done {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}

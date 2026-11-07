@@ -1662,7 +1662,7 @@
 
           <div class="hero-ctas">
             <a href="#installer" class="btn-pill btn-primary" style="font-size: 16px; padding: 14px 28px;">
-              <span>📥 Installer le thème (Guide 1-Clic)</span>
+              <span>📥 Installer le thème</span>
             </a>
             <a href="#demo" class="btn-pill btn-secondary" style="font-size: 16px; padding: 14px 24px;">
               <span>👁️ Tester en direct</span>
@@ -1924,194 +1924,41 @@
           <span class="section-badge">Installation Simple & Rapide</span>
           <h2 class="section-title">Comment installer ce thème ?</h2>
           <p class="section-subtitle">
-            Pas besoin de s'y connaître en informatique ! Choisissez votre système ci-dessous et laissez-vous guider étape par étape.
+            Pas besoin de s'y connaître en informatique : un fichier à télécharger, à ouvrir avec Thunderbird, et c'est tout.
           </p>
         </div>
 
-        <!-- Onglets des Systèmes -->
-        <div class="install-tabs">
-          <button class="install-tab-btn active" onclick="switchTab('windows')">
-            <span>🪟 Windows (1-Clic Recommandé)</span>
-          </button>
-          <button class="install-tab-btn" onclick="switchTab('extension')">
-            <span>🧩 Extension Thunderbird (.xpi)</span>
-          </button>
-          <button class="install-tab-btn" onclick="switchTab('mac-linux')">
-            <span>🍎 macOS & 🐧 Linux</span>
-          </button>
-          <button class="install-tab-btn" onclick="switchTab('powershell')">
-            <span>⚡ Méthode Express (PowerShell)</span>
-          </button>
-        </div>
-
-        <!-- ==================================================================
-             ONGLET 1 : WINDOWS (LE PLUS FACILE)
-             ================================================================== -->
-        <div id="tab-windows" class="tab-content active">
-          <div class="install-steps-grid">
-            <!-- Étape 1 -->
-            <div class="step-card">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Télécharger le Pack</h3>
-              <p class="step-desc">
-                Cliquez sur le gros bouton ci-dessous pour télécharger le dossier contenant le thème et son installateur automatique.
-              </p>
-              <div class="step-action">
-                <a href="dist/material-thunderbird-facile.zip" download class="btn-pill btn-primary" style="width: 100%;">
-                  <span>📥 Télécharger le Pack Facile (.ZIP)</span>
-                </a>
-                <div style="text-align: center; margin-top: 8px;">
-                  <a href="https://github.com/VForiel/Material-Thunderbird/archive/refs/heads/main.zip" style="font-size: 12px; color: var(--md-on-surface-variant);">
-                    (ou télécharger l'archive complète depuis GitHub)
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Étape 2 -->
-            <div class="step-card">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Extraire le Dossier</h3>
-              <p class="step-desc">
-                Dans votre dossier <strong>Téléchargements</strong>, faites un <strong>clic droit</strong> sur le fichier téléchargé, puis choisissez :<br>
-                <strong style="color: var(--md-primary);">📂 "Extraire tout..."</strong> puis cliquez sur <strong>Extraire</strong>.
-              </p>
-            </div>
-
-            <!-- Étape 3 -->
-            <div class="step-card">
-              <div class="step-number">3</div>
-              <h3 class="step-title">Double-cliquer pour installer</h3>
-              <p class="step-desc">
-                Ouvrez le dossier extrait et faites un <strong>double-clic</strong> sur :<br><br>
-                <span class="highlight-filename">👉 Installer-Material-Thunderbird.bat</span><br><br>
-                Une petite fenêtre se charge d'activer le thème en quelques secondes. Relancez ensuite Thunderbird !
-              </p>
-            </div>
-          </div>
-
-          <!-- Encadré d'Aide SmartScreen (Essentiel pour rassurer) -->
-          <div class="smartscreen-card">
-            <div class="smartscreen-icon">ℹ️</div>
-            <div class="smartscreen-body">
-              <h4>Windows affiche un écran bleu "Windows a protégé votre ordinateur" ?</h4>
-              <p>
-                <strong>Ne vous inquiétez pas, c'est tout à fait normal !</strong> Windows affiche cette précaution de sécurité pour tous les projets bénévoles et gratuits qui n'achètent pas de certificat d'entreprise commercial payant auprès de Microsoft.
-              </p>
-              <div class="smartscreen-steps">
-                <div class="smartscreen-step">
-                  <span>1️⃣</span>
-                  <span>Cliquez sur le petit texte <u>Informations complémentaires</u></span>
-                </div>
-                <div class="smartscreen-step">
-                  <span>2️⃣</span>
-                  <span>Cliquez sur le bouton <strong>Exécuter quand même</strong></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             ONGLET 2 : EXTENSION THUNDERBIRD (.XPI)
-             ================================================================== -->
-        <div id="tab-extension" class="tab-content">
-          <div style="background: rgba(234, 67, 53, 0.08); border-left: 4px solid #ea4335; border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: #b3261e; margin-bottom: 8px;">
-              <span style="font-size: 20px;">⚠️</span>
-              <span style="font-size: 15px;">Information importante sur l'extension .XPI</span>
-            </div>
-            <p style="font-size: 13.5px; line-height: 1.5; color: var(--md-on-surface); margin: 0 0 10px 0;">
-              <strong>1. Message « Ce module semble corrompu » :</strong> Dans les versions officielles stables de Mozilla Thunderbird, glisser-déposer un fichier <code>.xpi</code> externe affiche cette fausse alerte de corruption, car Thunderbird bloque par défaut les extensions non signées sur addons.thunderbird.net.<br>
-              <strong>2. Personnalisation incomplète via .XPI seul :</strong> Par mesure de sécurité, Thunderbird interdit aux extensions WebExtensions d'injecter des styles dans l'interface interne (panneau des dossiers, barre d'outils unifiée, cartes de conversation, etc.).
-            </p>
-            <div style="background: var(--md-surface-lowest); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13.5px;">
-              👉 <strong>Méthode complète et recommandée :</strong> Utilisez l'onglet <a href="#tab-windows" onclick="switchTab('windows')" style="color: var(--md-primary); font-weight: 700; text-decoration: underline;">🪟 Windows (1-Clic Recommandé)</a> ci-dessus avec le <strong>Pack Facile (.bat)</strong>. Il installe automatiquement tous les styles Material 3, active les préférences nécessaires et déploie l'assistant sans aucun avertissement !
-            </div>
-          </div>
-
-          <div class="install-steps-grid">
-            <div class="step-card">
-              <div class="step-number">1</div>
-              <h3 class="step-title">Télécharger le fichier .xpi</h3>
-              <p class="step-desc">
-                Si vous développez ou utilisez Thunderbird Developer Edition / Beta avec signatures désactivées :
-              </p>
-              <div class="step-action">
-                <a href="dist/material-thunderbird.xpi" download class="btn-pill btn-primary" style="width: 100%;">
-                  <span>📥 Télécharger (.XPI)</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="step-card">
-              <div class="step-number">2</div>
-              <h3 class="step-title">Mode Développeur ou Profil</h3>
-              <p class="step-desc">
-                Dans Thunderbird, ouvrez <code>about:debugging</code> puis cliquez sur <strong>Ce Thunderbird</strong> &gt; <strong>Charger un module temporaire...</strong> ou placez le fichier dans le dossier <code>extensions/</code> de votre profil.
-              </p>
-            </div>
-
-            <div class="step-card">
-              <div class="step-number">3</div>
-              <h3 class="step-title">Activer les styles chrome/</h3>
-              <p class="step-desc">
-                Pour profiter de l'intégralité du design (dossiers, barre de navigation, cartes), copiez également le dossier <code>chrome/</code> dans votre profil.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             ONGLET 3 : MAC & LINUX
-             ================================================================== -->
-        <div id="tab-mac-linux" class="tab-content">
-          <div class="step-card" style="margin-bottom: 24px;">
-            <h3 class="step-title">Installation Manuelle Pas à Pas (macOS & Linux)</h3>
-            <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 14px; font-size: 14.5px; color: var(--md-on-surface-variant);">
-              <li>
-                <strong>Activer les styles personnalisés dans Thunderbird :</strong><br>
-                Allez dans <em>Paramètres</em> > onglet <em>Général</em> > tout en bas, cliquez sur <em>Éditeur de configuration...</em><br>
-                Recherchez <code>toolkit.legacyUserProfileCustomizations.stylesheets</code> et double-cliquez dessus pour le passer à <strong>true</strong>.
-              </li>
-              <li>
-                <strong>Ouvrir votre dossier de profil :</strong><br>
-                Dans le menu, allez dans <em>Aide</em> > <em>Informations de dépannage</em>. À la ligne <em>Dossier de profil</em>, cliquez sur <strong>Ouvrir le dossier</strong> (ou <em>Afficher dans le Finder</em> sur Mac).
-              </li>
-              <li>
-                <strong>Copier les fichiers du thème :</strong><br>
-                Dans ce dossier de profil, créez un sous-dossier nommé <code>chrome</code> et copiez-y l'intégralité du contenu du dossier <code>chrome/</code> de ce dépôt.
-              </li>
-              <li>
-                <strong>Redémarrez Mozilla Thunderbird</strong> pour apprécier le nouveau design !
-              </li>
-            </ol>
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             ONGLET 4 : POWERSHELL RAPIDE
-             ================================================================== -->
-        <div id="tab-powershell" class="tab-content">
+        <div class="install-steps-grid">
+          <!-- Étape 1 -->
           <div class="step-card">
-            <h3 class="step-title">Installation Express via PowerShell (Windows 10/11)</h3>
+            <div class="step-number">1</div>
+            <h3 class="step-title">Télécharger l'extension</h3>
             <p class="step-desc">
-              Si vous préférez installer le thème directement sans télécharger d'archive : ouvrez <strong>PowerShell</strong> (Menu Démarrer > tapez <em>PowerShell</em>) et collez simplement cette commande :
+              Un seul fichier, pour Windows, macOS et Linux.
             </p>
-
-            <div class="command-box">
-              <span class="command-text" id="cmdPowerShell">irm https://raw.githubusercontent.com/VForiel/Material-Thunderbird/main/scripts/web-install.ps1 | Invoke-Expression</span>
-              <button class="btn-copy" onclick="copyCommand('cmdPowerShell')">
-                <span>📋</span>
-                <span>Copier</span>
-              </button>
+            <div class="step-action">
+              <a href="dist/material-thunderbird.xpi" download class="btn-pill btn-primary" style="width: 100%;">
+                <span>📥 Télécharger material-thunderbird.xpi</span>
+              </a>
             </div>
+          </div>
 
-            <p style="font-size: 13.5px; color: var(--md-on-surface-variant); margin-top: 12px;">
-              Cette commande télécharge automatiquement les fichiers nécessaires, déploie le thème dans votre profil Thunderbird et configure les paramètres sans rien casser.
+          <!-- Étape 2 -->
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3 class="step-title">L'ouvrir avec Thunderbird</h3>
+            <p class="step-desc">
+              <strong>Glissez le fichier</strong> dans la fenêtre de Thunderbird, ou ouvrez-le d'un double-clic.<br><br>
+              À défaut : <em>Paramètres</em> &gt; <em>Modules complémentaires et thèmes</em>, roue crantée &gt; <strong>Installer un module depuis un fichier...</strong>
             </p>
-            <p style="font-size: 12.5px; color: var(--md-on-surface-variant); margin-top: 6px;">
-              💡 <em>Depuis l'Invite de commandes (CMD) ou le raccourci Win+R, utilisez : <code style="user-select: all;">powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/VForiel/Material-Thunderbird/main/scripts/web-install.ps1 | Invoke-Expression"</code></em>
+          </div>
+
+          <!-- Étape 3 -->
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3 class="step-title">Confirmer avec « Ajouter »</h3>
+            <p class="step-desc">
+              Le thème s'applique aussitôt, sans redémarrage. Thunderbird prévient que le module aura un accès complet : c'est le cas de toute extension qui modifie l'interface elle-même. Aucune donnée n'est envoyée.
             </p>
           </div>
         </div>
@@ -2121,7 +1968,7 @@
           <div class="uninstall-info">
             <h4>↩️ Vous voulez revenir à l'ancienne apparence ?</h4>
             <p>
-              C'est très simple et garanti sans risque : double-cliquez sur le fichier <strong><code>Desinstaller-Material-Thunderbird.bat</code></strong> dans le dossier téléchargé, puis relancez Thunderbird. Tout redevient instantanément comme avant.
+              Ouvrez la fenêtre de personnalisation (bouton palette, ou <strong>Alt+M</strong>) et cliquez sur <strong>Désinstaller…</strong>, ou supprimez <em>Material You Thunderbird</em> dans le gestionnaire de modules. Thunderbird retrouve immédiatement son apparence d'origine.
             </p>
           </div>
           <div>
@@ -2173,22 +2020,22 @@
           <!-- Q3 -->
           <div class="faq-item">
             <button class="faq-question" onclick="toggleFaq(this)">
-              <span>Pourquoi Windows affiche-t-il "Windows a protégé votre ordinateur" ?</span>
+              <span>Pourquoi Thunderbird parle-t-il d'un « accès complet » à l'installation ?</span>
               <span class="faq-icon">▼</span>
             </button>
             <div class="faq-answer">
-              C'est une protection automatique de Windows (SmartScreen) qui s'affiche pour tous les programmes créés par des développeurs indépendants ou des bénévoles qui ne paient pas de licence annuelle onéreuse à Microsoft. Vous pouvez cliquer sur <strong>"Informations complémentaires"</strong> puis <strong>"Exécuter quand même"</strong> en toute sécurité. Le code source est totalement public et vérifiable sur GitHub.
+              Pour redessiner l'interface de Thunderbird elle-même (dossiers, barre de gauche, en-têtes), une extension doit utiliser une API privilégiée, et Thunderbird l'annonce par cet avertissement. L'extension n'envoie aucune donnée, et son code source est public et vérifiable sur GitHub.
             </div>
           </div>
 
           <!-- Q4 -->
           <div class="faq-item">
             <button class="faq-question" onclick="toggleFaq(this)">
-              <span>J'ai lancé l'installation mais l'apparence n'a pas changé, que faire ?</span>
+              <span>J'ai installé l'extension mais l'apparence n'a pas changé, que faire ?</span>
               <span class="faq-icon">▼</span>
             </button>
             <div class="faq-answer">
-              Assurez-vous d'avoir <strong>complètement fermé et rouvert Thunderbird</strong>. Si Thunderbird était resté réduit à côté de l'horloge Windows, fermez-le complètement (ou redémarrez votre ordinateur) pour que les nouveaux styles se chargent.
+              Ouvrez le gestionnaire de modules (<strong>Ctrl + Maj + A</strong>) et vérifiez que <em>Material You Thunderbird</em> est bien présent et activé. Le thème s'applique sans redémarrage.
             </div>
           </div>
 
@@ -2199,7 +2046,7 @@
               <span class="faq-icon">▼</span>
             </button>
             <div class="faq-answer">
-              L'installateur a créé un fichier spécial nommé <code>chrome/user-overrides.css</code> dans votre profil. Vous pouvez y choisir très facilement votre couleur préférée en suivant les exemples simples décrits dans le <a href="https://github.com/VForiel/Material-Thunderbird/blob/main/docs/CUSTOMIZATION.md" target="_blank">Guide de Personnalisation</a>.
+              Cliquez sur le <strong>bouton palette</strong> dans la barre de gauche de Thunderbird (juste au-dessus de la roue des paramètres), ou appuyez sur <strong>Alt+M</strong>. Vous y choisissez la couleur, le mode clair ou sombre et les icônes émojis ; le changement est immédiat.
             </div>
           </div>
 
@@ -2210,7 +2057,7 @@
               <span class="faq-icon">▼</span>
             </button>
             <div class="faq-answer">
-              Faites simplement un double-clic sur le fichier <strong><code>Desinstaller-Material-Thunderbird.bat</code></strong> présent dans le dossier téléchargé. Vos paramètres d'origine seront restaurés automatiquement et proprement.
+              Dans la fenêtre de personnalisation (bouton palette ou <strong>Alt+M</strong>), cliquez sur <strong>Désinstaller…</strong>. Vous pouvez aussi supprimer <em>Material You Thunderbird</em> depuis le gestionnaire de modules. Thunderbird retrouve aussitôt son apparence d'origine.
             </div>
           </div>
           <!-- Q7 : Soutien -->
@@ -2281,15 +2128,6 @@
        ======================================================================== -->
   <script>
     // Gestion des onglets d'installation
-    function switchTab(tabId) {
-      document.querySelectorAll('.install-tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-      event.currentTarget.classList.add('active');
-      const target = document.getElementById('tab-' + tabId);
-      if (target) target.classList.add('active');
-    }
-
     // Gestion de la palette de couleurs
     function changePalette(name) {
       document.documentElement.setAttribute('data-palette', name);

@@ -1,57 +1,29 @@
 # Guide de Personnalisation de Material-Thunderbird
 
-Le thème **Material-Thunderbird** propose plusieurs manières simples et rapides de personnaliser votre expérience :
+## Depuis Thunderbird
 
-1. **Directement dans Thunderbird (Bouton d'interface) :**
-   - Cliquez sur le bouton palette [🎨] situé dans la barre latérale gauche (directement au-dessus de l'icône Paramètres ⚙️).
-   - Ou utilisez le raccourci clavier **`Alt+M`** (ou `Ctrl+Alt+M`).
-   - Ou passez par le menu supérieur : **Outils > Personnaliser le thème Material (M3)...**
-   *(Installé et configuré automatiquement par `Installer-Material-Thunderbird.bat`)*
+Cliquez sur le bouton palette de la barre latérale gauche (au-dessus de la roue des paramètres),
+ou utilisez **`Alt+M`**, ou **Outils > Personnaliser le thème Material (M3)...** :
 
-2. **Sans ouvrir Thunderbird (Outil graphique en 1 clic) :**
-   - Double-cliquez sur **`Personnaliser-Material-Thunderbird.bat`** à la racine du projet. Une fenêtre interactive s'ouvre pour choisir votre palette, mode d'affichage et icônes émojis.
+- **Apparence** : clair, sombre, ou le mode de Windows / macOS (*Système*) ;
+- **Couleur d'accent** : quatre palettes Material You, détaillées plus bas ;
+- **Icônes émojis** : remplace les icônes des dossiers et de la barre des espaces.
 
-3. **Manuellement via CSS (`user-overrides.css`) :**
-   - Modifiez directement les variables dans `chrome/user-overrides.css` de votre profil.
+Tout s'applique immédiatement, dans toutes les fenêtres, et se retire avec l'extension.
 
 ---
 
-## 1. Changer la Palette Tonale (Couleurs Material You)
+## Pour aller plus loin : modifier le thème lui-même
 
-> [!IMPORTANT]
-> **Écrivez vos réglages dans `chrome/user-overrides.css`**, dans le dossier de votre
-> profil. Ce fichier est créé par l'installateur, importé en dernier par `userChrome.css`,
-> et **jamais écrasé par une réinstallation ni supprimé par la désinstallation**.
->
-> Modifier directement `tokens/colors-light.css` fonctionne aussi, mais vos changements
-> seront perdus au prochain `install.bat`, puisque le script redéploie ces fichiers.
+Couleurs sur mesure, polices et arrondis se règlent dans les sources du thème, `chrome/`, puis
+en recompilant l'extension avec `scripts/build.ps1` (voir le [README](../README.md)).
 
-Les valeurs par défaut sont définies dans `chrome/tokens/colors-light.css` et
-`chrome/tokens/colors-dark.css`. Pour changer de teinte, redéfinissez simplement les
-jetons voulus dans `user-overrides.css` :
+## 1. Palettes de couleurs
 
-```css
-:root {
-  --md-sys-color-primary: #6750a4;
-  --md-sys-color-primary-container: #eaddff;
-  --md-sys-color-secondary-container: #e8def8;
-}
-```
-
-Pour que le mode sombre suive, encadrez les valeurs sombres de la même façon :
-
-```css
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-theme-brighttext="false"]) {
-    --md-sys-color-primary: #d0bcff;
-    --md-sys-color-primary-container: #4f378b;
-  }
-}
-:root[lwt-theme-brighttext="true"] {
-  --md-sys-color-primary: #d0bcff;
-  --md-sys-color-primary-container: #4f378b;
-}
-```
+Les jetons de couleur sont définis dans `chrome/tokens/colors-light.css` et
+`chrome/tokens/colors-dark.css`. Les palettes proposées par la fenêtre de personnalisation sont
+dans `PALETTES_CONFIG`, en tête de `extension/experiments/material-assistant.js` : ajoutez-y une
+entrée pour proposer une teinte de plus.
 
 ### Palettes d'accentuation recommandées :
 
@@ -126,7 +98,7 @@ Pour l'activer en connaissance de cause :
 
 ## 3. Personnaliser les Polices de Caractères
 
-Dans `chrome/tokens/shapes.css`, modifiez la variable `--md-sys-font-family` :
+Dans `chrome/tokens/shapes.css`, modifiez la variable `--md-sys-font-family`, puis recompilez :
 
 ```css
 :root {
@@ -139,7 +111,7 @@ Dans `chrome/tokens/shapes.css`, modifiez la variable `--md-sys-font-family` :
 
 ## 4. Ajuster les Rayons de Courbure (Formes & Pilules)
 
-Si vous préférez des arrondis plus subtils ou plus prononcés, modifiez les valeurs dans `chrome/tokens/shapes.css` :
+Si vous préférez des arrondis plus subtils ou plus prononcés, modifiez les valeurs dans `chrome/tokens/shapes.css`, puis recompilez :
 
 ```css
 :root {

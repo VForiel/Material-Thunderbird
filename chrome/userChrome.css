@@ -6,6 +6,11 @@
  * Author: Material-Thunderbird Community
  * Repository: https://github.com/VForiel/Material-Thunderbird
  * License: MIT
+ *
+ * L ordre de chargement ci-dessous est celui que scripts/build.ps1 reprend pour
+ * generer extension/material-theme.css. Copie dans le dossier chrome/ d un
+ * profil, ce fichier applique aussi le theme sans l extension (sans les boutons
+ * ni la fenetre de personnalisation).
  */
 
 /* ==========================================================================
@@ -19,6 +24,7 @@
 /* ==========================================================================
    Import Components
    ========================================================================== */
+@import "components/global.css";
 @import "components/spaces-toolbar.css";
 @import "components/unified-toolbar.css";
 @import "components/folder-pane.css";
@@ -32,32 +38,3 @@
 @import "components/compose.css";
 /* Charge en dernier : complete les composants ci-dessus. */
 @import "components/extras.css";
-
-/* ==========================================================================
-   Personnalisation utilisateur
-   Fichier facultatif, jamais ecrase par install.ps1 ni supprime par
-   uninstall.ps1. Placez-y vos redefinitions de jetons : etant importe en
-   dernier, il l'emporte a specificite egale sur tout ce qui precede.
-   Un @import vers un fichier absent est simplement ignore.
-   ========================================================================== */
-@import "user-overrides.css";
-
-/* ==========================================================================
-   Global Material Application Overrides
-   ========================================================================== */
-window,
-#messengerWindow,
-body {
-  font-family: var(--md-sys-font-family) !important;
-  background-color: var(--md-sys-color-surface) !important;
-  color: var(--md-sys-color-on-surface) !important;
-  -webkit-font-smoothing: antialiased !important;
-}
-
-/* Smooth transitions globally for interactive elements */
-button,
-input,
-select,
-a {
-  font-family: inherit !important;
-}

@@ -10,8 +10,8 @@
  * definis une seule fois sur `:root` : comme `--md-sys-color-*` bascule deja entre
  * clair et sombre, les alias suivent automatiquement.
  *
- * Ils restent necessaires car `theme_experiment` dans manifest.json expose
- * `--md-primary` et `--md-surface` a Thunderbird.
+ * Ils restent employes par les composants qui utilisent les noms courts
+ * (`--md-primary`, `--md-surface`...).
  */
 
 :root {

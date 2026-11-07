@@ -1,20 +1,28 @@
 <#
 .SYNOPSIS
-    Genere extension/material-theme.css puis empaquette extension (.xpi).
+    Genere les feuilles de style de l extension puis empaquette le .xpi.
 .DESCRIPTION
-    material-theme.css est un fichier GENERE : il concatene les memes sources que
-    chrome/userChrome.css. Auparavant, la feuille de extension et celle du profil
-    etaient deux copies manuelles du theme, qui avaient diverge sur pres de la
-    moitie de leurs regles. Il n existe plus qu une source : chrome/.
+    Outil de developpement : l utilisateur n a besoin que du .xpi, qu il installe
+    d un double-clic et desinstalle depuis Thunderbird.
 
-    Les couleurs de theme de manifest.json sont elles aussi derivees de
-    chrome/tokens/ : voir scripts/theme-colors.ps1.
+    chrome/ est la seule source du theme. Ce script en tire :
+    - extension/material-theme.css : les sources de $Sources, dans l ordre des
+      @import de chrome/userChrome.css, enveloppees dans @-moz-document. L
+      experiment enregistre cette feuille pour toute l application ; la
+      condition la restreint aux documents de l interface, jamais au contenu des
+      courriels ni aux pages web. La liste doit rester celle de CHROME_DOCUMENTS
+      dans extension/experiments/material-assistant.js.
+    - extension/message-content.css : chrome/userContent.css, applique au corps
+      des courriels par le script d affichage des messages.
+
+    Le manifeste ne declare pas de cle "theme" : avec elle, Thunderbird traite le
+    paquet comme un theme statique, refuse son script d arriere-plan et son
+    experiment, puis annonce un fichier corrompu.
 
     Les chemins internes du .xpi utilisent des barres obliques, conformement a la
     specification.
 #>
 $ErrorActionPreference = "Stop"
-. (Join-Path $PSScriptRoot "theme-colors.ps1")
 
 $ProjectRoot = (Get-Item (Join-Path $PSScriptRoot "..")).FullName
 $ChromeDir = Join-Path $ProjectRoot "chrome"
@@ -22,7 +30,7 @@ $ExtensionDir = Join-Path $ProjectRoot "extension"
 $DistDir = Join-Path $ProjectRoot "dist"
 $OutputFile = Join-Path $DistDir "material-thunderbird.xpi"
 $GeneratedCss = Join-Path $ExtensionDir "material-theme.css"
-$ManifestFile = Join-Path $ExtensionDir "manifest.json"
+$MessageCss = Join-Path $ExtensionDir "message-content.css"
 
 # Meme ordre que les @import de chrome/userChrome.css : les jetons d abord,
 # puis les composants, extras.css en dernier.
@@ -31,6 +39,7 @@ $Sources = @(
     "tokens/colors-light.css",
     "tokens/colors-dark.css",
     "tokens/bridge.css",
+    "components/global.css",
     "components/spaces-toolbar.css",
     "components/unified-toolbar.css",
     "components/folder-pane.css",
@@ -45,17 +54,27 @@ $Sources = @(
     "components/extras.css"
 )
 
+$DocumentScope = 'url-prefix("chrome://"), url-prefix("about:3pane"), url-prefix("about:message"), url-prefix("about:addressbook"), url-prefix("about:preferences"), url-prefix("about:addons"), url-prefix("about:accountsettings")'
+
+$Header = @"
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ *
+ * FICHIER GENERE - NE PAS MODIFIER A LA MAIN.
+ * Produit par scripts/build.ps1 a partir de chrome/. Toute modification
+ * doit etre faite dans chrome/, puis le script relance ; sinon elle sera
+ * ecrasee au prochain build.
+ */
+
+"@
+
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
 Write-Host "[*] Generation de extension/material-theme.css..." -ForegroundColor Cyan
 
 $sb = New-Object System.Text.StringBuilder
-[void]$sb.AppendLine("/**")
-[void]$sb.AppendLine(" * Material-Thunderbird - Material Design 3 (Material You)")
-[void]$sb.AppendLine(" *")
-[void]$sb.AppendLine(" * FICHIER GENERE - NE PAS MODIFIER A LA MAIN.")
-[void]$sb.AppendLine(" * Produit par scripts/build.ps1 a partir de chrome/. Toute modification")
-[void]$sb.AppendLine(" * doit etre faite dans chrome/tokens/ ou chrome/components/, puis le")
-[void]$sb.AppendLine(" * script relance ; sinon elle sera ecrasee au prochain build.")
-[void]$sb.AppendLine(" */")
+[void]$sb.Append($Header)
+[void]$sb.AppendLine("@-moz-document $DocumentScope {")
 [void]$sb.AppendLine()
 
 $missing = @()
@@ -69,19 +88,15 @@ foreach ($rel in $Sources) {
 if ($missing.Count -gt 0) {
     throw "Sources CSS introuvables : $($missing -join ', ')"
 }
+[void]$sb.AppendLine("}")
 
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($GeneratedCss, $sb.ToString(), $utf8NoBom)
 $lineCount = ([System.IO.File]::ReadAllLines($GeneratedCss)).Length
 Write-Host "    $($Sources.Count) sources -> $lineCount lignes" -ForegroundColor DarkGray
 
-Write-Host "[*] Synchronisation des couleurs de theme de manifest.json..." -ForegroundColor Cyan
-$themeChanged = Update-ManifestThemeColors -ManifestPath $ManifestFile -ChromeDir $ChromeDir
-if ($themeChanged -gt 0) {
-    Write-Host "    $themeChanged couleur(s) alignee(s) sur chrome/tokens/" -ForegroundColor DarkGray
-} else {
-    Write-Host "    deja a jour" -ForegroundColor DarkGray
-}
+Write-Host "[*] Generation de extension/message-content.css..." -ForegroundColor Cyan
+$messageSource = ([System.IO.File]::ReadAllText((Join-Path $ChromeDir "userContent.css"))).TrimEnd()
+[System.IO.File]::WriteAllText($MessageCss, $Header + $messageSource + "`n", $utf8NoBom)
 
 Write-Host "[*] Packaging Material-Thunderbird Extension (.xpi)..." -ForegroundColor Cyan
 
@@ -111,40 +126,8 @@ Write-Host "[+] Extension (.xpi) creee avec succes :" -ForegroundColor Green
 Write-Host "    $OutputFile" -ForegroundColor Yellow
 
 $DocsDist = Join-Path $ProjectRoot "docs\dist"
-if (Test-Path $DocsDist) {
-    Copy-Item $OutputFile (Join-Path $DocsDist "material-thunderbird.xpi") -Force
-    Write-Host "[+] Synchronise dans docs/dist/material-thunderbird.xpi" -ForegroundColor Green
-
-    $FacileZip = Join-Path $DocsDist "material-thunderbird-facile.zip"
-    if (Test-Path $FacileZip) { Remove-Item $FacileZip -Force }
-
-    $facileArchive = [System.IO.Compression.ZipFile]::Open($FacileZip, [System.IO.Compression.ZipArchiveMode]::Create)
-    try {
-        $dirsToPack = @("chrome", "extension", "scripts")
-        foreach ($dName in $dirsToPack) {
-            $dPath = Join-Path $ProjectRoot $dName
-            if (Test-Path $dPath) {
-                foreach ($f in (Get-ChildItem -Path $dPath -Recurse -File)) {
-                    $rel = $dName + "/" + $f.FullName.Substring($dPath.Length + 1).Replace("\", "/")
-                    [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
-                        $facileArchive, $f.FullName, $rel, [System.IO.Compression.CompressionLevel]::Optimal)
-                }
-            }
-        }
-
-        $rootItems = @("Installer-Material-Thunderbird.bat", "Personnaliser-Material-Thunderbird.bat", "Desinstaller-Material-Thunderbird.bat", "LICENSE", "README.md")
-        foreach ($rName in $rootItems) {
-            $rPath = Join-Path $ProjectRoot $rName
-            if (Test-Path $rPath) {
-                [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
-                    $facileArchive, $rPath, $rName, [System.IO.Compression.CompressionLevel]::Optimal)
-            }
-        }
-    }
-    finally {
-        $facileArchive.Dispose()
-    }
-    Write-Host "[+] Pack Facile cree avec succes :" -ForegroundColor Green
-    Write-Host "    $FacileZip" -ForegroundColor Yellow
+if (-not (Test-Path $DocsDist)) {
+    New-Item -ItemType Directory -Path $DocsDist | Out-Null
 }
-
+Copy-Item $OutputFile (Join-Path $DocsDist "material-thunderbird.xpi") -Force
+Write-Host "[+] Synchronise dans docs/dist/material-thunderbird.xpi" -ForegroundColor Green

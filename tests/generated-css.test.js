@@ -45,7 +45,13 @@ for (const rel of sources) {
   expected += `/* ===== ${rel} ===== */\n` + read(file).replace(/\s+$/, "") + "\n\n";
 }
 
-const generated = read(GENERATED);
+// build.ps1 enveloppe les sources dans @-moz-document ... { } : on compare ce
+// qu il y a entre l accolade ouvrante et l accolade fermante finale.
+const wrapped = read(GENERATED);
+const open = wrapped.indexOf("@-moz-document ");
+const close = wrapped.lastIndexOf("}\n");
+if (open === -1 || close === -1) fail("extension/material-theme.css is not wrapped in @-moz-document");
+const generated = wrapped.slice(wrapped.indexOf("{\n", open) + 2, close).replace(/^\n/, "");
 const bodyStart = generated.indexOf("/* ===== ");
 if (bodyStart === -1) {
   fail("no source marker in extension/material-theme.css: was it generated?");
@@ -60,6 +66,22 @@ if (bodyStart === -1) {
       `       generated: ${JSON.stringify(actualLines[at])}\n` +
       `       expected:  ${JSON.stringify(expectedLines[at])}`
   );
+}
+
+// La feuille du theme et celle de la personnalisation doivent viser les memes
+// documents.
+const scope = /@-moz-document ([^{]+) \{/.exec(wrapped);
+const experiment = read(path.join(ROOT, "extension", "experiments", "material-assistant.js"));
+const list = /const CHROME_DOCUMENTS = \[([\s\S]*?)\]/.exec(experiment);
+const experimentScope = list ? [...list[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).join(", ") : null;
+if (!scope || scope[1].trim() !== experimentScope) {
+  fail("@-moz-document scope differs between build.ps1 and CHROME_DOCUMENTS");
+}
+
+// message-content.css reprend chrome/userContent.css.
+const messageCss = read(path.join(ROOT, "extension", "message-content.css"));
+if (!messageCss.endsWith(read(path.join(CHROME, "userContent.css")).replace(/\s+$/, "") + "\n")) {
+  fail("extension/message-content.css does not match chrome/userContent.css. Re-run scripts/build.ps1.");
 }
 
 console.log(failures === 0 ? "\n1 passed, 0 failed" : `\n0 passed, ${failures} failed`);

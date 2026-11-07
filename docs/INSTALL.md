@@ -1,105 +1,75 @@
 # Guide d'installation de Material-Thunderbird
 
-Ce document détaille les méthodes d'installation et de configuration du thème **Material-Thunderbird** (Material Design 3 / Material You).
+Material-Thunderbird est une extension Thunderbird : un seul fichier `.xpi` installe le thème
+Material You, les boutons de personnalisation et de don, et l'assistant de désinscription.
+Aucun script, aucune préférence à modifier, aucun fichier à copier dans le profil.
 
 ---
 
 ## Compatibilité
 
-- **Mozilla Thunderbird** : 115+ (Supernova), 128+ (Nebula), 140+ et versions supérieures.
-- **Systèmes d'exploitation** : Windows 10/11, macOS, Linux.
+- **Mozilla Thunderbird** : 115+ (Supernova), 128+ (Nebula) et versions supérieures.
+- **Systèmes d'exploitation** : Windows, macOS et Linux.
 
 ---
 
-## Méthode 1 : Installation Automatisée 1-Clic (Recommandée sous Windows)
+## Installer
 
-Cette méthode est la plus simple et rapide. Elle configure automatiquement votre profil et active le support CSS.
+1. Téléchargez **`material-thunderbird.xpi`** depuis le
+   [site du projet](https://vforiel.github.io/Material-Thunderbird/).
+2. Ouvrez-le avec Thunderbird : double-clic sur le fichier, ou glisser-déposer dans la fenêtre
+   de Thunderbird. À défaut : **Paramètres** > **Modules complémentaires et thèmes**
+   (`Ctrl + Maj + A`), roue crantée > **Installer un module depuis un fichier...**
+3. Confirmez avec **Ajouter**.
 
-1. Téléchargez ou clonez ce dépôt sur votre ordinateur.
-2. Ouvrez le dossier `scripts/`.
-3. **Double-cliquez sur `install.bat`** (ou exécutez `install.ps1` via PowerShell).
-4. Le script va :
-   - Détecter automatiquement votre profil Thunderbird par défaut (via `profiles.ini`). Ajoutez `-AllProfiles` pour déployer dans tous vos profils.
-   - Sauvegarder toute personnalisation `chrome/` existante dans `chrome-backup-<date>/` avant de la remplacer.
-   - Activer `toolkit.legacyUserProfileCustomizations.stylesheets`, `svg.context-properties.content.enabled` et `extensions.experiments.enabled` dans le `user.js` de votre profil.
-   - Déployer l'ensemble des feuilles de style Material 3 dans le sous-dossier `chrome/`.
-   - Compiler le paquet `.xpi` de l'extension et le faire installer par une politique Thunderbird
-     (`distribution\policies.json`, voir plus bas). Windows demande alors les droits administrateur
-     pour cette seule étape.
-5. **Redémarrez Mozilla Thunderbird**.
+Le thème s'applique aussitôt, sans redémarrage.
 
 > [!NOTE]
-> Une extension simplement copiée dans le profil reste désactivée au démarrage
-> (`extensions.autoDisableScopes`) : il faudrait l'activer à la main dans le gestionnaire de
-> modules. La politique `ExtensionSettings` (`force_installed`) l'installe et l'active d'office.
-> Le `.xpi` est copié dans `C:\Program Files\Mozilla Thunderbird\distribution\`, modifiable
-> seulement en administrateur, et Thunderbird le relit à chaque démarrage.
->
-> Si vous refusez les droits administrateur, l'extension est copiée dans le profil comme avant
-> (à activer avec `Ctrl+Maj+A`). Le script ne désactive jamais la vérification des signatures de
-> modules. Lancez `install.ps1 -DryRun` pour visualiser les actions sans rien écrire.
-
-### Pour désinstaller :
-- Double-cliquez sur `scripts/uninstall.bat`.
-- Redémarrez Thunderbird.
-
-La désinstallation ne retire que les fichiers déployés par l'installation, restaure la
-sauvegarde de vos personnalisations et retire les préférences ajoutées. Si l'extension a été
-installée par politique, elle en est retirée (droits administrateur demandés). Si une version
-précédente avait désactivé `xpinstall.signatures.required`, elle est également rétablie.
+> Thunderbird prévient que le module aura « un accès complet et illimité ». C'est le cas de toute
+> extension qui modifie l'interface de Thunderbird elle-même : l'extension n'envoie aucune donnée.
 
 ---
 
-## Méthode 2 : Installation de l'Extension WebExtension (`.xpi`)
+## Personnaliser
 
-Si vous préférez installer le thème via le gestionnaire de modules de Thunderbird :
-
-1. Compilez le paquet avec **`scripts/build.ps1`**, qui le produit dans `dist/material-thunderbird.xpi`.
-   Ce dossier n'est pas versionné : un clone frais ne le contient pas.
-2. Lancez **Mozilla Thunderbird**.
-3. Ouvrez les **Paramètres** (icône d'engrenage en bas à gauche) > **Modules complémentaires et thèmes** (ou raccourci `Ctrl + Maj + A`).
-4. Cliquez sur l'icône d'engrenage en haut à droite de la page des modules complémentaires.
-5. Sélectionnez **Installer un module depuis un fichier...**
-6. Choisissez le fichier `dist/material-thunderbird.xpi` et confirmez l'installation.
-
-> [!NOTE]
-> Pour que l'extension injecte l'intégralité des rayons d'arrondi personnalisés et la navigation rail via `theme_experiment`, activez `extensions.experiments.enabled` dans l'éditeur de configuration (`about:config`).
+Bouton palette dans la barre de gauche (au-dessus de la roue des paramètres), raccourci **`Alt+M`**,
+ou **Outils > Personnaliser le thème Material (M3)...** : mode clair / sombre / système, couleur
+d'accent et icônes émojis. Les changements s'appliquent immédiatement à toutes les fenêtres.
 
 ---
 
-## Méthode 3 : Installation Manuelle (Multiplateforme : macOS & Linux)
+## Désinstaller
 
-Si vous utilisez Linux ou macOS, ou souhaitez installer manuellement les fichiers :
+Au choix :
+- dans la fenêtre de personnalisation, **Désinstaller…** ;
+- dans le gestionnaire de modules (`Ctrl + Maj + A`), menu **…** de *Material You Thunderbird* >
+  **Supprimer**.
 
-### 1. Activer le support CSS dans Thunderbird
-1. Dans Thunderbird, allez dans **Paramètres** > onglet **Général**.
-2. Faites défiler tout en bas et cliquez sur **Éditeur de configuration...**
-3. Recherchez : `toolkit.legacyUserProfileCustomizations.stylesheets`
-4. Double-cliquez pour passer sa valeur à **`true`**.
-5. Recherchez également `svg.context-properties.content.enabled` et passez-le à **`true`**.
-
-### 2. Localiser votre dossier de profil
-1. Dans le menu Thunderbird, rendez-vous dans **Aide** > **Informations de dépannage**.
-2. À la ligne **Dossier de profil**, cliquez sur **Ouvrir le dossier** (ou *Afficher dans le Finder* sous macOS).
-
-### 3. Copier les styles
-1. Dans ce dossier de profil, créez un dossier nommé **`chrome`** (s'il n'existe pas déjà).
-2. Copiez l'intégralité du contenu du dossier `chrome/` de ce dépôt dans le dossier `chrome` de votre profil :
-   - `userChrome.css`
-   - `userContent.css`
-   - Le dossier `tokens/`
-   - Le dossier `components/`
-3. **Redémarrez Thunderbird**.
+Thunderbird retrouve aussitôt son apparence d'origine, y compris son mode clair / sombre.
 
 ---
 
-## Dépannage (FAQ)
+## Vous aviez installé une ancienne version par script
 
-### Les styles ne s'appliquent pas après le redémarrage
-1. Assurez-vous d'avoir complètement fermé Thunderbird (vérifiez qu'aucun processus fantôme `thunderbird.exe` ne tourne dans le Gestionnaire des tâches).
-2. Vérifiez que `toolkit.legacyUserProfileCustomizations.stylesheets` est bien sur `true` dans `about:config` (ou dans `user.js`).
-3. Vérifiez que le dossier se nomme bien `chrome` (en minuscules) et non `Chrome` ou `chrome.txt`.
+Les versions précédentes s'installaient avec `Installer-Material-Thunderbird.bat`, qui copiait les
+styles dans le dossier `chrome/` du profil et déclarait l'extension dans une politique de
+Thunderbird. Pour passer à l'extension seule :
 
-### L'apparence de la liste de messages n'est pas sous forme de cartes
-1. Dans Thunderbird, cliquez sur le bouton de disposition d'affichage de liste (en haut de la colonne des messages).
-2. Sélectionnez le mode **Cartes** au lieu de l'affichage classique en tableau pour profiter pleinement du design Material You.
+1. Installez le nouveau `.xpi` comme indiqué plus haut.
+2. Dans la fenêtre de personnalisation, **Désinstaller…** retire aussi les fichiers que l'ancien
+   script avait copiés dans le profil, puis propose de redémarrer. Réinstallez ensuite le `.xpi`.
+3. Si l'ancien script avait déclaré l'extension par politique, supprimez, avec les droits
+   administrateur, les fichiers `policies.json` et `material-thunderbird.xpi` du dossier
+   `C:\Program Files\Mozilla Thunderbird\distribution\` : sinon Thunderbird réinstalle
+   l'ancienne version à chaque démarrage et empêche sa suppression.
+
+---
+
+## Dépannage
+
+### Le thème ne s'applique pas
+Vérifiez dans le gestionnaire de modules (`Ctrl + Maj + A`) que *Material You Thunderbird* est
+installé et activé.
+
+### La liste des messages n'est pas sous forme de cartes
+Cliquez sur le bouton de disposition en haut de la liste des messages et choisissez **Cartes**.

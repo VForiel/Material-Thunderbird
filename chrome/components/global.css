@@ -1,0 +1,26 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: regles generales de l interface (police, surface, texte).
+ * Vivaient directement dans userChrome.css, ou la feuille de l extension ne
+ * les reprenait pas.
+ */
+
+/* ==========================================================================
+   Global Material Application Overrides
+   ========================================================================== */
+window,
+#messengerWindow,
+body {
+  font-family: var(--md-sys-font-family) !important;
+  background-color: var(--md-sys-color-surface) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* Smooth transitions globally for interactive elements */
+button,
+input,
+select,
+a {
+  font-family: inherit !important;
+}

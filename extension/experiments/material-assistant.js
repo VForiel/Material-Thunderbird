@@ -15,11 +15,18 @@ try {
   ({ ExtensionCommon } = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm"));
 }
 
-var Services;
-try {
-  ({ Services } = ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs"));
-} catch (e) {
-  ({ Services } = ChromeUtils.import("resource://gre/modules/Services.jsm"));
+// Services est un global des scripts privilegies depuis Gecko 104, et
+// Services.sys.mjs n existe plus dans les versions recentes : l importer levait
+// une erreur, puis le repli ChromeUtils.import (retire lui aussi) en levait une
+// seconde, et l experiment entier echouait au chargement -- plus de boutons, plus
+// de fenetre de personnalisation, plus de bandeau.
+var Services = globalThis.Services;
+if (!Services) {
+  try {
+    ({ Services } = ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs"));
+  } catch (e) {
+    ({ Services } = ChromeUtils.import("resource://gre/modules/Services.jsm"));
+  }
 }
 
 var MailServices;
@@ -53,233 +60,239 @@ const M3_AVATAR_PALETTES = [
 
 // Configuration des palettes et options Material You
 const PREF_PALETTE = "extensions.material-thunderbird.palette";
-const PREF_THEME_MODE = "extensions.material-thunderbird.theme-mode";
 const PREF_EMOJIS = "extensions.material-thunderbird.emojis";
+const PREF_THEME_MODE = "extensions.material-thunderbird.theme-mode";
+// Le mode clair / sombre passe par ui.systemUsesDarkTheme, que Gecko lit a la
+// place du reglage de Windows : prefers-color-scheme bascule pour toute
+// l interface, donc les deux palettes de chrome/tokens/ au complet.
+// Cette preference n appartient pas a l extension : elle n en est que le miroir
+// tant que l extension tourne. Le choix lui-meme vit dans PREF_THEME_MODE, et
+// PREF_DARK_OVERRIDE_OWNED dit si la valeur actuelle a ete posee par nous, pour
+// ne jamais effacer un reglage pose par quelqu un d autre. Sans cela, desactiver
+// ou desinstaller l extension laissait Thunderbird bloque en sombre.
+const PREF_DARK_OVERRIDE = "ui.systemUsesDarkTheme";
+const PREF_DARK_OVERRIDE_OWNED = "extensions.material-thunderbird.dark-override-owned";
 
+// light / dark : primary, primary-container, secondary-container.
 const PALETTES_CONFIG = {
-  blue: {
-    name: "Bleu Google",
-    color: "#0b57d0",
-    desc: "Classique M3",
-    css: `
-:root {
-  --md-sys-color-primary: #0b57d0;
-  --md-sys-color-primary-container: #d3e3fd;
-  --md-sys-color-secondary-container: #c2e7ff;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-theme-brighttext="false"]) {
-    --md-sys-color-primary: #a8c7fa;
-    --md-sys-color-primary-container: #004a77;
-    --md-sys-color-secondary-container: #004b72;
-  }
-}
-:root[lwt-theme-brighttext="true"] {
-  --md-sys-color-primary: #a8c7fa;
-  --md-sys-color-primary-container: #004a77;
-  --md-sys-color-secondary-container: #004b72;
-}`
-  },
-  emerald: {
-    name: "Émeraude",
-    color: "#006a60",
-    desc: "Nature & Sérénité",
-    css: `
-:root {
-  --md-sys-color-primary: #006a60;
-  --md-sys-color-primary-container: #74f8e5;
-  --md-sys-color-secondary-container: #cce8e3;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-theme-brighttext="false"]) {
-    --md-sys-color-primary: #53dbc9;
-    --md-sys-color-primary-container: #005048;
-    --md-sys-color-secondary-container: #334b46;
-  }
-}
-:root[lwt-theme-brighttext="true"] {
-  --md-sys-color-primary: #53dbc9;
-  --md-sys-color-primary-container: #005048;
-  --md-sys-color-secondary-container: #334b46;
-}`
-  },
-  purple: {
-    name: "Améthyste",
-    color: "#6750a4",
-    desc: "Violet élégant",
-    css: `
-:root {
-  --md-sys-color-primary: #6750a4;
-  --md-sys-color-primary-container: #eaddff;
-  --md-sys-color-secondary-container: #e8def8;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-theme-brighttext="false"]) {
-    --md-sys-color-primary: #d0bcff;
-    --md-sys-color-primary-container: #4f378b;
-    --md-sys-color-secondary-container: #4a4458;
-  }
-}
-:root[lwt-theme-brighttext="true"] {
-  --md-sys-color-primary: #d0bcff;
-  --md-sys-color-primary-container: #4f378b;
-  --md-sys-color-secondary-container: #4a4458;
-}`
-  },
-  coral: {
-    name: "Corail",
-    color: "#9c4125",
-    desc: "Terracotta chaud",
-    css: `
-:root {
-  --md-sys-color-primary: #9c4125;
-  --md-sys-color-primary-container: #ffdbd1;
-  --md-sys-color-secondary-container: #f5ddd6;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([lwt-theme-brighttext="false"]) {
-    --md-sys-color-primary: #ffb59f;
-    --md-sys-color-primary-container: #7d2b11;
-    --md-sys-color-secondary-container: #5c2a1a;
-  }
-}
-:root[lwt-theme-brighttext="true"] {
-  --md-sys-color-primary: #ffb59f;
-  --md-sys-color-primary-container: #7d2b11;
-  --md-sys-color-secondary-container: #5c2a1a;
-}`
-  }
+  blue:    { name: "Bleu Google", color: "#0b57d0", desc: "Classique M3",
+             light: ["#0b57d0", "#d3e3fd", "#c2e7ff"], dark: ["#a8c7fa", "#004a77", "#004b72"] },
+  emerald: { name: "Émeraude",    color: "#006a60", desc: "Nature & Sérénité",
+             light: ["#006a60", "#74f8e5", "#cce8e3"], dark: ["#53dbc9", "#005048", "#334b46"] },
+  purple:  { name: "Améthyste",   color: "#6750a4", desc: "Violet élégant",
+             light: ["#6750a4", "#eaddff", "#e8def8"], dark: ["#d0bcff", "#4f378b", "#4a4458"] },
+  coral:   { name: "Corail",      color: "#9c4125", desc: "Terracotta chaud",
+             light: ["#9c4125", "#ffdbd1", "#f5ddd6"], dark: ["#ffb59f", "#7d2b11", "#5c2a1a"] }
 };
 
-const THEME_MODE_CSS = {
-  light: `
-:root, :root:not([lwt-theme-brighttext="false"]), :root[lwt-theme-brighttext="true"] {
-  --md-sys-color-surface: #f0f4fa !important;
-  --md-sys-color-surface-dim: #ded8e1 !important;
-  --md-sys-color-surface-bright: #fdf8fd !important;
-  --md-sys-color-surface-container-lowest: #ffffff !important;
-  --md-sys-color-surface-container-low: #edf2fa !important;
-  --md-sys-color-surface-container: #e2e8f0 !important;
-  --md-sys-color-surface-container-high: #dbe3f0 !important;
-  --md-sys-color-surface-container-highest: #cfd8e8 !important;
-  --md-sys-color-on-surface: #1f1f1f !important;
-  --md-sys-color-on-surface-variant: #444746 !important;
-  --md-sys-color-outline: #747775 !important;
-  --md-sys-color-outline-variant: #c4c7c5 !important;
-  --md-sys-color-inverse-surface: #303030 !important;
-  --md-sys-color-inverse-on-surface: #f2f2f2 !important;
-}`,
-  dark: `
-:root, :root[lwt-theme-brighttext="false"] {
-  --md-sys-color-surface: #111315 !important;
-  --md-sys-color-surface-dim: #111315 !important;
-  --md-sys-color-surface-bright: #37393b !important;
-  --md-sys-color-surface-container-lowest: #0c0e10 !important;
-  --md-sys-color-surface-container-low: #191c1e !important;
-  --md-sys-color-surface-container: #1d2023 !important;
-  --md-sys-color-surface-container-high: #272a2d !important;
-  --md-sys-color-surface-container-highest: #323538 !important;
-  --md-sys-color-on-surface: #e2e2e5 !important;
-  --md-sys-color-on-surface-variant: #c4c7c5 !important;
-  --md-sys-color-outline: #8e918f !important;
-  --md-sys-color-outline-variant: #444746 !important;
-  --md-sys-color-inverse-surface: #e2e2e5 !important;
-  --md-sys-color-inverse-on-surface: #303030 !important;
-}`,
-  auto: ""
-};
+/**
+ * Les selecteurs reprennent exactement ceux de chrome/tokens/ : a specificite
+ * egale, user-overrides.css, importe apres, l emporte. Un simple `:root` (0-1-0)
+ * perdait contre `:root[lwt-theme-brighttext="false"]` (0-2-0) des que
+ * Thunderbird posait cet attribut, et la couleur choisie ne s affichait pas.
+ */
+function paletteCss(pal) {
+  const block = (values, indent) =>
+    `${indent}--md-sys-color-primary: ${values[0]};\n` +
+    `${indent}--md-sys-color-primary-container: ${values[1]};\n` +
+    `${indent}--md-sys-color-secondary-container: ${values[2]};\n`;
+  return `:root,
+:root[lwt-theme-brighttext="false"] {
+${block(pal.light, "  ")}}
+@media (prefers-color-scheme: dark) {
+  :root:not([lwt-theme-brighttext="false"]) {
+${block(pal.dark, "    ")}  }
+}
+:root[lwt-theme-brighttext="true"] {
+${block(pal.dark, "  ")}}`;
+}
+
+function getThemeMode() {
+  let mode = "auto";
+  try { mode = Services.prefs.getStringPref(PREF_THEME_MODE, "auto"); } catch (e) {}
+  return (mode === "light" || mode === "dark") ? mode : "auto";
+}
+
+function applyThemeModeOverride() {
+  const mode = getThemeMode();
+  try {
+    if (mode === "auto") {
+      releaseThemeModeOverride();
+      return;
+    }
+    Services.prefs.setIntPref(PREF_DARK_OVERRIDE, mode === "dark" ? 1 : 0);
+    Services.prefs.setBoolPref(PREF_DARK_OVERRIDE_OWNED, true);
+  } catch (e) {
+    console.error("[Material-Thunderbird] Mode clair / sombre non applique :", e);
+  }
+}
+
+function releaseThemeModeOverride() {
+  try {
+    if (Services.prefs.getBoolPref(PREF_DARK_OVERRIDE_OWNED, false)) {
+      Services.prefs.clearUserPref(PREF_DARK_OVERRIDE);
+    }
+    Services.prefs.clearUserPref(PREF_DARK_OVERRIDE_OWNED);
+  } catch (e) {}
+}
+
+function setThemeMode(mode) {
+  try {
+    Services.prefs.setStringPref(PREF_THEME_MODE, mode);
+  } catch (e) {
+    console.error("[Material-Thunderbird] Error saving theme mode:", e);
+  }
+  applyThemeModeOverride();
+}
 
 function getCustomizerSettings() {
   let palette = "blue";
-  let themeMode = "auto";
   let emojis = false;
   try { palette = Services.prefs.getStringPref(PREF_PALETTE, "blue"); } catch (e) {}
-  try { themeMode = Services.prefs.getStringPref(PREF_THEME_MODE, "auto"); } catch (e) {}
   try { emojis = Services.prefs.getBoolPref(PREF_EMOJIS, false); } catch (e) {}
   if (!PALETTES_CONFIG[palette]) palette = "blue";
-  return { palette, themeMode, emojis };
+  return { palette, themeMode: getThemeMode(), emojis };
 }
 
 function saveCustomizerSettings(settings) {
   try {
     if (settings.palette) Services.prefs.setStringPref(PREF_PALETTE, settings.palette);
-    if (settings.themeMode) Services.prefs.setStringPref(PREF_THEME_MODE, settings.themeMode);
+    if (settings.themeMode) setThemeMode(settings.themeMode);
     if (typeof settings.emojis === "boolean") Services.prefs.setBoolPref(PREF_EMOJIS, settings.emojis);
   } catch (e) {
     console.error("[Material-Thunderbird] Error saving prefs:", e);
   }
 }
 
-function generateOverridesCss(settings) {
-  const pal = PALETTES_CONFIG[settings.palette] || PALETTES_CONFIG.blue;
-  const themeCss = THEME_MODE_CSS[settings.themeMode] || "";
-  let emojiCss = "";
-  if (settings.emojis) {
-    emojiCss = `
-/* Modern Emoji Icons Mode */
-:root[data-material-emojis="true"] #folderTree li .icon {
-  background-image: none !important;
-  -moz-context-properties: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-:root[data-material-emojis="true"] #folderTree li .icon::before {
-  content: "📁" !important;
-  font-size: 14px !important;
-}
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="inbox"], [data-properties~="specialFolder-Inbox"]) .icon::before { content: "📥" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="sent"], [data-properties~="specialFolder-Sent"]) .icon::before { content: "📤" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="drafts"], [data-folder-type="draft"], [data-properties~="specialFolder-Drafts"]) .icon::before { content: "📝" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="archive"], [data-folder-type="archives"], [data-properties~="specialFolder-Archive"]) .icon::before { content: "📁" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="trash"], [data-properties~="specialFolder-Trash"]) .icon::before { content: "🗑️" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="junk"], [data-properties~="specialFolder-Junk"]) .icon::before { content: "🚫" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="starred"], [data-properties~="starred"], [data-properties~="specialFolder-Starred"]) .icon::before { content: "⭐" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="outbox"], [data-properties~="specialFolder-Outbox"]) .icon::before { content: "📨" !important; }
-:root[data-material-emojis="true"] #folderTree li:is([data-folder-type="templates"], [data-properties~="specialFolder-Templates"]) .icon::before { content: "📋" !important; }
-
-:root[data-material-emojis="true"] .spaces-toolbar-button > img { display: none !important; }
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#mail-button, [data-l10n-id*="mail"])::before { content: "✉️" !important; font-size: 18px !important; }
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#addressbook-button, [data-l10n-id*="address"])::before { content: "📇" !important; font-size: 18px !important; }
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#calendar-button, [data-l10n-id*="calendar"])::before { content: "📆" !important; font-size: 18px !important; }
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#tasks-button, [data-l10n-id*="tasks"])::before { content: "✔️" !important; font-size: 18px !important; }
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#chat-button, [data-l10n-id*="chat"])::before { content: "💬" !important; font-size: 18px !important; }
-:root[data-material-emojis="true"] .spaces-toolbar-button:is(#settings-button, [data-l10n-id*="settings"])::before { content: "⚙️" !important; font-size: 18px !important; }
-
-:root[data-material-emojis="true"] #folderPaneWriteMessage .button-icon { display: none !important; }
-:root[data-material-emojis="true"] #folderPaneWriteMessage::before { content: "✏️ " !important; font-size: 14px !important; }
-`;
-  }
-
-  return `/**
- * Personnalisation Material-Thunderbird (Généré automatiquement)
+/**
+ * Documents ou s appliquent les feuilles globales : l interface de Thunderbird,
+ * jamais le contenu des courriels ni les pages web ouvertes dans un onglet.
+ * userChrome.css visait de meme les seuls documents privilegies. Le corps de
+ * l editeur de redaction est un about:blank, d ou une liste plutot que about:.
  */
-${pal.css}
-${themeCss}
-${emojiCss}
-`;
+const CHROME_DOCUMENTS = [
+  'url-prefix("chrome://")',
+  'url-prefix("about:3pane")',
+  'url-prefix("about:message")',
+  'url-prefix("about:addressbook")',
+  'url-prefix("about:preferences")',
+  'url-prefix("about:addons")',
+  'url-prefix("about:accountsettings")'
+].join(", ");
+
+/**
+ * Icone faite d un emoji. Les icones de dossiers et de la barre des espaces
+ * sont des <img> dont l image vient de la propriete content : un <img> n a pas
+ * de ::before, l emoji n apparaissait donc jamais, et couper les proprietes de
+ * contexte laissait l icone d origine en silhouette noire. On remplace l image
+ * elle-meme par un petit SVG contenant l emoji.
+ */
+function emojiImage(emoji) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
+    '<text x="10" y="16" font-size="16" text-anchor="middle" ' +
+    'font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif">' +
+    emoji + "</text></svg>";
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
-function saveUserOverridesFile(cssContent) {
-  try {
-    const profDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    const chromeDir = profDir.clone();
-    chromeDir.append("chrome");
-    if (!chromeDir.exists()) {
-      chromeDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0o755);
-    }
-    const overridesFile = chromeDir.clone();
-    overridesFile.append("user-overrides.css");
+const FOLDER_EMOJIS = [
+  ["inbox", "📥"],
+  ["sent", "📤"],
+  ["drafts", "📝"],
+  ["templates", "📋"],
+  ["archive", "🗃️"],
+  ["junk", "🚫"],
+  ["trash", "🗑️"],
+  ["outbox", "📮"],
+  ["virtual", "🔎"]
+];
 
+const SPACES_EMOJIS = [
+  ["mailButton", "✉️"],
+  ["addressBookButton", "📇"],
+  ["calendarButton", "📆"],
+  ["tasksButton", "✅"],
+  ["chatButton", "💬"],
+  ["settingsButton", "⚙️"]
+];
+
+function emojiCss() {
+  const icon = (selector, emoji) =>
+    `${selector} {\n  content: ${emojiImage(emoji)} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  let css = "/* Icones emojis */\n";
+  css += icon("#folderTree li > .container > .icon", "📁");
+  css += icon("#folderTree li[data-server-type] > .container > .icon", "📬");
+  for (const [type, emoji] of FOLDER_EMOJIS) {
+    css += icon(`#folderTree li[data-folder-type="${type}"] > .container > .icon`, emoji);
+  }
+  for (const [id, emoji] of SPACES_EMOJIS) {
+    css += icon(`#${id} > img`, emoji);
+  }
+  // Le "+" du bouton de redaction est une image de fond, pas un <img>.
+  css += `#folderPaneWriteMessage {
+  background-image: none !important;
+}
+#folderPaneWriteMessage::before {
+  content: "✏️" !important;
+  margin-inline-end: 6px !important;
+}
+`;
+  return css;
+}
+
+/**
+ * :root:root ajoute une classe de specificite : a importance egale, ces regles
+ * l emportent ainsi sur celles de chrome/tokens/ quel que soit l ordre des
+ * feuilles.
+ */
+function generateCustomizerCss(settings) {
+  const pal = PALETTES_CONFIG[settings.palette] || PALETTES_CONFIG.blue;
+  const body = paletteCss(pal).replace(/:root/g, ":root:root") + "\n" +
+    (settings.emojis ? emojiCss() : "");
+  return `@-moz-document ${CHROME_DOCUMENTS} {\n${body}\n}\n`;
+}
+
+/**
+ * Les anciennes versions ecrivaient la personnalisation dans
+ * chrome/user-overrides.css, lu par userChrome.css au demarrage seulement : ce
+ * fichier continuait d imposer d anciens reglages, que la fenetre de
+ * personnalisation ne pouvait plus defaire. Un fichier qu elles ont genere est
+ * vide ; un fichier ecrit a la main est laisse tel quel.
+ */
+function neutralizeGeneratedOverrides() {
+  try {
+    const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    file.append("chrome");
+    file.append("user-overrides.css");
+    if (!file.exists()) return;
+    const text = readExtensionFile(Services.io.newFileURI(file).spec);
+    if (!/^\s*\/\*\*\s*\n\s*\* Personnalisation Material-Thunderbird \(g[eé]n[eé]r[eé] automatiquement\)/i.test(text)) return;
     const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
-    fos.init(overridesFile, 0x02 | 0x08 | 0x20, 0o644, 0);
+    fos.init(file, 0x02 | 0x08 | 0x20, 0o644, 0);
     const cos = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
     cos.init(fos, "UTF-8", 0, 0);
-    cos.writeString(cssContent);
+    cos.writeString("/* Personnalisation Material-Thunderbird : desormais geree depuis Thunderbird (Alt+M). */\n");
     cos.close();
     fos.close();
   } catch (e) {
-    console.error("[Material-Thunderbird] Error saving user-overrides.css:", e);
+    console.error("[Material-Thunderbird] user-overrides.css non nettoye :", e);
+  }
+}
+
+const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
+  .getService(Ci.nsIStyleSheetService);
+
+function registerUserSheet(url) {
+  const uri = Services.io.newURI(url);
+  if (!styleSheetService.sheetRegistered(uri, styleSheetService.USER_SHEET)) {
+    styleSheetService.loadAndRegisterSheet(uri, styleSheetService.USER_SHEET);
+  }
+  return uri;
+}
+
+function unregisterUserSheet(uri) {
+  if (uri && styleSheetService.sheetRegistered(uri, styleSheetService.USER_SHEET)) {
+    styleSheetService.unregisterSheet(uri, styleSheetService.USER_SHEET);
   }
 }
 
@@ -523,25 +536,75 @@ function resolveAvatarInfo(win, rawString, onGravatarResolved) {
  */
 var UnsubscribeRules = null;
 
+function readExtensionFile(url) {
+  const { NetUtil } = ChromeUtils.importESModule("resource://gre/modules/NetUtil.sys.mjs");
+  const channel = NetUtil.newChannel({ uri: url, loadUsingSystemPrincipal: true });
+  const stream = channel.open();
+  try {
+    return NetUtil.readInputStreamToString(stream, stream.available(), { charset: "UTF-8" });
+  } finally {
+    stream.close();
+  }
+}
+
+/**
+ * Remplace le contenu de target par un balisage XHTML.
+ *
+ * Dans une fenetre de Thunderbird, innerHTML passe par un nettoyeur qui retire
+ * <button>, aplatit <input> et ote l attribut xmlns des <svg> ("Removing unsafe
+ * node") : la fenetre de personnalisation s ouvrait sans aucun de ses boutons.
+ * Un document analyse a part par DOMParser n est pas nettoye, et importNode en
+ * recopie les noeuds tels quels.
+ */
+function setMarkup(target, markup) {
+  const doc = target.ownerDocument;
+  const parsed = new doc.defaultView.DOMParser().parseFromString(
+    `<div xmlns="http://www.w3.org/1999/xhtml">${markup}</div>`,
+    "application/xhtml+xml"
+  );
+  const root = parsed.documentElement;
+  if (root.localName === "parsererror") {
+    throw new Error("Balisage XHTML invalide : " + root.textContent);
+  }
+  target.replaceChildren(...Array.from(root.childNodes, (n) => doc.importNode(n, true)));
+}
+
 function loadUnsubscribeRules(extension) {
   if (UnsubscribeRules) return UnsubscribeRules;
   try {
-    const scope = {};
-    Services.scriptloader.loadSubScript(
-      extension.rootURI.resolve("shared/unsubscribe-rules.js"),
-      scope
-    );
-    UnsubscribeRules = scope.MaterialUnsubscribeRules || null;
+    // loadSubScript refuse les URL jar: d une extension ("Trying to load
+    // untrusted URL") : sans regles, aucune URL n etait acceptee et le bandeau
+    // ne s affichait jamais. Le fichier est donc lu puis evalue dans un bac a
+    // sable, comme le ferait loadSubScript.
+    const url = extension.rootURI.resolve("shared/unsubscribe-rules.js");
+    const sandbox = Cu.Sandbox(Services.scriptSecurityManager.getSystemPrincipal(), { freshZone: true });
+    Cu.evalInSandbox(readExtensionFile(url), sandbox, "latest", url, 1);
+    UnsubscribeRules = sandbox.MaterialUnsubscribeRules || null;
   } catch (e) {
-    Cu.reportError("[Material-Thunderbird] Chargement des regles impossible : " + e);
+    console.error("[Material-Thunderbird] Chargement des regles impossible : " + e);
     UnsubscribeRules = null;
   }
   return UnsubscribeRules;
 }
 
 this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
+  /**
+   * Le theme est une feuille de style utilisateur enregistree pour toute
+   * l application, comme le faisait userChrome.css : le .xpi suffit, sans
+   * script d installation ni preference toolkit.legacyUserProfileCustomizations.
+   * La feuille est enveloppee par build.ps1 dans @-moz-document, qui la
+   * restreint aux documents de l interface.
+   */
   onStartup() {
     loadUnsubscribeRules(this.extension);
+    neutralizeGeneratedOverrides();
+    try {
+      this._themeSheet = registerUserSheet(this.extension.rootURI.resolve("material-theme.css"));
+    } catch (e) {
+      console.error("[Material-Thunderbird] Feuille de style du theme non chargee :", e);
+    }
+    this._applyCustomizerSheet();
+    applyThemeModeOverride();
     this._initWindows();
     this._windowListener = {
       onOpenWindow: (xulWin) => {
@@ -570,8 +633,18 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       this._windowListener = null;
     }
 
-    // Au redemarrage complet de application, la fenetre disparait de toute facon.
+    // Au redemarrage complet de application, la fenetre disparait de toute facon,
+    // et le mode clair / sombre doit survivre jusqu au prochain demarrage.
     if (isAppShutdown) return;
+
+    // Desactivation, desinstallation ou mise a jour : le theme se retire, et
+    // Thunderbird retrouve le mode clair / sombre de Windows. onStartup le
+    // repose apres une mise a jour.
+    releaseThemeModeOverride();
+    unregisterUserSheet(this._themeSheet);
+    unregisterUserSheet(this._customizerSheet);
+    this._themeSheet = null;
+    this._customizerSheet = null;
 
     const windows = Services.wm.getEnumerator("mail:3pane");
     while (windows.hasMoreElements()) {
@@ -604,6 +677,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
     // Retire les elements injectes, dans chacun des sous-documents visites.
     try { this._removeUnsubscribeBanner(win); } catch (e) {}
+    try { this._closeCustomizerModal(win); } catch (e) {}
     try {
       const customBtn = win.document && win.document.getElementById("material-theme-settings-btn");
       if (customBtn) customBtn.remove();
@@ -639,7 +713,13 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const windows = Services.wm.getEnumerator("mail:3pane");
     while (windows.hasMoreElements()) {
       const win = windows.getNext();
-      this._setupWindow(win);
+      // Au demarrage de Thunderbird, la fenetre courrier est deja enumeree mais
+      // pas encore chargee : tabmail et la barre des espaces n existent pas encore.
+      if (win.document && win.document.readyState === "complete") {
+        this._setupWindow(win);
+      } else {
+        win.addEventListener("load", () => this._setupWindow(win), { once: true });
+      }
     }
   }
 
@@ -698,7 +778,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     state.tabMonitor = monitor;
 
     this._ensureCustomizerButtons(win);
-    this._applyCustomizerStylesToWindow(win);
     this._attachToCurrentTab(win);
 
     const onKeyDown = (e) => {
@@ -733,12 +812,11 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       customBtn = doc.createElement("button");
       customBtn.id = "material-theme-settings-btn";
       customBtn.type = "button";
-      customBtn.className = "spaces-toolbar-button";
+      customBtn.className = "spaces-toolbar-button material-rail-btn";
       customBtn.setAttribute("tabindex", "-1");
       customBtn.setAttribute("title", "Personnaliser Material-Thunderbird (Thème, Couleurs, Émojis) [Alt+M]");
       customBtn.setAttribute("aria-label", "Personnaliser le thème Material-Thunderbird");
-      customBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;display:block;"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.5a1 1 0 0 0 .15 1.41c.4.32.96.3 1.34-.06l1.39-1.32C8.65 19.38 10.26 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
-      customBtn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;color:var(--md-sys-color-primary, #0b57d0);";
+      setMarkup(customBtn, `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path class="material-icon-tone" d="M10 3.25a6.75 6.75 0 0 0 0 13.5c.95 0 1.5-.65 1.5-1.4 0-.45-.2-.8-.45-1.1-.25-.3-.45-.65-.45-1.1 0-.85.7-1.5 1.55-1.5h1.6a3.5 3.5 0 0 0 3.5-3.5c0-2.8-3.25-4.9-7.25-4.9z"/><circle class="material-icon-dot" cx="6.4" cy="10.2" r="1.05"/><circle class="material-icon-dot" cx="7.6" cy="6.9" r="1.05"/><circle class="material-icon-dot" cx="10.7" cy="5.9" r="1.05"/><circle class="material-icon-dot" cx="13.4" cy="7.7" r="1.05"/></svg>`);
 
       customBtn.addEventListener("click", (e) => {
         e.preventDefault();
@@ -761,12 +839,11 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       sponsorBtn = doc.createElement("button");
       sponsorBtn.id = "material-sponsor-btn";
       sponsorBtn.type = "button";
-      sponsorBtn.className = "spaces-toolbar-button";
+      sponsorBtn.className = "spaces-toolbar-button material-rail-btn material-rail-sponsor";
       sponsorBtn.setAttribute("tabindex", "-1");
       sponsorBtn.setAttribute("title", "Soutenir Material-Thunderbird (GitHub Sponsors)");
       sponsorBtn.setAttribute("aria-label", "Soutenir le développement du thème");
-      sponsorBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ea4aaa" style="vertical-align:middle;display:block;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-      sponsorBtn.style.cssText = "display:flex;align-items:center;justify-content:center;cursor:pointer;margin:4px auto;padding:6px;border:none;background:transparent;";
+      setMarkup(sponsorBtn, `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path class="material-icon-tone" d="M10 16.5s-6.25-3.9-6.25-8.3A3.45 3.45 0 0 1 7.2 4.75c1.2 0 2.2.6 2.8 1.55.6-.95 1.6-1.55 2.8-1.55a3.45 3.45 0 0 1 3.45 3.45c0 4.4-6.25 8.3-6.25 8.3z"/></svg>`);
 
       sponsorBtn.addEventListener("click", (e) => {
         e.preventDefault();
@@ -821,64 +898,35 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }
   }
 
-  _applyCustomizerStylesToDocument(doc) {
-    if (!doc) return;
-    const settings = getCustomizerSettings();
-    const cssContent = generateOverridesCss(settings);
+  /**
+   * Palette et emojis forment une seconde feuille utilisateur, generee : elle
+   * s applique d un coup a toutes les fenetres, fenetres de redaction comprises.
+   * La precedente est retiree apres que la nouvelle est posee, sans clignotement.
+   */
+  _applyCustomizerSheet() {
+    const previous = this._customizerSheet;
     try {
-      let style = doc.getElementById("material-live-customizer");
-      if (!style) {
-        style = doc.createElement("style");
-        style.id = "material-live-customizer";
-        const targetHead = doc.head || doc.documentElement;
-        if (targetHead) targetHead.appendChild(style);
-      }
-      style.textContent = cssContent;
-
-      if (doc.documentElement) {
-        if (settings.emojis) {
-          doc.documentElement.setAttribute("data-material-emojis", "true");
-          doc.documentElement.classList.add("material-emojis-active");
-        } else {
-          doc.documentElement.removeAttribute("data-material-emojis");
-          doc.documentElement.classList.remove("material-emojis-active");
-        }
-      }
+      const css = generateCustomizerCss(getCustomizerSettings());
+      this._customizerSheet = registerUserSheet("data:text/css;charset=utf-8," + encodeURIComponent(css));
     } catch (e) {
-      console.error("[Material-Thunderbird] Error applying customizer styles to doc:", e);
+      console.error("[Material-Thunderbird] Personnalisation non appliquee :", e);
+      return;
     }
-  }
-
-  _applyCustomizerStylesToWindow(win) {
-    if (!win || !win.document) return;
-    this._applyCustomizerStylesToDocument(win.document);
-    const state = win.__materialWindowState;
-    if (state && Array.isArray(state.documents)) {
-      for (const d of state.documents) {
-        this._applyCustomizerStylesToDocument(d);
-      }
-    }
-  }
-
-  _applyStylesToAllWindows() {
-    const settings = getCustomizerSettings();
-    const css = generateOverridesCss(settings);
-    saveUserOverridesFile(css);
-
-    const windows = Services.wm.getEnumerator("mail:3pane");
-    while (windows.hasMoreElements()) {
-      const win = windows.getNext();
-      this._applyCustomizerStylesToWindow(win);
-    }
+    if (previous && !previous.equals(this._customizerSheet)) unregisterUserSheet(previous);
   }
 
   _openCustomizerModal(win) {
     if (!win || !win.document) return;
     const doc = win.document;
     let backdrop = doc.getElementById("material-customizer-backdrop");
+    // Une fenetre deja ouverte, ou en train de se fermer, est reconstruite : son
+    // minuteur de fermeture l aurait sinon retiree juste apres la reouverture.
     if (backdrop) {
-      backdrop.classList.add("active");
-      return;
+      if (win.__materialCustomizerKeyListener) {
+        win.removeEventListener("keydown", win.__materialCustomizerKeyListener);
+        win.__materialCustomizerKeyListener = null;
+      }
+      backdrop.remove();
     }
 
     const settings = getCustomizerSettings();
@@ -891,122 +939,92 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const dialog = doc.createElement("div");
     dialog.id = "material-customizer-dialog";
 
-    dialog.innerHTML = `
+    // messenger.xhtml est un document XML : innerHTML y passe par l analyseur
+    // XML, qui rejette un & nu, une balise <input> non fermee ou &nbsp;. La
+    // fenetre levait donc une erreur avant meme d etre affichee. Tout texte
+    // variable passe par xmlEscape, et chaque balise vide est auto-fermee.
+    const xmlEscape = (str) => String(str)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const ICON_CHECK = `<svg xmlns="http://www.w3.org/2000/svg" class="material-dlg-check" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+    const ICON_HEART = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+
+    const modes = [
+      { id: "light", label: "Clair" },
+      { id: "dark", label: "Sombre" },
+      { id: "auto", label: "Système" }
+    ];
+    const modeButtons = modes.map((m) => {
+      const on = settings.themeMode === m.id;
+      return `<button type="button" class="material-segmented-btn${on ? " active" : ""}" data-mode="${m.id}" aria-pressed="${on}">${ICON_CHECK}<span>${xmlEscape(m.label)}</span></button>`;
+    }).join("");
+
+    const swatches = Object.keys(PALETTES_CONFIG).map((key) => {
+      const pal = PALETTES_CONFIG[key];
+      const on = settings.palette === key;
+      return `<button type="button" class="material-palette-card${on ? " active" : ""}" data-pal="${key}" aria-pressed="${on}" title="${xmlEscape(pal.desc)}">` +
+        `<span class="material-palette-dot" style="background-color: ${pal.color};">${ICON_CHECK}</span>` +
+        `<span class="material-palette-name">${xmlEscape(pal.name)}</span></button>`;
+    }).join("");
+
+    setMarkup(dialog, `
       <div class="material-modal-header">
-        <div class="material-modal-title-group">
-          <div class="material-modal-icon">🎨</div>
-          <div>
-            <h2 id="material-customizer-title" class="material-modal-title">Material-Thunderbird</h2>
-            <div style="font-size: 11.5px; color: var(--md-sys-color-primary, #0b57d0); font-weight: 600;">Personnalisation & Options du thème</div>
-          </div>
-        </div>
-        <button id="material-modal-close" class="material-modal-close-btn" title="Fermer (Échap)">✕</button>
-      </div>
-
-      <!-- Section 1 : Mode d'affichage -->
-      <div>
-        <div class="material-modal-section-title">Mode d'affichage</div>
-        <div class="material-segmented-group" id="material-mode-group">
-          <button type="button" class="material-segmented-btn \${settings.themeMode === 'light' ? 'active' : ''}" data-mode="light">☀️ Clair</button>
-          <button type="button" class="material-segmented-btn \${settings.themeMode === 'dark' ? 'active' : ''}" data-mode="dark">🌙 Sombre</button>
-          <button type="button" class="material-segmented-btn \${settings.themeMode === 'auto' ? 'active' : ''}" data-mode="auto">💻 Système</button>
-        </div>
-      </div>
-
-      <!-- Section 2 : Palettes de couleurs -->
-      <div>
-        <div class="material-modal-section-title">Palette de couleurs Material You</div>
-        <div class="material-palette-grid" id="material-palette-group">
-          <div class="material-palette-card \${settings.palette === 'blue' ? 'active' : ''}" data-pal="blue">
-            <div class="material-palette-dot" style="background: #0b57d0;"></div>
-            <div>
-              <div class="material-palette-name">Bleu Google</div>
-              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Classique M3</div>
-            </div>
-          </div>
-          <div class="material-palette-card \${settings.palette === 'emerald' ? 'active' : ''}" data-pal="emerald">
-            <div class="material-palette-dot" style="background: #006a60;"></div>
-            <div>
-              <div class="material-palette-name">Émeraude</div>
-              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Nature & Sérénité</div>
-            </div>
-          </div>
-          <div class="material-palette-card \${settings.palette === 'purple' ? 'active' : ''}" data-pal="purple">
-            <div class="material-palette-dot" style="background: #6750a4;"></div>
-            <div>
-              <div class="material-palette-name">Améthyste</div>
-              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Violet élégant</div>
-            </div>
-          </div>
-          <div class="material-palette-card \${settings.palette === 'coral' ? 'active' : ''}" data-pal="coral">
-            <div class="material-palette-dot" style="background: #9c4125;"></div>
-            <div>
-              <div class="material-palette-name">Corail</div>
-              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant, #444746);">Terracotta chaud</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 3 : Emojis Modernes -->
-      <div>
-        <div class="material-modal-section-title">Icônes de l'interface</div>
-        <div class="material-option-row">
-          <div class="material-option-info">
-            <div class="material-option-title">Icônes Émojis Modernes</div>
-            <div class="material-option-desc">Remplace les icônes de dossiers et d'onglets par des émojis colorés (📥 📤 ⭐ 📝 📁 🗑️ ✉️ 📇 📆).</div>
-          </div>
-          <label class="material-switch">
-            <input type="checkbox" id="material-emoji-toggle" \${settings.emojis ? 'checked' : ''}>
-            <span class="material-switch-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Section 4 : Soutenir le projet -->
-      <div class="material-sponsor-banner">
         <div>
-          <div style="font-size: 13.5px; font-weight: 700; color: #ea4aaa; display: flex; align-items: center; gap: 6px;">
-            <span>💖</span> Soutenir le développement
-          </div>
-          <div style="font-size: 11.5px; color: var(--md-sys-color-on-surface-variant, #444746); margin-top: 2px;">
-            Material-Thunderbird est 100% gratuit et bénévole.
-          </div>
+          <h2 id="material-customizer-title" class="material-modal-title">Personnaliser le thème</h2>
+          <div class="material-modal-subtitle">Material-Thunderbird · Alt+M</div>
         </div>
-        <button type="button" class="material-sponsor-btn" id="material-modal-sponsor-link">
-          💖 Soutenir
+        <button type="button" id="material-modal-close" class="material-modal-close-btn" title="Fermer (Échap)" aria-label="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
       </div>
 
-      <!-- Section 5 : Actions & Désinstallation -->
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--md-sys-color-outline-variant, #c4c7c5);">
-        <button type="button" class="material-btn-pill material-btn-danger" id="material-btn-uninstall" title="Désinstaller complètement le thème">
-          🗑️ Désinstaller
-        </button>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button type="button" class="material-btn-pill material-btn-secondary" id="material-btn-restart" title="Recharger complètement l'application">
-            🔄 Redémarrer Thunderbird
-          </button>
-          <button type="button" class="material-btn-pill material-btn-primary" id="material-btn-done">
-            Terminé
-          </button>
+      <section class="material-modal-section">
+        <div class="material-modal-section-title">Apparence</div>
+        <div class="material-segmented-group" id="material-mode-group">${modeButtons}</div>
+      </section>
+
+      <section class="material-modal-section">
+        <div class="material-modal-section-title">Couleur d'accent</div>
+        <div class="material-palette-grid" id="material-palette-group">${swatches}</div>
+      </section>
+
+      <section class="material-modal-section">
+        <div class="material-modal-section-title">Icônes</div>
+        <label class="material-option-row" for="material-emoji-toggle">
+          <span class="material-option-info">
+            <span class="material-option-title">Icônes émojis</span>
+            <span class="material-option-desc">Remplace les icônes des dossiers et de la barre des espaces par des émojis.</span>
+          </span>
+          <span class="material-switch">
+            <input type="checkbox" id="material-emoji-toggle"${settings.emojis ? ' checked="checked"' : ""} />
+            <span class="material-switch-slider"></span>
+          </span>
+        </label>
+      </section>
+
+      <div class="material-sponsor-banner">
+        <span class="material-sponsor-icon">${ICON_HEART}</span>
+        <span class="material-option-info">
+          <span class="material-option-title">Soutenir le projet</span>
+          <span class="material-option-desc">Material-Thunderbird est gratuit et développé bénévolement.</span>
+        </span>
+        <button type="button" class="material-btn-pill material-btn-tonal" id="material-modal-sponsor-link">Faire un don</button>
+      </div>
+
+      <div id="material-uninstall-confirm" class="material-uninstall-confirm" style="display: none;">
+        <div class="material-option-title">Désinstaller Material-Thunderbird ?</div>
+        <div class="material-option-desc">L'extension sera retirée de Thunderbird avec son thème, ses boutons et ses réglages. Vos courriels et vos comptes ne sont pas touchés.</div>
+        <div class="material-modal-actions">
+          <button type="button" class="material-btn-pill material-btn-text" id="material-uninstall-cancel">Annuler</button>
+          <button type="button" class="material-btn-pill material-btn-error" id="material-uninstall-proceed">Désinstaller</button>
         </div>
       </div>
 
-      <!-- Zone de confirmation de désinstallation -->
-      <div id="material-uninstall-confirm" style="display: none; background: rgba(186, 26, 26, 0.08); border: 1px solid #ba1a1a; border-radius: 16px; padding: 14px 18px; margin-top: 10px;">
-        <div style="font-size: 13.5px; font-weight: 700; color: #ba1a1a; margin-bottom: 6px;">
-          ⚠️ Confirmer la désinstallation de Material-Thunderbird ?
-        </div>
-        <div style="font-size: 12.5px; color: var(--md-sys-color-on-surface, #1f1f1f); margin-bottom: 12px; line-height: 1.4;">
-          Cette action retirera tous les fichiers de style du dossier <code>chrome/</code> de votre profil et rétablira l'apparence par défaut de Thunderbird. Vos courriels et paramètres ne seront pas touchés.
-        </div>
-        <div style="display: flex; gap: 8px; justify-content: flex-end;">
-          <button type="button" class="material-btn-pill material-btn-secondary" id="material-uninstall-cancel">Annuler</button>
-          <button type="button" class="material-btn-pill material-btn-danger" id="material-uninstall-proceed" style="background: #ba1a1a !important; color: #fff !important;">Confirmer et Désinstaller</button>
-        </div>
+      <div class="material-modal-footer">
+        <button type="button" class="material-btn-pill material-btn-text material-btn-danger" id="material-btn-uninstall" title="Désinstaller complètement le thème">Désinstaller…</button>
+        <button type="button" class="material-btn-pill material-btn-primary" id="material-btn-done">Terminé</button>
       </div>
-    `;
+    `);
 
     backdrop.appendChild(dialog);
     (doc.body || doc.documentElement).appendChild(backdrop);
@@ -1025,25 +1043,26 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       if (e.target === backdrop) handleClose(e);
     });
 
+    // Retire par _closeCustomizerModal, quelle que soit la facon de fermer :
+    // sinon chaque ouverture laissait un ecouteur de plus sur la fenetre.
     const keyListener = (e) => {
-      if (e.key === "Escape") {
-        handleClose(e);
-        win.removeEventListener("keydown", keyListener);
-      }
+      if (e.key === "Escape") handleClose(e);
     };
     win.addEventListener("keydown", keyListener);
+    win.__materialCustomizerKeyListener = keyListener;
 
     // Mode segmented
     const modeBtns = dialog.querySelectorAll("#material-mode-group .material-segmented-btn");
     modeBtns.forEach(btn => {
       btn.addEventListener("click", () => {
-        modeBtns.forEach(b => b.classList.remove("active"));
+        modeBtns.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
         btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
         const mode = btn.getAttribute("data-mode");
         const cur = getCustomizerSettings();
         cur.themeMode = mode;
         saveCustomizerSettings(cur);
-        this._applyStylesToAllWindows();
+        this._applyCustomizerSheet();
       });
     });
 
@@ -1051,13 +1070,14 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const palCards = dialog.querySelectorAll("#material-palette-group .material-palette-card");
     palCards.forEach(card => {
       card.addEventListener("click", () => {
-        palCards.forEach(c => c.classList.remove("active"));
+        palCards.forEach(c => { c.classList.remove("active"); c.setAttribute("aria-pressed", "false"); });
         card.classList.add("active");
+        card.setAttribute("aria-pressed", "true");
         const pal = card.getAttribute("data-pal");
         const cur = getCustomizerSettings();
         cur.palette = pal;
         saveCustomizerSettings(cur);
-        this._applyStylesToAllWindows();
+        this._applyCustomizerSheet();
       });
     });
 
@@ -1068,7 +1088,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         const cur = getCustomizerSettings();
         cur.emojis = emojiToggle.checked;
         saveCustomizerSettings(cur);
-        this._applyStylesToAllWindows();
+        this._applyCustomizerSheet();
       });
     }
 
@@ -1092,14 +1112,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       });
     }
 
-    // Restart button
-    const restartBtn = dialog.querySelector("#material-btn-restart");
-    if (restartBtn) {
-      restartBtn.addEventListener("click", () => {
-        this._restartThunderbird();
-      });
-    }
-
     // Uninstall
     const uninstBtn = dialog.querySelector("#material-btn-uninstall");
     const confirmBox = dialog.querySelector("#material-uninstall-confirm");
@@ -1108,7 +1120,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
     if (uninstBtn && confirmBox) {
       uninstBtn.addEventListener("click", () => {
-        confirmBox.style.display = confirmBox.style.display === "none" ? "block" : "none";
+        confirmBox.style.display = confirmBox.style.display === "none" ? "flex" : "none";
         confirmBox.scrollIntoView({ behavior: "smooth" });
       });
     }
@@ -1122,36 +1134,18 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     if (proceedUninstBtn) {
       proceedUninstBtn.addEventListener("click", async () => {
         proceedUninstBtn.disabled = true;
-        proceedUninstBtn.textContent = "Désinstallation...";
-        await this._performUninstall(win);
-        dialog.innerHTML = `
-          <div style="text-align: center; padding: 20px 10px;">
-            <div style="font-size: 44px; margin-bottom: 12px;">✅</div>
-            <h2 class="material-modal-title" style="margin-bottom: 8px;">Désinstallation effectuée</h2>
-            <p style="font-size: 13.5px; color: var(--md-sys-color-on-surface-variant, #444746); line-height: 1.5; margin-bottom: 24px;">
-              Les fichiers de style ont été retirés de votre profil Thunderbird.<br>
-              Veuillez redémarrer Mozilla Thunderbird pour retrouver l'interface par défaut.
-            </p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-              <button type="button" class="material-btn-pill material-btn-primary" id="material-uninst-restart">
-                🔄 Redémarrer Thunderbird
-              </button>
-              <button type="button" class="material-btn-pill material-btn-secondary" id="material-uninst-close">
-                Fermer
-              </button>
-            </div>
-          </div>
-        `;
-        const postRestart = dialog.querySelector("#material-uninst-restart");
-        const postClose = dialog.querySelector("#material-uninst-close");
-        if (postRestart) postRestart.addEventListener("click", () => this._restartThunderbird());
-        if (postClose) postClose.addEventListener("click", () => this._closeCustomizerModal(win));
+        proceedUninstBtn.textContent = "Désinstallation…";
+        await this._uninstallEverything(win);
       });
     }
   }
 
   _closeCustomizerModal(win) {
     if (!win || !win.document) return;
+    if (win.__materialCustomizerKeyListener) {
+      win.removeEventListener("keydown", win.__materialCustomizerKeyListener);
+      win.__materialCustomizerKeyListener = null;
+    }
     const backdrop = win.document.getElementById("material-customizer-backdrop");
     if (!backdrop) return;
     backdrop.classList.remove("active");
@@ -1169,7 +1163,42 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }
   }
 
-  async _performUninstall(win) {
+  /**
+   * Desinstalle l extension depuis la fenetre de personnalisation. Les anciennes
+   * versions s installaient par script dans le dossier chrome/ du profil : ces
+   * fichiers sont retires au passage, et comme userChrome.css n est relu qu au
+   * demarrage, un redemarrage est alors propose.
+   */
+  async _uninstallEverything(win) {
+    const legacyRemoved = this._removeLegacyProfileInstall();
+    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS]) {
+      try { Services.prefs.clearUserPref(pref); } catch (e) {}
+    }
+    releaseThemeModeOverride();
+    this._closeCustomizerModal(win);
+
+    if (legacyRemoved) {
+      const restart = Services.prompt.confirm(
+        win,
+        "Material-Thunderbird",
+        "Les fichiers installés autrefois par script dans le profil ont été retirés. " +
+        "Thunderbird doit redémarrer pour les oublier. Redémarrer maintenant ?"
+      );
+      if (restart) win.setTimeout(() => this._restartThunderbird(), 500);
+    }
+
+    try {
+      const { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
+      const addon = await AddonManager.getAddonByID(this.extension.id);
+      if (addon) await addon.uninstall();
+    } catch (e) {
+      console.error("[Material-Thunderbird] Desinstallation de l extension impossible :", e);
+    }
+  }
+
+  /** @returns {boolean} vrai si une installation par script a ete trouvee et retiree. */
+  _removeLegacyProfileInstall() {
+    let found = false;
     try {
       const profDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       const chromeDir = profDir.clone();
@@ -1179,6 +1208,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         const manifestFile = chromeDir.clone();
         manifestFile.append("material-thunderbird-install.json");
         let manifest = null;
+        found = manifestFile.exists();
         if (manifestFile.exists()) {
           try {
             const fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
@@ -1203,6 +1233,12 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           "components/multimessage.css", "components/compose.css", "components/extras.css"
         ];
 
+        // Sans manifeste, seuls les fichiers reconnaissables comme les notres sont
+        // retires : userChrome.css peut appartenir a quelqu un d autre.
+        const ours = chromeDir.clone();
+        ours.append("tokens");
+        if (!found && !ours.exists()) return false;
+        found = true;
         const filesToDelete = (manifest && Array.isArray(manifest.files)) ? manifest.files : legacyFiles;
         for (const rel of filesToDelete) {
           try {
@@ -1258,7 +1294,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           const lines = content.split(/\r?\n/).filter(line => {
             if (line.trim() === "// Material-Thunderbird") return false;
             for (const p of prefsToClean) {
-              if (line.includes(`user_pref("\${p}"`)) return false;
+              if (line.includes(`user_pref("${p}"`)) return false;
             }
             return true;
           });
@@ -1273,16 +1309,10 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         }
       } catch (e) {}
 
-      try {
-        Services.prefs.clearUserPref(PREF_PALETTE);
-        Services.prefs.clearUserPref(PREF_THEME_MODE);
-        Services.prefs.clearUserPref(PREF_EMOJIS);
-      } catch (e) {}
-
-      return true;
+      return found;
     } catch (err) {
-      console.error("[Material-Thunderbird] Uninstall error:", err);
-      return false;
+      console.error("[Material-Thunderbird] Nettoyage de l installation par script impossible :", err);
+      return found;
     }
   }
 
@@ -1308,7 +1338,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const state = win.__materialWindowState;
     if (state && !state.documents.includes(doc)) {
       state.documents.push(doc);
-      this._applyCustomizerStylesToDocument(doc);
     }
   }
 
@@ -1530,7 +1559,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       // source non fiable. Sans ce filtre, un lien file:, data: ou chrome: place
       // par expediteur serait ouvert depuis la fenetre privilegiee.
       if (!UnsubscribeRules || !UnsubscribeRules.isSafeUrl(unsubscribeUrl)) {
-        Cu.reportError("[Material-Thunderbird] URL de desinscription refusee : " + unsubscribeUrl);
+        console.error("[Material-Thunderbird] URL de desinscription refusee : " + unsubscribeUrl);
         return;
       }
 
@@ -1551,7 +1580,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           extProtocolSvc.loadURI(uri);
         }
       } catch (err) {
-        Cu.reportError("[Material-Thunderbird] Ouverture du lien impossible : " + err);
+        console.error("[Material-Thunderbird] Ouverture du lien impossible : " + err);
       }
     };
 

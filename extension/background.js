@@ -168,16 +168,27 @@
   }
 
   // Le script de message est enregistre une seule fois par demarrage.
-  if (browser.messageDisplayScripts) {
-    browser.messageDisplayScripts
-      .register({
-        js: [
-          { file: "shared/unsubscribe-rules.js" },
-          { file: "scripts/unsubscribe-detector.js" }
-        ]
-      })
-      .catch(function (err) {
-        console.warn("[Material-Thunderbird] Enregistrement du script de message impossible :", err);
-      });
+  // Thunderbird 128+ fournit scripting.messageDisplay ; messageDisplayScripts
+  // n existe plus dans les versions recentes (159 refuse meme la permission),
+  // il ne sert plus que de repli pour les versions 115 a 127.
+  // Le meme enregistrement applique message-content.css (tire par build.ps1 de
+  // chrome/userContent.css) au corps des courriels.
+  var detectorFiles = ["shared/unsubscribe-rules.js", "scripts/unsubscribe-detector.js"];
+  var messageCss = ["message-content.css"];
+  var registration = null;
+  if (browser.scripting && browser.scripting.messageDisplay) {
+    registration = browser.scripting.messageDisplay.registerScripts([
+      { id: "material-unsubscribe-detector", js: detectorFiles, css: messageCss }
+    ]);
+  } else if (browser.messageDisplayScripts) {
+    registration = browser.messageDisplayScripts.register({
+      js: detectorFiles.map(function (file) { return { file: file }; }),
+      css: messageCss.map(function (file) { return { file: file }; })
+    });
+  }
+  if (registration) {
+    registration.catch(function (err) {
+      console.warn("[Material-Thunderbird] Enregistrement du script de message impossible :", err);
+    });
   }
 })();
