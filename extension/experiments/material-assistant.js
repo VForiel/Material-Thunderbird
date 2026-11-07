@@ -92,10 +92,15 @@ const PALETTES_CONFIG = {
  * Thunderbird posait cet attribut, et la couleur choisie ne s affichait pas.
  */
 function paletteCss(pal) {
+  // !important : la feuille est une feuille utilisateur, et une declaration
+  // utilisateur ordinaire perd contre n importe quelle declaration de page. Il
+  // suffisait d un <style> laisse par une version precedente pour que la
+  // couleur choisie ne s affiche jamais. Entre elles, ces regles restent
+  // departagees par la specificite, comme les jetons de chrome/tokens/.
   const block = (values, indent) =>
-    `${indent}--md-sys-color-primary: ${values[0]};\n` +
-    `${indent}--md-sys-color-primary-container: ${values[1]};\n` +
-    `${indent}--md-sys-color-secondary-container: ${values[2]};\n`;
+    `${indent}--md-sys-color-primary: ${values[0]} !important;\n` +
+    `${indent}--md-sys-color-primary-container: ${values[1]} !important;\n` +
+    `${indent}--md-sys-color-secondary-container: ${values[2]} !important;\n`;
   return `:root,
 :root[lwt-theme-brighttext="false"] {
 ${block(pal.light, "  ")}}
@@ -208,7 +213,7 @@ const FOLDER_EMOJIS = [
 ];
 
 const SPACES_EMOJIS = [
-  ["mailButton", "✉️"],
+  ["mailButton", "📬"],
   ["addressBookButton", "📇"],
   ["calendarButton", "📆"],
   ["tasksButton", "✅"],
@@ -216,18 +221,64 @@ const SPACES_EMOJIS = [
   ["settingsButton", "⚙️"]
 ];
 
+const HEADER_EMOJIS = [
+  ["hdrReplyButton", "↩️"],
+  ["hdrReplyToSenderButton", "↩️"],
+  ["hdrReplyAllButton", "↩️"],
+  ["hdrReplyListButton", "↩️"],
+  ["hdrFollowupButton", "↩️"],
+  ["hdrForwardButton", "➡️"],
+  ["hdrArchiveButton", "🗃️"],
+  ["hdrJunkButton", "🚫"],
+  ["hdrTrashButton", "🗑️"]
+];
+
+// Nom du fichier de l icone native -> emoji. Pas de fragment comme "message" :
+// tous les chemins commencent par chrome://messenger/.
+const TAB_EMOJIS = [
+  ["address-book", "📇"],
+  ["calendar", "📆"],
+  ["tasks", "✅"],
+  ["chat", "💬"],
+  ["settings", "⚙️"],
+  ["extension", "🧩"],
+  ["inbox", "📥"],
+  ["sent", "📤"],
+  ["draft", "📝"],
+  ["template", "📋"],
+  ["archive", "🗃️"],
+  ["junk", "🚫"],
+  ["spam", "🚫"],
+  ["trash", "🗑️"],
+  ["outbox", "📮"],
+  ["folder", "📁"]
+];
+
 function emojiCss() {
   const icon = (selector, emoji) =>
     `${selector} {\n  content: ${emojiImage(emoji)} !important;\n  -moz-context-properties: none !important;\n}\n`;
   let css = "/* Icones emojis */\n";
   css += icon("#folderTree li > .container > .icon", "📁");
-  css += icon("#folderTree li[data-server-type] > .container > .icon", "📬");
+  css += icon("#folderTree li[data-server-type] > .container > .icon", "📧");
   for (const [type, emoji] of FOLDER_EMOJIS) {
     css += icon(`#folderTree li[data-folder-type="${type}"] > .container > .icon`, emoji);
   }
   for (const [id, emoji] of SPACES_EMOJIS) {
     css += icon(`#${id} > img`, emoji);
   }
+  // Boutons de l en-tete du message : toolbarbutton XUL, dont l icone est une
+  // <image> dessinee par list-style-image. Repondre et Repondre a tous sont des
+  // boutons a menu : leur icone est dans un bouton imbrique, pas un enfant direct.
+  for (const [id, emoji] of HEADER_EMOJIS) {
+    css += `#${id} .toolbarbutton-icon {\n  list-style-image: ${emojiImage(emoji)} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  }
+  // Icones des onglets : <img> dont l image vient de l attribut src, reconnu
+  // par le nom du fichier d icone de Thunderbird.
+  for (const [file, emoji] of TAB_EMOJIS) {
+    css += icon(`#tabmail-tabs .tab-icon-image[src*="${file}"]`, emoji);
+  }
+  // Relever le courrier : image de fond du bouton.
+  css += `#folderPaneGetMessages {\n  background-image: ${emojiImage("🔄")} !important;\n  -moz-context-properties: none !important;\n}\n`;
   // Le "+" du bouton de redaction est une image de fond, pas un <img>.
   css += `#folderPaneWriteMessage {
   background-image: none !important;
@@ -277,6 +328,28 @@ function neutralizeGeneratedOverrides() {
   } catch (e) {
     console.error("[Material-Thunderbird] user-overrides.css non nettoye :", e);
   }
+}
+
+/**
+ * Les versions 1.0.x posaient leur personnalisation dans un <style> de chaque
+ * document, et leur theme comme feuille d auteur. Thunderbird garde ces ajouts
+ * jusqu a son redemarrage, meme apres la mise a jour de l extension : une feuille
+ * d auteur l emporte sur une feuille utilisateur, et l ancienne couleur restait
+ * affichee. On les retire en passant.
+ */
+function removeLegacyDocumentStyles(doc, extension) {
+  try {
+    const live = doc.getElementById("material-live-customizer");
+    if (live) live.remove();
+    if (doc.documentElement) {
+      doc.documentElement.removeAttribute("data-material-emojis");
+      doc.documentElement.classList.remove("material-emojis-active");
+    }
+    const utils = doc.defaultView && doc.defaultView.windowUtils;
+    if (utils) {
+      utils.removeSheetUsingURIString(extension.rootURI.resolve("material-theme.css"), utils.AUTHOR_SHEET);
+    }
+  } catch (e) {}
 }
 
 const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
@@ -750,6 +823,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     // elements injectes doivent eux aussi etre retires.
     const state = { observers: [], timers: [], listeners: [], documents: [] };
     win.__materialWindowState = state;
+    removeLegacyDocumentStyles(win.document, this.extension);
 
     const tabmail = win.document.getElementById("tabmail");
     if (!tabmail) return;
@@ -1338,6 +1412,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const state = win.__materialWindowState;
     if (state && !state.documents.includes(doc)) {
       state.documents.push(doc);
+      removeLegacyDocumentStyles(doc, this.extension);
     }
   }
 
