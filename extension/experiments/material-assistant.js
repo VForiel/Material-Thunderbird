@@ -5,7 +5,7 @@
  * 1. Native unsubscribe banner, rendered on request from background.js
  * 2. Unified Avatar Resolution (Address Book photo > Gravatar, opt-in > Contact initial > Email initial)
  * 3. Text-sized sender avatar in multimessage view (multiMessageBrowser)
- * 4. Thread reply unread status and auto-collapse of read messages in expanded threads
+ * 4. Thread reply unread status, and dimming of read replies in expanded threads that have unread ones
  */
 
 var ExtensionCommon;
@@ -771,8 +771,8 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         for (const row of doc.querySelectorAll("tr.material-thread-toggle-row")) {
           row.remove();
         }
-        for (const row of doc.querySelectorAll(".material-thread-read-hidden")) {
-          row.classList.remove("material-thread-read-hidden");
+        for (const row of doc.querySelectorAll(".material-thread-read-hidden, .material-thread-read-dimmed")) {
+          row.classList.remove("material-thread-read-hidden", "material-thread-read-dimmed");
         }
         for (const row of doc.querySelectorAll("[data-avatar-key]")) {
           delete row.dataset.avatarKey;
@@ -1855,15 +1855,33 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
   // win est la fenetre about:3pane qui possede l arbre ; state celui de la
   // fenetre chrome.
   _setupThreadTree(win, threadTree, state) {
+    /**
+     * Les reponses deja lues d un fil qui contient des reponses non lues sont
+     * attenuees, pas masquees.
+     *
+     * Elles etaient masquees (display: none) et une ligne "Afficher toutes les
+     * reponses" etait inseree dans l arbre. Or la liste est virtualisee
+     * (tree-view.mjs) : chaque ligne est placee a index * ROW_HEIGHT, entre deux
+     * espaceurs calcules sur le nombre total de lignes, et Thunderbird insere
+     * ses lignes par position. Retirer des lignes du flux et en ajouter une
+     * etrangere decalait tout : zone vide sous le fil, carte du haut rognee,
+     * reponses introuvables apres defilement. Aucune ligne ne peut changer de
+     * hauteur ni disparaitre sans casser cette geometrie.
+     */
     const processRows = () => {
+      // Restes des versions qui masquaient les reponses.
+      for (const stale of threadTree.querySelectorAll("tr.material-thread-toggle-row")) {
+        stale.remove();
+      }
+
       const rows = threadTree.querySelectorAll("tr.card-layout");
       let currentParent = null;
       let currentParentHasUnread = false;
       let parentExpanded = false;
-      let hiddenReadRows = [];
-      let lastVisibleAnchor = null;
 
       rows.forEach((row) => {
+        row.classList.remove("material-thread-read-hidden");
+
         // 1. Avatar. La liste des messages est virtualisee : Thunderbird reutilise
         //    les <tr> pour d autres messages pendant le defilement. Un simple
         //    drapeau "deja resolu" figeait donc avatar du correspondant precedent.
@@ -1899,22 +1917,17 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           }
         }
 
+
         const isChild = row.getAttribute("data-properties")?.includes("thread-children");
         const isParent = !isChild && (row.classList.contains("children") || row.hasAttribute("aria-expanded"));
         const twisty = row.querySelector("button.twisty");
 
-        if (isParent) {
-          // Flush toggle row for previous parent if needed
-          if (currentParent && hiddenReadRows.length > 0 && parentExpanded) {
-            this._ensureShowAllButton(currentParent, lastVisibleAnchor || currentParent, hiddenReadRows);
-          } else if (currentParent && !parentExpanded) {
-            this._removeShowAllButton(currentParent);
-          }
+        // Les lignes sont recyclees : la classe est recalculee a chaque passage.
+        let dimmed = false;
 
+        if (isParent) {
           currentParent = row;
           parentExpanded = row.getAttribute("aria-expanded") === "true";
-          hiddenReadRows = [];
-          lastVisibleAnchor = row;
 
           // Detect if this parent thread has unread replies
           const hasUnread = (twisty && (twisty.classList.contains("has-unread") ||
@@ -1932,32 +1945,13 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             row.classList.remove("has-unread-replies");
             if (twisty) twisty.classList.remove("has-unread");
           }
-
-          if (!parentExpanded) {
-            delete currentParent.dataset.showingAll;
-            this._removeShowAllButton(currentParent);
-          }
         } else if (isChild && currentParent && parentExpanded) {
           const isUnread = row.getAttribute("data-properties")?.includes("unread") || row.classList.contains("unread");
-
-          if (currentParentHasUnread && !isUnread && !currentParent.dataset.showingAll) {
-            // Scenario A: Thread has unread replies, this child is read -> hide it
-            row.classList.add("material-thread-read-hidden");
-            hiddenReadRows.push(row);
-          } else {
-            // Scenario B: All replies are read, or child is unread, or user requested all -> show it
-            row.classList.remove("material-thread-read-hidden");
-            lastVisibleAnchor = row;
-          }
+          dimmed = currentParentHasUnread && !isUnread;
         }
-      });
 
-      // Final parent check
-      if (currentParent && hiddenReadRows.length > 0 && parentExpanded) {
-        this._ensureShowAllButton(currentParent, lastVisibleAnchor || currentParent, hiddenReadRows);
-      } else if (currentParent && !parentExpanded) {
-        this._removeShowAllButton(currentParent);
-      }
+        row.classList.toggle("material-thread-read-dimmed", dimmed);
+      });
     };
 
     /**
@@ -1997,48 +1991,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     if (state) state.observers.push(treeObserver);
 
     runProcessRows();
-  }
-
-  _ensureShowAllButton(parentRow, anchorRow, hiddenRows) {
-    let nextRow = anchorRow.nextElementSibling;
-    if (nextRow && nextRow.classList.contains("material-thread-toggle-row")) {
-      const btn = nextRow.querySelector(".material-show-all-thread-btn");
-      if (btn) btn.textContent = `Afficher toutes les réponses (${hiddenRows.length})`;
-      return;
-    }
-
-    const toggleRow = parentRow.ownerDocument.createElement("tr");
-    toggleRow.className = "material-thread-toggle-row";
-    toggleRow.dataset.parentThreadId = parentRow.id || "thread";
-    const td = parentRow.ownerDocument.createElement("td");
-    td.setAttribute("colspan", "100%");
-
-    const btn = parentRow.ownerDocument.createElement("button");
-    btn.type = "button";
-    btn.className = "material-show-all-thread-btn";
-    btn.textContent = `Afficher toutes les réponses (${hiddenRows.length})`;
-
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      parentRow.dataset.showingAll = "true";
-      hiddenRows.forEach((r) => r.classList.remove("material-thread-read-hidden"));
-      toggleRow.remove();
-    };
-
-    td.appendChild(btn);
-    toggleRow.appendChild(td);
-    anchorRow.after(toggleRow);
-  }
-
-  _removeShowAllButton(parentRow) {
-    let sibling = parentRow.nextElementSibling;
-    while (sibling && sibling.getAttribute("data-properties")?.includes("thread-children")) {
-      sibling = sibling.nextElementSibling;
-    }
-    if (sibling && sibling.classList.contains("material-thread-toggle-row")) {
-      sibling.remove();
-    }
   }
 
   getAPI(context) {

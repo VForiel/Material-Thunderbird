@@ -288,35 +288,17 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-inline-start: 4px solid transparent !important;
 }
 
-/* Collapsed read messages in expanded thread */
-tr.card-layout.material-thread-read-hidden {
-  display: none !important;
+/* Fil deplie qui contient des reponses non lues : les reponses deja lues sont
+   attenuees pour que les nouvelles ressortent. Elles ne sont jamais masquees :
+   la liste est virtualisee, chaque ligne doit garder sa place et sa hauteur
+   (voir _setupThreadTree dans l experiment). */
+#threadTree tr.card-layout.material-thread-read-dimmed .card-container {
+  opacity: 0.55 !important;
+  transition: opacity var(--md-motion-duration-short, 200ms) !important;
 }
 
-/* Button to reveal all read messages in the thread */
-.material-thread-toggle-row td {
-  padding: 2px 8px !important;
-}
-
-.material-show-all-thread-btn {
-  margin: 2px 18px 4px 44px !important;
-  padding: 4px 14px !important;
-  border-radius: var(--md-shape-corner-full, 9999px) !important;
-  background-color: var(--md-sys-color-surface-container-high, #e0e2ec) !important;
-  color: var(--md-sys-color-on-surface-variant, #444746) !important;
-  border: none !important;
-  font-size: 11.5px !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: all var(--md-motion-duration-short, 200ms) !important;
-}
-
-.material-show-all-thread-btn:hover {
-  background-color: var(--md-sys-color-secondary-container, #c2e7ff) !important;
-  color: var(--md-sys-color-on-secondary-container, #001d35) !important;
+#threadTree tr.card-layout.material-thread-read-dimmed:is(:hover, .selected, [aria-selected="true"]) .card-container {
+  opacity: 1 !important;
 }
 
 /* Card Container (Inside table cell) - Elevated Pure White Card on Light Blue Surface
