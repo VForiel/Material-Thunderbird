@@ -5,7 +5,7 @@
  * 1. Native unsubscribe banner, rendered on request from background.js
  * 2. Unified Avatar Resolution (Address Book photo > Gravatar, opt-in > Contact initial > Email initial)
  * 3. Text-sized sender avatar in multimessage view (multiMessageBrowser)
- * 4. Thread reply unread status, and dimming of read replies in expanded threads that have unread ones
+ * 4. Thread reply unread status, and hiding of read replies in threads that have unread ones
  */
 
 var ExtensionCommon;
@@ -352,6 +352,152 @@ function removeLegacyDocumentStyles(doc, extension) {
   } catch (e) {}
 }
 
+/* ==========================================================================
+   Reponses deja lues masquees dans les fils
+   ==========================================================================
+
+   Dans un long fil qui recoit un nouveau message, il fallait faire defiler
+   toutes les reponses deja lues pour atteindre la nouvelle. Elles sont donc
+   masquees : le fil deplie montre son premier message et ses reponses non
+   lues, et un bouton dans la carte du fil affiche les autres.
+
+   Le masquage se fait dans la vue de Thunderbird, pas dans la page. La liste
+   des messages est virtualisee (tree-view.mjs : chaque ligne a index *
+   ROW_HEIGHT, espaceurs calcules sur le nombre de lignes) : une ligne retiree
+   ou ajoutee a la main decalait tout, d ou la zone vide et les cartes rognees
+   des versions precedentes. On ajoute plutot un critere de recherche a la vue,
+   comme le fait la vue "Non lus" de Thunderbird : il reconstruit sa liste avec
+   les seuls messages retenus, et tout reste coherent (defilement, selection,
+   clavier, compteurs).
+*/
+const PREF_HIDE_READ_REPLIES = "extensions.material-thunderbird.hide-read-replies";
+// Thunderbird garde un critere enregistre jusqu a son redemarrage, sans moyen
+// de le retirer. Le critere ne fait donc qu appeler l implementation courante,
+// que chaque version de l extension remplace (voir registerReadRepliesTerm).
+// Le suffixe change si l objet enregistre change de forme ; le prefixe sert a
+// reconnaitre, et retirer des vues, les criteres des versions precedentes.
+const READ_REPLIES_TERM_PREFIX = "material-you-thunderbird@vforiel#hideReadReplies";
+const READ_REPLIES_TERM_ID = READ_REPLIES_TERM_PREFIX + ".2";
+
+// Surplus de hauteur des cartes du theme sur celles de Thunderbird, et part de
+// la ligne qui n est pas la carte : rembourrage de la cellule (2 + 2 px) et
+// marges de la carte (3 + 3 px). Doivent rester accordes a thread-tree.css.
+const MATERIAL_CARD_EXTRA = 20;
+const MATERIAL_CARD_FRAME = 10;
+
+// Fils dont l utilisateur a demande toutes les reponses, le temps de la session.
+const threadsShowingAll = new Set();
+// Faux apres l arret de l extension : le critere, qu on ne peut pas desinscrire,
+// laisse alors tout passer.
+let readRepliesFilterLive = false;
+
+function readRepliesHidingEnabled() {
+  try { return Services.prefs.getBoolPref(PREF_HIDE_READ_REPLIES, true); } catch (e) { return true; }
+}
+
+function threadKeyOf(hdr) {
+  return hdr.folder.URI + "#" + hdr.threadId;
+}
+
+function isReadRepliesTerm(term) {
+  return term && term.attrib == Ci.nsMsgSearchAttrib.Custom &&
+    typeof term.customId === "string" && term.customId.startsWith(READ_REPLIES_TERM_PREFIX);
+}
+
+// Vrai = le message reste affiche.
+function readRepliesMatch(hdr) {
+  if (!readRepliesFilterLive) return true;
+  try {
+    if (!hdr.isRead) return true;
+    const thread = hdr.folder.msgDatabase.getThreadContainingMsgHdr(hdr);
+    if (!thread || thread.numUnreadChildren == 0) return true;
+    const root = thread.getRootHdr();
+    if (!root || root.messageKey == hdr.messageKey) return true;
+    return threadsShowingAll.has(threadKeyOf(root));
+  } catch (e) {
+    return true;
+  }
+}
+
+function registerReadRepliesTerm() {
+  const { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
+  const existing = MailServices.filters.getCustomTerm(READ_REPLIES_TERM_ID);
+  if (existing) {
+    // Enregistre par une version precedente, dans la meme session.
+    const impl = existing.wrappedJSObject;
+    if (impl) impl.matchImpl = readRepliesMatch;
+    return;
+  }
+  MailServices.filters.addCustomTerm({
+    id: READ_REPLIES_TERM_ID,
+    name: "Material-Thunderbird : reponses deja lues",
+    needsBody: false,
+    matchImpl: readRepliesMatch,
+    get wrappedJSObject() { return this; },
+    getEnabled: () => true,
+    getAvailable: () => true,
+    getAvailableOperators: () => [Ci.nsMsgSearchOp.Is],
+    match(hdr) {
+      try { return this.matchImpl(hdr); } catch (e) { return true; }
+    }
+  });
+}
+
+function makeReadRepliesTerm(session) {
+  const term = session.createTerm();
+  term.attrib = Ci.nsMsgSearchAttrib.Custom;
+  term.customId = READ_REPLIES_TERM_ID;
+  term.op = Ci.nsMsgSearchOp.Is;
+  const value = term.value;
+  value.attrib = Ci.nsMsgSearchAttrib.Custom;
+  value.str = "1";
+  term.value = value;
+  term.booleanAnd = true;
+  return term;
+}
+
+/**
+ * Le critere ne vaut que pour une vue en fils, d un vrai dossier, sans autre
+ * vue active ("Non lus", etiquettes...). En liste a plat, il masquerait des
+ * messages lus sans raison visible ; "Grouper par tri" et les fils non lus
+ * utilisent d autres vues, que tout critere de recherche remplacerait.
+ */
+function shouldHideReadReplies(wrapper) {
+  try {
+    return readRepliesFilterLive && readRepliesHidingEnabled() &&
+      wrapper.isSingleFolder && !wrapper.isVirtual && !wrapper.isSynthetic &&
+      wrapper.showThreaded && !wrapper.showGroupedBySort &&
+      !wrapper.specialViewThreadsWithUnread && !wrapper.specialViewWatchedThreadsWithUnread &&
+      wrapper._mailViewIndex === 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Pose ou retire le critere dans les termes de vue, juste avant que
+ * Thunderbird reconstruise la vue. Ecrit _viewTerms plutot que le setter, qui
+ * relancerait lui-meme une reconstruction.
+ */
+function syncReadRepliesTerm(wrapper) {
+  const search = wrapper.search;
+  if (!search) return;
+  const current = search._viewTerms || [];
+  const others = current.filter((t) => !isReadRepliesTerm(t));
+  const want = others.length === 0 && shouldHideReadReplies(wrapper);
+  if (want) {
+    if (current.length !== 1 || !isReadRepliesTerm(current[0])) {
+      search._viewTerms = search._groupifyTerms([makeReadRepliesTerm(search.session)]);
+    }
+  } else if (others.length !== current.length) {
+    search._viewTerms = others.length ? others : null;
+  }
+}
+
+function hasReadRepliesTerm(wrapper) {
+  try { return (wrapper.search._viewTerms || []).some(isReadRepliesTerm); } catch (e) { return false; }
+}
+
 const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
   .getService(Ci.nsIStyleSheetService);
 
@@ -678,6 +824,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }
     this._applyCustomizerSheet();
     applyThemeModeOverride();
+    this._installReadRepliesFilter();
     this._initWindows();
     this._windowListener = {
       onOpenWindow: (xulWin) => {
@@ -716,6 +863,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     releaseThemeModeOverride();
     unregisterUserSheet(this._themeSheet);
     unregisterUserSheet(this._customizerSheet);
+    this._uninstallReadRepliesFilter();
     this._themeSheet = null;
     this._customizerSheet = null;
 
@@ -771,6 +919,10 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         for (const row of doc.querySelectorAll("tr.material-thread-toggle-row")) {
           row.remove();
         }
+        for (const chip of doc.querySelectorAll(".material-thread-reveal")) {
+          chip.remove();
+        }
+        this._restoreCardRowHeight(doc.defaultView);
         for (const row of doc.querySelectorAll(".material-thread-read-hidden, .material-thread-read-dimmed")) {
           row.classList.remove("material-thread-read-hidden", "material-thread-read-dimmed");
         }
@@ -780,6 +932,134 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         }
       } catch (e) {}
     }
+  }
+
+  /**
+   * Les vues des dossiers sont reconstruites par DBViewWrapper._applyViewChanges
+   * (changement de dossier, d affichage, de tri, de vue). On s y glisse pour
+   * poser ou retirer le critere : Thunderbird l applique alors comme les siens.
+   */
+  _installReadRepliesFilter() {
+    try {
+      registerReadRepliesTerm();
+      readRepliesFilterLive = true;
+      const { DBViewWrapper } = ChromeUtils.importESModule("resource:///modules/DBViewWrapper.sys.mjs");
+      const proto = DBViewWrapper.prototype;
+      if (!proto.__materialOriginalApplyViewChanges) {
+        const original = proto._applyViewChanges;
+        proto.__materialOriginalApplyViewChanges = original;
+        proto._applyViewChanges = function (...args) {
+          try { syncReadRepliesTerm(this); } catch (e) {
+            console.error("[Material-Thunderbird] Filtre des reponses lues :", e);
+          }
+          return original.apply(this, args);
+        };
+      }
+      this._refreshThreadViews();
+    } catch (e) {
+      console.error("[Material-Thunderbird] Masquage des reponses lues indisponible :", e);
+    }
+  }
+
+  _uninstallReadRepliesFilter() {
+    readRepliesFilterLive = false;
+    try {
+      const { DBViewWrapper } = ChromeUtils.importESModule("resource:///modules/DBViewWrapper.sys.mjs");
+      const proto = DBViewWrapper.prototype;
+      if (proto.__materialOriginalApplyViewChanges) {
+        proto._applyViewChanges = proto.__materialOriginalApplyViewChanges;
+        delete proto.__materialOriginalApplyViewChanges;
+      }
+    } catch (e) {}
+    // Le critere reste pose dans les vues ouvertes : on le retire, ce qui les
+    // reconstruit sans lui.
+    for (const aboutWin of this._about3PaneWindows()) {
+      try {
+        const search = aboutWin.gViewWrapper.search;
+        const current = search._viewTerms || [];
+        const others = current.filter((t) => !isReadRepliesTerm(t));
+        if (others.length !== current.length) search.viewTerms = others.length ? others : null;
+      } catch (e) {}
+    }
+  }
+
+  _about3PaneWindows() {
+    const result = [];
+    const windows = Services.wm.getEnumerator("mail:3pane");
+    while (windows.hasMoreElements()) {
+      const win = windows.getNext();
+      const tabmail = win.document && win.document.getElementById("tabmail");
+      if (!tabmail || !tabmail.tabInfo) continue;
+      for (const tab of tabmail.tabInfo) {
+        const aboutWin = tab.chromeBrowser && tab.chromeBrowser.contentWindow;
+        if (aboutWin && aboutWin.gViewWrapper && aboutWin.gViewWrapper.displayedFolder) {
+          result.push(aboutWin);
+        }
+      }
+    }
+    return result;
+  }
+
+  /** Reconstruit les vues dont l etat du critere n est plus le bon. */
+  _refreshThreadViews() {
+    for (const aboutWin of this._about3PaneWindows()) {
+      try {
+        const wrapper = aboutWin.gViewWrapper;
+        if (shouldHideReadReplies(wrapper) !== hasReadRepliesTerm(wrapper)) {
+          wrapper._applyViewChanges();
+        }
+      } catch (e) {
+        console.error("[Material-Thunderbird] Vue non rafraichie :", e);
+      }
+    }
+  }
+
+  /**
+   * Affiche (ou masque de nouveau) les reponses lues d un fil, puis rouvre ce
+   * fil : la vue est reconstruite, ses fils repartent replies.
+   */
+  _setThreadShowsAll(aboutWin, rowIndex, showAll) {
+    const dbView = aboutWin.gDBView;
+    let root;
+    try {
+      root = dbView.getThreadContainingIndex(rowIndex).getRootHdr();
+    } catch (e) {
+      return;
+    }
+    const key = threadKeyOf(root);
+    if (showAll) threadsShowingAll.add(key); else threadsShowingAll.delete(key);
+
+    const wrapper = aboutWin.gViewWrapper;
+    wrapper._applyViewChanges();
+
+    // La recherche de la nouvelle vue est asynchrone, et quand elle se termine
+    // (searching repasse a faux), about3Pane replie tous les fils d une vue
+    // filtree. Le fil n est donc rouvert qu apres : rouvert plus tot, il etait
+    // aussitot replie.
+    const started = Date.now();
+    const reopen = () => {
+      if (wrapper.searching && Date.now() - started < 10000) {
+        aboutWin.setTimeout(reopen, 100);
+        return;
+      }
+      let index = -1;
+      try { index = aboutWin.gDBView.findIndexOfMsgHdr(root, true); } catch (e) {}
+      if (index < 0) return;
+      try {
+        if (!aboutWin.gDBView.isContainerOpen(index)) aboutWin.gDBView.toggleOpenState(index);
+        // Le fil en haut de la liste : scrollToIndex se contente de le rendre
+        // visible, souvent tout en bas, sous ses reponses hors de vue.
+        const tree = aboutWin.document.getElementById("threadTree");
+        const rowHeight = tree && tree._rowElementClass && tree._rowElementClass.ROW_HEIGHT;
+        if (rowHeight) {
+          tree.scrollTop = index * rowHeight;
+        } else if (tree && typeof tree.scrollToIndex === "function") {
+          tree.scrollToIndex(index);
+        }
+      } catch (e) {}
+    };
+    // Laisse a about3Pane le temps de traiter la fin de recherche.
+    aboutWin.setTimeout(reopen, 250);
   }
 
   _initWindows() {
@@ -1076,6 +1356,20 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         </label>
       </section>
 
+      <section class="material-modal-section">
+        <div class="material-modal-section-title">Fils de discussion</div>
+        <label class="material-option-row" for="material-hide-read-toggle">
+          <span class="material-option-info">
+            <span class="material-option-title">Masquer les réponses déjà lues</span>
+            <span class="material-option-desc">Un fil qui reçoit un nouveau message s'ouvre sur ses réponses non lues ; un bouton dans le fil affiche les autres.</span>
+          </span>
+          <span class="material-switch">
+            <input type="checkbox" id="material-hide-read-toggle"${readRepliesHidingEnabled() ? ' checked="checked"' : ""} />
+            <span class="material-switch-slider"></span>
+          </span>
+        </label>
+      </section>
+
       <div class="material-sponsor-banner">
         <span class="material-sponsor-icon">${ICON_HEART}</span>
         <span class="material-option-info">
@@ -1156,6 +1450,14 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     });
 
     // Emoji toggle
+    const hideReadToggle = dialog.querySelector("#material-hide-read-toggle");
+    if (hideReadToggle) {
+      hideReadToggle.addEventListener("change", () => {
+        try { Services.prefs.setBoolPref(PREF_HIDE_READ_REPLIES, hideReadToggle.checked); } catch (e) {}
+        this._refreshThreadViews();
+      });
+    }
+
     const emojiToggle = dialog.querySelector("#material-emoji-toggle");
     if (emojiToggle) {
       emojiToggle.addEventListener("change", () => {
@@ -1245,7 +1547,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
    */
   async _uninstallEverything(win) {
     const legacyRemoved = this._removeLegacyProfileInstall();
-    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS]) {
+    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_HIDE_READ_REPLIES]) {
       try { Services.prefs.clearUserPref(pref); } catch (e) {}
     }
     releaseThemeModeOverride();
@@ -1449,6 +1751,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       // Les observateurs et le cadencement doivent venir de la fenetre qui
       // possede l arbre, pas de la fenetre chrome exterieure.
       this._setupThreadTree(win3, threadTree, state);
+      this._adjustCardRowHeight(win3);
     }
 
     // La vue multi-messages se charge a la premiere selection multiple.
@@ -1854,19 +2157,127 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
   // win est la fenetre about:3pane qui possede l arbre ; state celui de la
   // fenetre chrome.
+  /**
+   * Bouton "N lues" dans la carte d un fil deplie dont des reponses lues sont
+   * masquees, ou "Masquer les lues" quand elles sont affichees. Il est place
+   * dans la carte, a cote du nombre de reponses : aucune ligne n est ajoutee a
+   * la liste. Les cartes etant recyclees, il est recalcule a chaque passage.
+   */
+  _updateRevealChip(win, row, expandedParent) {
+    let chip = row.querySelector(".material-thread-reveal");
+    let label = null;
+    let showAll = false;
+
+    if (expandedParent && win.gDBView && hasReadRepliesTerm(win.gViewWrapper)) {
+      try {
+        const dbView = win.gDBView;
+        const index = row.index;
+        const thread = dbView.getThreadContainingIndex(index);
+        if (thread && thread.numUnreadChildren > 0) {
+          if (threadsShowingAll.has(threadKeyOf(thread.getRootHdr()))) {
+            label = "Masquer les lues";
+          } else {
+            let shown = 0;
+            for (let i = index + 1; i < dbView.rowCount && dbView.getLevel(i) > 0; i++) shown++;
+            const hidden = thread.numChildren - 1 - shown;
+            if (hidden > 0) {
+              label = `+ ${hidden} lue${hidden > 1 ? "s" : ""}`;
+              showAll = true;
+            }
+          }
+        }
+      } catch (e) {
+        label = null;
+      }
+    }
+
+    if (!label) {
+      if (chip) chip.remove();
+      return;
+    }
+
+    if (!chip) {
+      const doc = row.ownerDocument;
+      chip = doc.createElement("button");
+      chip.type = "button";
+      chip.className = "material-thread-reveal";
+      // La carte entiere reagit au clic (selection, glisser) : le bouton garde
+      // ses evenements pour lui.
+      for (const type of ["mousedown", "dblclick", "dragstart"]) {
+        chip.addEventListener(type, (e) => e.stopPropagation());
+      }
+      chip.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const card = chip.closest("tr");
+        if (card) this._setThreadShowsAll(win, card.index, chip.dataset.showAll === "true");
+      });
+      // La carte de fil est une grille a zones nommees : place apres le bouton
+      // des reponses, le bouton ouvrait une troisieme rangee. En tete de la zone
+      // "info", il partage la ligne du nombre de reponses.
+      const info = row.querySelector(".thread-card-icon-info");
+      if (info) info.prepend(chip); else return;
+    }
+    if (chip.textContent !== label) chip.textContent = label;
+    chip.dataset.showAll = String(showAll);
+    chip.title = showAll
+      ? "Afficher les réponses déjà lues de ce fil"
+      : "Masquer de nouveau les réponses déjà lues de ce fil";
+  }
+
+  /**
+   * Hauteur des cartes de la liste des messages.
+   *
+   * La liste est virtualisee : Thunderbird place chaque ligne a
+   * index * ThreadCard.ROW_HEIGHT, hauteur qu il calcule lui-meme d apres la
+   * police et la densite (threadPane.densityChange) pour SES cartes. Celles du
+   * theme ont plus de marge et de rembourrage (MATERIAL_CARD_EXTRA px) : les
+   * lignes faisaient 83 a 90 px pour 70 prevus, et le decalage cumule
+   * desalignait la liste (zones vides, fin de liste hors d atteinte, defilement
+   * qui saute).
+   *
+   * On ajoute donc ce surplus au calcul de Thunderbird, et on publie la hauteur
+   * de carte qui en decoule (--material-card-height) : thread-tree.css l impose
+   * a toutes les cartes, qui ont ainsi exactement la hauteur attendue.
+   */
+  _adjustCardRowHeight(win3) {
+    const pane = win3.threadPane;
+    if (!pane || typeof pane.densityChange !== "function" || pane.__materialDensityChange) return;
+    const original = pane.densityChange;
+    pane.__materialDensityChange = original;
+    pane.densityChange = async function (...args) {
+      await original.apply(this, args);
+      try {
+        const cardClass = win3.customElements.get("thread-card");
+        cardClass.ROW_HEIGHT += MATERIAL_CARD_EXTRA;
+        const tree = win3.document.getElementById("threadTree");
+        if (tree) {
+          tree.style.setProperty("--material-card-height", `${cardClass.ROW_HEIGHT - MATERIAL_CARD_FRAME}px`);
+        }
+      } catch (e) {
+        console.error("[Material-Thunderbird] Hauteur des cartes non ajustee :", e);
+      }
+    };
+    try { pane.updateThreadItemSize(); } catch (e) {}
+  }
+
+  _restoreCardRowHeight(win3) {
+    const pane = win3 && win3.threadPane;
+    if (!pane || !pane.__materialDensityChange) return;
+    pane.densityChange = pane.__materialDensityChange;
+    delete pane.__materialDensityChange;
+    try {
+      const tree = win3.document.getElementById("threadTree");
+      if (tree) tree.style.removeProperty("--material-card-height");
+      pane.updateThreadItemSize();
+    } catch (e) {}
+  }
+
   _setupThreadTree(win, threadTree, state) {
     /**
-     * Les reponses deja lues d un fil qui contient des reponses non lues sont
-     * attenuees, pas masquees.
-     *
-     * Elles etaient masquees (display: none) et une ligne "Afficher toutes les
-     * reponses" etait inseree dans l arbre. Or la liste est virtualisee
-     * (tree-view.mjs) : chaque ligne est placee a index * ROW_HEIGHT, entre deux
-     * espaceurs calcules sur le nombre total de lignes, et Thunderbird insere
-     * ses lignes par position. Retirer des lignes du flux et en ajouter une
-     * etrangere decalait tout : zone vide sous le fil, carte du haut rognee,
-     * reponses introuvables apres defilement. Aucune ligne ne peut changer de
-     * hauteur ni disparaitre sans casser cette geometrie.
+     * Aucune ligne de la liste n est masquee, deplacee ni ajoutee ici : la liste
+     * est virtualisee (voir "Reponses deja lues masquees" plus haut). Le masquage
+     * des reponses lues se fait dans la vue ; on ne fait que decorer les cartes.
      */
     const processRows = () => {
       // Restes des versions qui masquaient les reponses.
@@ -1922,9 +2333,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
         const isParent = !isChild && (row.classList.contains("children") || row.hasAttribute("aria-expanded"));
         const twisty = row.querySelector("button.twisty");
 
-        // Les lignes sont recyclees : la classe est recalculee a chaque passage.
-        let dimmed = false;
-
         if (isParent) {
           currentParent = row;
           parentExpanded = row.getAttribute("aria-expanded") === "true";
@@ -1945,12 +2353,11 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             row.classList.remove("has-unread-replies");
             if (twisty) twisty.classList.remove("has-unread");
           }
-        } else if (isChild && currentParent && parentExpanded) {
-          const isUnread = row.getAttribute("data-properties")?.includes("unread") || row.classList.contains("unread");
-          dimmed = currentParentHasUnread && !isUnread;
         }
 
-        row.classList.toggle("material-thread-read-dimmed", dimmed);
+        // Restes de la version qui attenuait les reponses lues.
+        row.classList.remove("material-thread-read-dimmed");
+        this._updateRevealChip(win, row, isParent && parentExpanded);
       });
     };
 

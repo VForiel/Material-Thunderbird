@@ -288,17 +288,54 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-inline-start: 4px solid transparent !important;
 }
 
-/* Fil deplie qui contient des reponses non lues : les reponses deja lues sont
-   attenuees pour que les nouvelles ressortent. Elles ne sont jamais masquees :
-   la liste est virtualisee, chaque ligne doit garder sa place et sa hauteur
-   (voir _setupThreadTree dans l experiment). */
-#threadTree tr.card-layout.material-thread-read-dimmed .card-container {
-  opacity: 0.55 !important;
-  transition: opacity var(--md-motion-duration-short, 200ms) !important;
+/* Hauteur des cartes accordee a la liste virtualisee : l extension publie
+   --material-card-height, deduite de ThreadCard.ROW_HEIGHT (voir
+   _adjustCardRowHeight dans l experiment). Rembourrage de cellule (2 + 2 px)
+   et marges de carte (3 + 3 px) font le complement : ces valeurs vont avec
+   MATERIAL_CARD_FRAME. Sans la variable (theme sans l extension), rien ne
+   change. */
+#threadTree[style*="--material-card-height"] tr.card-layout > td {
+  padding-block: 2px !important;
 }
 
-#threadTree tr.card-layout.material-thread-read-dimmed:is(:hover, .selected, [aria-selected="true"]) .card-container {
-  opacity: 1 !important;
+#threadTree[style*="--material-card-height"] tr.card-layout .card-container {
+  height: var(--material-card-height) !important;
+  min-block-size: 0 !important;
+  max-block-size: none !important;
+  margin-block: 3px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Bouton "+ N lues" / "Masquer les lues", place par l experiment en tete de
+   la zone d icones de la carte d un fil deplie, sur la ligne du nombre de
+   reponses. Memes mesures que ce
+   bouton : la carte de fil doit tenir dans ThreadCard.ROW_HEIGHT. */
+#threadTree tr.card-layout .material-thread-reveal {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 16px !important;
+  min-block-size: 16px !important;
+  margin-block: 1px 0 !important;
+  margin-inline: 0 6px !important;
+  padding: 0 8px 1px !important;
+  border: 1px solid var(--md-sys-color-outline-variant) !important;
+  border-radius: var(--md-shape-corner-full, 9999px) !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-primary) !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  line-height: 14px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+#threadTree tr.card-layout .material-thread-reveal:hover {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
 }
 
 /* Card Container (Inside table cell) - Elevated Pure White Card on Light Blue Surface
