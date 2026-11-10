@@ -62,6 +62,12 @@ const M3_AVATAR_PALETTES = [
 const PREF_PALETTE = "extensions.material-thunderbird.palette";
 const PREF_EMOJIS = "extensions.material-thunderbird.emojis";
 const PREF_THEME_MODE = "extensions.material-thunderbird.theme-mode";
+// Bandeau de desinscription : interrupteur general, expediteurs et listes pour
+// lesquels il n est plus propose, messages ou il a ete masque.
+const PREF_UNSUB_ENABLED = "extensions.material-thunderbird.unsubscribe-banner";
+const PREF_UNSUB_IGNORED = "extensions.material-thunderbird.unsubscribe-ignored";
+const PREF_UNSUB_HIDDEN = "extensions.material-thunderbird.unsubscribe-hidden-messages";
+const UNSUB_HIDDEN_MAX = 500;
 // Le mode clair / sombre passe par ui.systemUsesDarkTheme, que Gecko lit a la
 // place du reglage de Windows : prefers-color-scheme bascule pour toute
 // l interface, donc les deux palettes de chrome/tokens/ au complet.
@@ -621,6 +627,234 @@ function checkGravatar(win, cleanEmail, onResolved) {
   }
 }
 
+/**
+ * Logos des marques (BIMI, Brand Indicators for Message Identification)
+ *
+ * C est ce que Gmail affiche a la place de l initiale pour Revolut, Doctolib ou
+ * les banques : le domaine publie dans son DNS un enregistrement
+ *   default._bimi.<domaine>  TXT  "v=BIMI1; l=https://.../logo.svg; a=..."
+ * qui donne l adresse de son logo. Gmail exige en plus un certificat (VMC) ;
+ * ici, la garantie retenue est celle sur laquelle BIMI repose : le domaine doit
+ * appliquer DMARC en mode strict (p=quarantine ou p=reject), si bien qu un
+ * courriel usurpant ce domaine est refuse ou classe en indesirable par le
+ * serveur de reception avant d arriver ici.
+ *
+ * Reseau : une requete DNS par domaine d expediteur, puis le telechargement du
+ * logo depuis le serveur de la marque. Aucune donnee sur le destinataire ni sur
+ * le message n est envoyee, et les resultats sont gardes 7 jours (1 jour pour
+ * une absence). Si le resolveur du systeme ne sait pas repondre aux requetes
+ * TXT, la recherche passe par le DNS sur HTTPS de Cloudflare, comme le fait
+ * Firefox en mode DoH.
+ */
+const PREF_BRAND_LOGOS = "extensions.material-thunderbird.brand-logos";
+const PREF_BRAND_CACHE = "extensions.material-thunderbird.brand-logo-cache";
+const BRAND_TTL_FOUND = 7 * 24 * 3600 * 1000;
+const BRAND_TTL_MISSING = 24 * 3600 * 1000;
+const BRAND_CACHE_MAX = 400;
+const DOH_ENDPOINT = "https://cloudflare-dns.com/dns-query";
+
+function areBrandLogosEnabled() {
+  try { return Services.prefs.getBoolPref(PREF_BRAND_LOGOS, true); } catch (e) { return true; }
+}
+
+// domaine -> { u: url du logo ou "", t: date }
+let brandCache = null;
+function loadBrandCache() {
+  if (brandCache) return brandCache;
+  brandCache = new Map();
+  try {
+    const stored = JSON.parse(Services.prefs.getStringPref(PREF_BRAND_CACHE, "{}"));
+    for (const [domain, entry] of Object.entries(stored || {})) {
+      if (entry && typeof entry.t === "number") brandCache.set(domain, entry);
+    }
+  } catch (e) {}
+  return brandCache;
+}
+
+function saveBrandCache() {
+  const entries = Array.from(loadBrandCache().entries())
+    .sort((a, b) => b[1].t - a[1].t)
+    .slice(0, BRAND_CACHE_MAX);
+  try { Services.prefs.setStringPref(PREF_BRAND_CACHE, JSON.stringify(Object.fromEntries(entries))); } catch (e) {}
+}
+
+function freshBrandEntry(domain) {
+  const entry = loadBrandCache().get(domain);
+  if (!entry) return null;
+  const ttl = entry.u ? BRAND_TTL_FOUND : BRAND_TTL_MISSING;
+  return Date.now() - entry.t < ttl ? entry : null;
+}
+
+/**
+ * Domaine organisationnel approche : les deux derniers labels, ou trois pour les
+ * suffixes du type co.uk, com.au, gouv.fr. Sans liste publique des suffixes,
+ * c est une approximation suffisante pour un second essai.
+ */
+function organizationalDomain(domain) {
+  const labels = domain.split(".");
+  if (labels.length <= 2) return domain;
+  const second = labels[labels.length - 2];
+  const short = labels[labels.length - 1].length === 2 &&
+    /^(?:co|com|org|net|gov|gouv|ac|edu|ne|or)$/.test(second);
+  return labels.slice(short ? -3 : -2).join(".");
+}
+
+// Requete TXT par le resolveur de la plateforme. Resout en tableau de chaines,
+// en [] si le nom n existe pas, en null si ce type de requete est indisponible.
+function nativeTxtLookup(name) {
+  return new Promise((resolve) => {
+    let dns;
+    try {
+      dns = Cc["@mozilla.org/network/dns-service;1"].getService(Ci.nsIDNSService);
+    } catch (e) {
+      resolve(null);
+      return;
+    }
+    const listener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIDNSListener"]),
+      onLookupComplete(request, record, status) {
+        if (!Components.isSuccessCode(status)) {
+          // NS_ERROR_UNKNOWN_HOST : le nom n existe pas, c est une reponse.
+          const results = typeof Cr !== "undefined" ? Cr : Components.results;
+          resolve(status === results.NS_ERROR_UNKNOWN_HOST ? [] : null);
+          return;
+        }
+        try {
+          const txt = record.QueryInterface(Ci.nsIDNSTXTRecord);
+          resolve(txt.getRecords());
+        } catch (e) {
+          resolve(null);
+        }
+      }
+    };
+    try {
+      dns.asyncResolve(name, Ci.nsIDNSService.RESOLVE_TYPE_TXT, 0, null, listener,
+                       Services.tm.mainThread, {});
+    } catch (e) {
+      resolve(null);
+    }
+  });
+}
+
+// Repli : DNS sur HTTPS (format JSON), sans cookie.
+async function dohTxtLookup(win, name) {
+  try {
+    const response = await win.fetch(`${DOH_ENDPOINT}?name=${encodeURIComponent(name)}&type=TXT`, {
+      headers: { accept: "application/dns-json" },
+      credentials: "omit"
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data.Answer || [])
+      .filter((a) => a.type === 16 && typeof a.data === "string")
+      .map((a) => a.data.replace(/^"|"$/g, "").replace(/"\s*"/g, ""));
+  } catch (e) {
+    return [];
+  }
+}
+
+let nativeTxtWorks = true;
+async function txtLookup(win, name) {
+  if (nativeTxtWorks) {
+    const records = await nativeTxtLookup(name);
+    if (records !== null) return records;
+    nativeTxtWorks = false;
+  }
+  return dohTxtLookup(win, name);
+}
+
+// Premier enregistrement qui commence par le prefixe voulu.
+function findRecord(records, prefix) {
+  return (records || []).map((r) => String(r).trim()).find((r) => r.toLowerCase().startsWith(prefix)) || "";
+}
+
+async function strictDmarc(win, domain) {
+  for (const candidate of [domain, organizationalDomain(domain)]) {
+    const record = findRecord(await txtLookup(win, `_dmarc.${candidate}`), "v=dmarc1");
+    if (record) {
+      const policy = /(?:^|;)\s*p\s*=\s*(\w+)/i.exec(record);
+      const pct = /(?:^|;)\s*pct\s*=\s*(\d+)/i.exec(record);
+      return !!policy && /^(?:quarantine|reject)$/i.test(policy[1]) && (!pct || Number(pct[1]) === 100);
+    }
+    if (candidate === organizationalDomain(domain)) break;
+  }
+  return false;
+}
+
+async function lookupBrandLogo(win, domain) {
+  const candidates = [domain];
+  const org = organizationalDomain(domain);
+  if (org !== domain) candidates.push(org);
+  let logo = "";
+  for (const candidate of candidates) {
+    const record = findRecord(await txtLookup(win, `default._bimi.${candidate}`), "v=bimi1");
+    if (!record) continue;
+    const location = /(?:^|;)\s*l\s*=\s*([^;\s]*)/i.exec(record);
+    // l= vide : le domaine declare explicitement ne pas avoir de logo.
+    logo = location && /^https:\/\/[^\s"<>]+$/i.test(location[1]) ? location[1] : "";
+    break;
+  }
+  if (!logo) return "";
+  return (await strictDmarc(win, domain)) ? logo : "";
+}
+
+const pendingBrandCallbacks = new Map();
+
+/**
+ * Cherche le logo de la marque du domaine de cleanEmail. onResolved(url) est
+ * appele si un logo est trouve et se charge ; onMissing() sinon, pour passer a
+ * la source suivante (Gravatar).
+ */
+function checkBrandLogo(win, cleanEmail, onResolved, onMissing) {
+  const domain = (cleanEmail.split("@")[1] || "").toLowerCase();
+  if (!win || !domain || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(domain) || !areBrandLogosEnabled()) {
+    onMissing();
+    return;
+  }
+  const cached = freshBrandEntry(domain);
+  if (cached) {
+    if (cached.u) onResolved(cached.u); else onMissing();
+    return;
+  }
+  if (pendingBrandCallbacks.has(domain)) {
+    pendingBrandCallbacks.get(domain).push([onResolved, onMissing]);
+    return;
+  }
+  pendingBrandCallbacks.set(domain, [[onResolved, onMissing]]);
+
+  const settle = (url) => {
+    loadBrandCache().set(domain, { u: url || "", t: Date.now() });
+    saveBrandCache();
+    const callbacks = pendingBrandCallbacks.get(domain) || [];
+    pendingBrandCallbacks.delete(domain);
+    for (const [ok, missing] of callbacks) {
+      try { if (url) ok(url); else missing(); } catch (e) {}
+    }
+  };
+
+  lookupBrandLogo(win, domain).then((url) => {
+    if (!url) { settle(""); return; }
+    // Le logo doit effectivement se charger : une URL morte retomberait sinon
+    // sur une image cassee.
+    const img = new win.Image();
+    const timer = win.setTimeout(() => { img.onload = img.onerror = null; settle(""); }, 4000);
+    img.onload = () => { win.clearTimeout(timer); settle(url); };
+    img.onerror = () => { win.clearTimeout(timer); settle(""); };
+    img.src = url;
+  }, () => settle(""));
+}
+
+/**
+ * Valeur synchrone pour un premier rendu : l URL du logo si elle est connue,
+ * "" si le domaine n en a pas, null si la recherche n a pas encore eu lieu.
+ */
+function cachedBrandLogo(cleanEmail) {
+  const domain = (cleanEmail.split("@")[1] || "").toLowerCase();
+  if (!domain || !areBrandLogosEnabled()) return "";
+  const entry = freshBrandEntry(domain);
+  return entry ? entry.u : null;
+}
+
 // Normalize initial letter (removes quotes, accents, brackets)
 function getInitialLetter(nameOrEmail) {
   if (!nameOrEmail) return "?";
@@ -657,9 +891,13 @@ function parseNameAndEmail(raw) {
 /**
  * Resolution unifiee des avatars
  * Priorite 1 : photo du carnet d adresses (card.photoURL)
- * Priorite 2 : Gravatar, uniquement si l utilisateur l a active (voir GRAVATAR_PREF)
- * Priorite 3 : initiale du contact enregistre (card.displayName || displayName)
- * Priorite 4 : initiale de l adresse courriel (cleanEmail)
+ * Priorite 2 : logo de la marque (BIMI), active par defaut (voir PREF_BRAND_LOGOS)
+ * Priorite 3 : Gravatar, uniquement si l utilisateur l a active (voir GRAVATAR_PREF)
+ * Priorite 4 : initiale du contact enregistre (card.displayName || displayName)
+ * Priorite 5 : initiale de l adresse courriel (cleanEmail)
+ * Les sources 2 et 3 sont asynchrones : l initiale s affiche d abord, puis
+ * onGravatarResolved(url) remplace l image quand l une d elles repond. La
+ * suivante n est interrogee que si la precedente n a rien donne.
  * La couleur de fond derive de l empreinte de cleanEmail : elle reste identique
  * partout dans l interface pour un meme correspondant.
  */
@@ -690,26 +928,22 @@ function resolveAvatarInfo(win, rawString, onGravatarResolved) {
     };
   }
 
-  // 2. Priority 2: Gravatar
+  // 2. et 3. Logo de la marque, puis Gravatar
   if (cleanEmail) {
-    if (gravatarCache.has(cleanEmail)) {
-      const g = gravatarCache.get(cleanEmail);
-      if (g && g.found) {
-        return {
-          type: "img",
-          url: g.url,
-          char: "",
-          bg: palette.bg,
-          fg: palette.fg,
-          cleanEmail
-        };
-      }
-    } else {
+    const image = (url) => ({ type: "img", url, char: "", bg: palette.bg, fg: palette.fg, cleanEmail });
+    const brand = cachedBrandLogo(cleanEmail);
+    if (brand) return image(brand);
+    const g = gravatarCache.get(cleanEmail);
+    if (brand === "" && g && g.found) return image(g.url);
+    if (brand === null) {
+      checkBrandLogo(win, cleanEmail, onGravatarResolved,
+                     () => checkGravatar(win, cleanEmail, onGravatarResolved));
+    } else if (!gravatarCache.has(cleanEmail)) {
       checkGravatar(win, cleanEmail, onGravatarResolved);
     }
   }
 
-  // 3. Priority 3: First letter of the saved contact name
+  // 4. Priority 4: First letter of the saved contact name
   const contactName = (card && card.displayName) ? card.displayName : displayName;
   if (contactName && contactName.trim()) {
     const letter = getInitialLetter(contactName);
@@ -723,7 +957,7 @@ function resolveAvatarInfo(win, rawString, onGravatarResolved) {
     };
   }
 
-  // 4. Priority 4: First letter of the email address
+  // 5. Priority 5: First letter of the email address
   if (cleanEmail) {
     const letter = getInitialLetter(cleanEmail);
     return {
@@ -786,6 +1020,70 @@ function setMarkup(target, markup) {
     throw new Error("Balisage XHTML invalide : " + root.textContent);
   }
   target.replaceChildren(...Array.from(root.childNodes, (n) => doc.importNode(n, true)));
+}
+
+// --- Choix de l utilisateur sur le bandeau de desinscription ---------------
+
+function readJsonPref(name, fallback) {
+  try {
+    const value = JSON.parse(Services.prefs.getStringPref(name, ""));
+    return Array.isArray(value) ? value : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function writeJsonPref(name, value) {
+  try { Services.prefs.setStringPref(name, JSON.stringify(value)); } catch (e) {}
+}
+
+function unsubscribeBannerEnabled() {
+  try { return Services.prefs.getBoolPref(PREF_UNSUB_ENABLED, true); } catch (e) { return true; }
+}
+
+// [{ key, label, reason: "ignored" | "unsubscribed", date }]
+function unsubscribeIgnoredList() {
+  return readJsonPref(PREF_UNSUB_IGNORED, []).filter((item) => item && typeof item.key === "string");
+}
+
+function isUnsubscribeKeyIgnored(key) {
+  return !!key && unsubscribeIgnoredList().some((item) => item.key === key);
+}
+
+function ignoreUnsubscribeKey(key, label, reason) {
+  if (!key || key === "from:" || key === "list:") return;
+  const list = unsubscribeIgnoredList().filter((item) => item.key !== key);
+  list.unshift({ key, label: String(label || "").slice(0, 120), reason, date: Date.now() });
+  writeJsonPref(PREF_UNSUB_IGNORED, list);
+}
+
+function forgetUnsubscribeKey(key) {
+  writeJsonPref(PREF_UNSUB_IGNORED, unsubscribeIgnoredList().filter((item) => item.key !== key));
+}
+
+function isUnsubscribeHiddenForMessage(messageId) {
+  return !!messageId && readJsonPref(PREF_UNSUB_HIDDEN, []).includes(messageId);
+}
+
+// Les plus anciens sortent de la liste : elle reste bornee.
+function hideUnsubscribeForMessage(messageId) {
+  if (!messageId) return;
+  const list = readJsonPref(PREF_UNSUB_HIDDEN, []).filter((id) => id !== messageId);
+  list.unshift(messageId);
+  writeJsonPref(PREF_UNSUB_HIDDEN, list.slice(0, UNSUB_HIDDEN_MAX));
+}
+
+// "Nom" <adresse> -> Nom ; adresse seule -> adresse.
+function displayNameOf(raw) {
+  const text = String(raw || "").trim();
+  const name = text.replace(/<[^>]*>/g, "").replace(/^["'\s]+|["'\s]+$/g, "").trim();
+  if (name) return name;
+  const angle = /<([^>]+)>/.exec(text);
+  return angle ? angle[1].trim() : text;
+}
+
+function isSafeMailto(value) {
+  return typeof value === "string" && /^mailto:[^@\s?<>"]+@[^@\s?<>"]+(?:\?[^\s<>"]*)?$/i.test(value.trim());
 }
 
 function loadUnsubscribeRules(extension) {
@@ -1357,6 +1655,31 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       </section>
 
       <section class="material-modal-section">
+        <div class="material-modal-section-title">Avatars</div>
+        <div class="material-modal-section-desc">Photo du contact d'abord, puis les sources ci-dessous, puis l'initiale.</div>
+        <label class="material-option-row" for="material-brand-toggle">
+          <span class="material-option-info">
+            <span class="material-option-title">Logos des marques</span>
+            <span class="material-option-desc">Comme Gmail : le logo officiel publié par l'expéditeur (BIMI), seulement pour les domaines protégés contre l'usurpation.</span>
+          </span>
+          <span class="material-switch">
+            <input type="checkbox" id="material-brand-toggle"${areBrandLogosEnabled() ? ' checked="checked"' : ""} />
+            <span class="material-switch-slider"></span>
+          </span>
+        </label>
+        <label class="material-option-row" for="material-gravatar-toggle">
+          <span class="material-option-info">
+            <span class="material-option-title">Gravatar</span>
+            <span class="material-option-desc">Photo publique liée à l'adresse. Envoie une empreinte de chaque expéditeur à gravatar.com.</span>
+          </span>
+          <span class="material-switch">
+            <input type="checkbox" id="material-gravatar-toggle"${isGravatarEnabled() ? ' checked="checked"' : ""} />
+            <span class="material-switch-slider"></span>
+          </span>
+        </label>
+      </section>
+
+      <section class="material-modal-section">
         <div class="material-modal-section-title">Fils de discussion</div>
         <label class="material-option-row" for="material-hide-read-toggle">
           <span class="material-option-info">
@@ -1368,6 +1691,21 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             <span class="material-switch-slider"></span>
           </span>
         </label>
+      </section>
+
+      <section class="material-modal-section">
+        <div class="material-modal-section-title">Désinscription</div>
+        <label class="material-option-row" for="material-unsub-toggle">
+          <span class="material-option-info">
+            <span class="material-option-title">Proposer la désinscription</span>
+            <span class="material-option-desc">Affiche un bandeau sur les infolettres et les listes de diffusion. Jamais sur les codes de connexion ni les commandes.</span>
+          </span>
+          <span class="material-switch">
+            <input type="checkbox" id="material-unsub-toggle"${unsubscribeBannerEnabled() ? ' checked="checked"' : ""} />
+            <span class="material-switch-slider"></span>
+          </span>
+        </label>
+        <div id="material-unsub-ignored" class="material-unsub-ignored"></div>
       </section>
 
       <div class="material-sponsor-banner">
@@ -1468,6 +1806,66 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       });
     }
 
+    // Avatars : les nouvelles sources s appliquent aux prochains affichages.
+    const brandToggle = dialog.querySelector("#material-brand-toggle");
+    if (brandToggle) {
+      brandToggle.addEventListener("change", () => {
+        try { Services.prefs.setBoolPref(PREF_BRAND_LOGOS, brandToggle.checked); } catch (e) {}
+      });
+    }
+    const gravatarToggle = dialog.querySelector("#material-gravatar-toggle");
+    if (gravatarToggle) {
+      gravatarToggle.addEventListener("change", () => {
+        try { Services.prefs.setBoolPref(GRAVATAR_PREF, gravatarToggle.checked); } catch (e) {}
+      });
+    }
+
+    // Desinscription : interrupteur et expediteurs ignores.
+    const unsubToggle = dialog.querySelector("#material-unsub-toggle");
+    if (unsubToggle) {
+      unsubToggle.addEventListener("change", () => {
+        try { Services.prefs.setBoolPref(PREF_UNSUB_ENABLED, unsubToggle.checked); } catch (e) {}
+        if (!unsubToggle.checked) {
+          const windows = Services.wm.getEnumerator("mail:3pane");
+          while (windows.hasMoreElements()) this._removeUnsubscribeBanner(windows.getNext());
+        }
+      });
+    }
+    const ignoredBox = dialog.querySelector("#material-unsub-ignored");
+    const renderIgnored = () => {
+      if (!ignoredBox) return;
+      ignoredBox.replaceChildren();
+      const items = unsubscribeIgnoredList();
+      if (!items.length) return;
+      const heading = doc.createElement("div");
+      heading.className = "material-option-desc material-unsub-ignored-title";
+      heading.textContent = "Bandeau masqué pour :";
+      ignoredBox.appendChild(heading);
+      for (const item of items) {
+        const row = doc.createElement("div");
+        row.className = "material-unsub-ignored-row";
+        const label = doc.createElement("span");
+        label.className = "material-unsub-ignored-label";
+        // Libelle venu d un courriel : insere en texte.
+        label.textContent = item.label || item.key.replace(/^(from|list):/, "");
+        label.setAttribute("title", item.key.replace(/^(from|list):/, ""));
+        const state = doc.createElement("span");
+        state.className = "material-unsub-ignored-state";
+        state.textContent = item.reason === "unsubscribed" ? "désinscrit" : "ignoré";
+        const remove = doc.createElement("button");
+        remove.type = "button";
+        remove.className = "material-btn-pill material-btn-text";
+        remove.textContent = "Retirer";
+        remove.setAttribute("title", "Proposer à nouveau la désinscription");
+        remove.addEventListener("click", () => { forgetUnsubscribeKey(item.key); renderIgnored(); });
+        row.appendChild(label);
+        row.appendChild(state);
+        row.appendChild(remove);
+        ignoredBox.appendChild(row);
+      }
+    };
+    renderIgnored();
+
     // Sponsor button
     const sponsorBtn = dialog.querySelector("#material-modal-sponsor-link");
     if (sponsorBtn) {
@@ -1547,7 +1945,9 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
    */
   async _uninstallEverything(win) {
     const legacyRemoved = this._removeLegacyProfileInstall();
-    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_HIDE_READ_REPLIES]) {
+    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_HIDE_READ_REPLIES,
+                        PREF_UNSUB_ENABLED, PREF_UNSUB_IGNORED, PREF_UNSUB_HIDDEN,
+                        PREF_BRAND_LOGOS, PREF_BRAND_CACHE, GRAVATAR_PREF]) {
       try { Services.prefs.clearUserPref(pref); } catch (e) {}
     }
     releaseThemeModeOverride();
@@ -1849,24 +2249,39 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     return null;
   }
 
-  _renderUnsubscribeBanner(chromeWin, unsubscribeUrl, senderName) {
+  /**
+   * Bandeau de desinscription.
+   *
+   * Deux variantes : "newsletter" (carte avec bouton plein) et "list" (ligne
+   * discrete pour les listes de diffusion). Toutes les donnees viennent du
+   * courriel, donc d une source non fiable : elles sont inserees en texte, et
+   * les liens revalides au moment du clic.
+   *
+   * La fermeture propose de masquer le bandeau pour ce message ou de ne plus le
+   * proposer pour cet expediteur ; ces choix vivent dans les preferences, et
+   * getAPI les consulte avant tout affichage.
+   */
+  _renderUnsubscribeBanner(chromeWin, details) {
     const win = this._aboutMessageWindow(chromeWin);
     if (!win) return;
     const doc = win.document;
+    const isList = details.kind === "list";
     let banner = doc.getElementById("material-unsubscribe-banner");
     if (!banner) {
       banner = doc.createElement("div");
       banner.id = "material-unsubscribe-banner";
-      banner.className = "material-unsubscribe-card";
     }
-
-    // Le nom d expediteur vient du courriel. Il est insere en tant que texte, jamais
-    // en tant que balisage : innerHTML dans le document chrome placerait une donnee
-    // non fiable dans un contexte privilegie, et le filtrage de <, > et " qui le
-    // precedait etait la seule barriere.
-    const cleanSender = (senderName || "").trim() || "Cet expéditeur";
-
+    banner.className = "material-unsubscribe-card" + (isList ? " material-unsub-list" : "");
+    banner.setAttribute("role", "status");
     while (banner.firstChild) banner.removeChild(banner.firstChild);
+
+    const senderLabel = displayNameOf(details.senderName) || "Cet expéditeur";
+    const listLabel = (details.listName || "").trim() || "cette liste";
+    const targetLabel = isList ? `la liste ${listLabel}` : senderLabel;
+    const url = details.url && UnsubscribeRules && UnsubscribeRules.isSafeUrl(details.url) ? details.url.trim() : "";
+    const mailto = !url && isSafeMailto(details.mailto) ? details.mailto.trim() : "";
+    let host = "";
+    try { host = url ? new win.URL(url).host : ""; } catch (e) {}
 
     const SVG_NS = "http://www.w3.org/2000/svg";
     const svgIcon = (size, pathData) => {
@@ -1875,109 +2290,241 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       svg.setAttribute("height", String(size));
       svg.setAttribute("viewBox", "0 0 24 24");
       svg.setAttribute("fill", "currentColor");
+      svg.setAttribute("aria-hidden", "true");
       const path = doc.createElementNS(SVG_NS, "path");
       path.setAttribute("d", pathData);
       svg.appendChild(path);
       return svg;
     };
-    const div = (className) => {
-      const el = doc.createElement("div");
-      el.className = className;
-      return el;
+    const el = (tag, className, text) => {
+      const node = doc.createElement(tag);
+      if (className) node.className = className;
+      if (text) node.textContent = text;
+      return node;
     };
-    const span = (className, text) => {
-      const el = doc.createElement("span");
-      el.className = className;
-      el.textContent = text;
-      return el;
+    const button = (className, text, title) => {
+      const b = el("button", className, text);
+      b.type = "button";
+      if (title) b.setAttribute("title", title);
+      return b;
     };
 
-    const left = div("material-unsub-left");
-    const icon = div("material-unsub-icon");
-    icon.appendChild(svgIcon(18, "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"));
-    const details = div("material-unsub-details");
-    details.appendChild(span("material-unsub-title", "Courrier commercial / Infolettre"));
-    details.appendChild(span("material-unsub-desc", `Un lien de désinscription a été détecté pour ${cleanSender}.`));
+    const ICON_MAIL = "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z";
+    const ICON_GROUP = "M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z";
+    const ICON_CHECK = "M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
+    const ICON_OPEN = "M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z";
+
+    const left = el("div", "material-unsub-left");
+    const icon = el("div", "material-unsub-icon");
+    icon.appendChild(svgIcon(isList ? 16 : 18, isList ? ICON_GROUP : ICON_MAIL));
+    const textBox = el("div", "material-unsub-details");
+    const title = el("span", "material-unsub-title");
+    const desc = el("span", "material-unsub-desc");
+    textBox.appendChild(title);
+    textBox.appendChild(desc);
     left.appendChild(icon);
-    left.appendChild(details);
-
-    const actions = div("material-unsub-actions");
-    const triggerBtn = doc.createElement("button");
-    triggerBtn.type = "button";
-    triggerBtn.className = "material-unsub-btn";
-    triggerBtn.id = "material-unsub-trigger-btn";
-    triggerBtn.appendChild(svgIcon(13, "M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"));
-    triggerBtn.appendChild(doc.createTextNode(" Se désinscrire"));
-
-    // L URL cible est affichee en infobulle : le bandeau chrome a l apparence d un
-    // element natif de Thunderbird, l utilisateur doit pouvoir verifier la destination.
-    try {
-      triggerBtn.setAttribute("title", `Ouvrir ${new win.URL(unsubscribeUrl).host}`);
-    } catch (e) {
-      triggerBtn.setAttribute("title", "Ouvrir le lien de désinscription");
-    }
-
-    const closeBtn = doc.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "material-unsub-close";
-    closeBtn.id = "material-unsub-close-btn";
-    closeBtn.setAttribute("title", "Ignorer");
-    closeBtn.textContent = "×";
-
-    actions.appendChild(triggerBtn);
-    actions.appendChild(closeBtn);
+    left.appendChild(textBox);
+    const actions = el("div", "material-unsub-actions");
     banner.appendChild(left);
     banner.appendChild(actions);
 
-    triggerBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    const setText = (t, d) => {
+      title.textContent = t;
+      desc.textContent = d || "";
+      desc.hidden = !d;
+    };
+    const setActions = (...nodes) => {
+      while (actions.firstChild) actions.removeChild(actions.firstChild);
+      nodes.forEach((n) => actions.appendChild(n));
+    };
+    const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
 
-      // Dernier controle avant navigation : l URL provient du courriel, donc d une
-      // source non fiable. Sans ce filtre, un lien file:, data: ou chrome: place
-      // par expediteur serait ouvert depuis la fenetre privilegiee.
-      if (!UnsubscribeRules || !UnsubscribeRules.isSafeUrl(unsubscribeUrl)) {
-        console.error("[Material-Thunderbird] URL de desinscription refusee : " + unsubscribeUrl);
-        return;
-      }
+    const rememberDone = (reason) => {
+      ignoreUnsubscribeKey(details.key, isList ? listLabel : senderLabel, reason);
+    };
 
+    // Etat final : confirmation, puis le bandeau s efface de lui-meme.
+    const finish = (t, d) => {
+      icon.replaceChildren(svgIcon(18, ICON_CHECK));
+      banner.classList.add("material-unsub-done");
+      setText(t, d);
+      const ok = button("material-unsub-text-btn", "Fermer");
+      ok.onclick = (e) => { stop(e); banner.remove(); };
+      setActions(ok);
+    };
+
+    // Apres ouverture d une page ou d un brouillon : l extension ne peut pas
+    // savoir si la desinscription a abouti, l utilisateur le confirme.
+    const askIfDone = (t, d) => {
+      setText(t, d);
+      const done = button("material-unsub-btn", "C'est fait");
+      done.prepend(svgIcon(14, ICON_CHECK));
+      done.onclick = (e) => {
+        stop(e);
+        rememberDone("unsubscribed");
+        finish("Désinscription notée", `Le bandeau ne sera plus proposé pour ${targetLabel}.`);
+      };
+      const later = button("material-unsub-text-btn", "Plus tard");
+      later.onclick = (e) => { stop(e); banner.remove(); };
+      setActions(later, done);
+    };
+
+    const openPage = () => {
+      // Derniere verification avant navigation : l URL vient du courriel.
+      if (!url || !UnsubscribeRules || !UnsubscribeRules.isSafeUrl(url)) return false;
       try {
         // Le bandeau vit dans about:message, qui n a pas de fonction de
         // navigation : msgHdrView.js passe lui aussi par top pour ouvrir ses
         // liens. Sans cela on retombait sur le service de protocole externe et
         // le lien partait dans le navigateur du systeme.
-        const host = win.top || win;
-        if (typeof host.openContentTab === "function") {
-          host.openContentTab(unsubscribeUrl);
-        } else if (typeof host.openURL === "function") {
-          host.openURL(unsubscribeUrl);
+        const top = win.top || win;
+        if (typeof top.openContentTab === "function") {
+          top.openContentTab(url);
+        } else if (typeof top.openURL === "function") {
+          top.openURL(url);
         } else {
-          const uri = Services.io.newURI(unsubscribeUrl);
-          const extProtocolSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-            .getService(Ci.nsIExternalProtocolService);
-          extProtocolSvc.loadURI(uri);
+          Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+            .getService(Ci.nsIExternalProtocolService)
+            .loadURI(Services.io.newURI(url));
         }
+        return true;
       } catch (err) {
         console.error("[Material-Thunderbird] Ouverture du lien impossible : " + err);
+        return false;
       }
     };
 
-    closeBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      banner.remove();
+    // Ouvre la fenetre de redaction pre-remplie. Rien n est envoye : c est a
+    // l utilisateur de relire puis de cliquer sur Envoyer.
+    const openDraft = () => {
+      if (!mailto || !MailServices || !MailServices.compose) return false;
+      try {
+        MailServices.compose.OpenComposeWindowWithURI(null, Services.io.newURI(mailto));
+        return true;
+      } catch (err) {
+        console.error("[Material-Thunderbird] Brouillon de desinscription impossible : " + err);
+        return false;
+      }
     };
 
-    const messageHeader = doc.getElementById("msgHeaderView") || doc.getElementById("messageHeader");
-    const messagePaneBox = doc.getElementById("messagepanebox") || doc.getElementById("messagepane");
+    // Desinscription en un clic (RFC 8058) : un POST sans cookie vers l URL de
+    // l en-tete. La fenetre chrome n est pas soumise a CORS, et la reponse dit
+    // si l expediteur a accepte.
+    const oneClick = async () => {
+      setText("Désinscription en cours…", host);
+      setActions();
+      const controller = new win.AbortController();
+      const timer = win.setTimeout(() => controller.abort(), 15000);
+      try {
+        const response = await (win.top || win).fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "List-Unsubscribe=One-Click",
+          credentials: "omit",
+          redirect: "follow",
+          signal: controller.signal
+        });
+        win.clearTimeout(timer);
+        if (response.ok) {
+          rememberDone("unsubscribed");
+          finish("Désinscription envoyée", `${host} a accepté la demande. Les prochains envois peuvent mettre quelques jours à s'arrêter.`);
+          return;
+        }
+        throw new Error("HTTP " + response.status);
+      } catch (err) {
+        win.clearTimeout(timer);
+        console.warn("[Material-Thunderbird] Desinscription en un clic refusee : " + err);
+        setText("La désinscription automatique a échoué", "Vous pouvez la terminer sur la page de l'expéditeur.");
+        const open = button("material-unsub-btn", "Ouvrir la page", `Ouvrir ${host}`);
+        open.prepend(svgIcon(13, ICON_OPEN));
+        open.onclick = (e) => {
+          stop(e);
+          if (openPage()) askIfDone("Page ouverte dans un nouvel onglet", "Une fois désinscrit, confirmez-le ici.");
+        };
+        const cancel = button("material-unsub-text-btn", "Annuler");
+        cancel.onclick = (e) => { stop(e); showInitial(); };
+        setActions(cancel, open);
+      }
+    };
 
-    if (messageHeader && messageHeader.parentNode) {
-      messageHeader.parentNode.insertBefore(banner, messageHeader.nextSibling);
-    } else if (messagePaneBox && messagePaneBox.parentNode) {
-      messagePaneBox.parentNode.insertBefore(banner, messagePaneBox);
-    } else {
-      const notificationBox = doc.getElementById("mail-notification-top");
-      if (notificationBox) notificationBox.appendChild(banner);
+    // Le choix a la fermeture : ce message, ou cet expediteur.
+    const showDismissChoices = () => {
+      setText("Masquer ce bandeau ?", "");
+      const thisMessage = button("material-unsub-text-btn", "Pour ce message");
+      thisMessage.onclick = (e) => {
+        stop(e);
+        hideUnsubscribeForMessage(details.messageId);
+        banner.remove();
+      };
+      const always = button("material-unsub-text-btn", isList ? "Pour cette liste" : "Pour cet expéditeur",
+        `Ne plus proposer la désinscription pour ${targetLabel}. Réversible dans la personnalisation du thème.`);
+      always.onclick = (e) => {
+        stop(e);
+        rememberDone("ignored");
+        banner.remove();
+      };
+      const back = button("material-unsub-text-btn material-unsub-back", "Annuler");
+      back.onclick = (e) => { stop(e); showInitial(); };
+      setActions(back, thisMessage, always);
+    };
+
+    const showInitial = () => {
+      banner.classList.remove("material-unsub-done");
+      icon.replaceChildren(svgIcon(isList ? 16 : 18, isList ? ICON_GROUP : ICON_MAIL));
+      if (isList) {
+        setText(`Liste de diffusion · ${listLabel}`, "");
+      } else {
+        setText("Infolettre", details.oneClick
+          ? `${senderLabel} permet la désinscription en un clic.`
+          : `${senderLabel} propose un lien de désinscription.`);
+      }
+
+      let mainTitle;
+      if (url && details.oneClick) mainTitle = `Désinscription immédiate auprès de ${host}, sans ouvrir de page`;
+      else if (url) mainTitle = `Ouvrir ${host}`;
+      else mainTitle = "Préparer le courriel de désinscription (rien n'est envoyé sans vous)";
+      const main = button(isList ? "material-unsub-text-btn material-unsub-main" : "material-unsub-btn",
+        isList ? "Quitter la liste" : "Se désinscrire", mainTitle);
+      if (!isList && !details.oneClick) main.prepend(svgIcon(13, ICON_OPEN));
+
+      main.onclick = (e) => {
+        stop(e);
+        if (url && details.oneClick) {
+          // Action irreversible : une confirmation, sur place.
+          setText(isList ? `Quitter la liste ${listLabel} ?` : `Se désinscrire de ${senderLabel} ?`,
+            `La demande part directement à ${host}.`);
+          const confirm = button("material-unsub-btn", "Confirmer");
+          confirm.onclick = (ev) => { stop(ev); oneClick(); };
+          const cancel = button("material-unsub-text-btn", "Annuler");
+          cancel.onclick = (ev) => { stop(ev); showInitial(); };
+          setActions(cancel, confirm);
+        } else if (url) {
+          if (openPage()) askIfDone("Page ouverte dans un nouvel onglet", "Une fois désinscrit, confirmez-le ici.");
+        } else if (openDraft()) {
+          askIfDone("Courriel de désinscription préparé", "Relisez-le puis envoyez-le. Rien ne part sans vous.");
+        }
+      };
+
+      const close = button("material-unsub-close", "", "Masquer");
+      close.setAttribute("aria-label", "Masquer");
+      close.appendChild(svgIcon(16, "M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"));
+      close.onclick = (e) => { stop(e); showDismissChoices(); };
+      setActions(main, close);
+    };
+
+    showInitial();
+
+    if (!banner.parentNode) {
+      const messageHeader = doc.getElementById("msgHeaderView") || doc.getElementById("messageHeader");
+      const messagePaneBox = doc.getElementById("messagepanebox") || doc.getElementById("messagepane");
+      if (messageHeader && messageHeader.parentNode) {
+        messageHeader.parentNode.insertBefore(banner, messageHeader.nextSibling);
+      } else if (messagePaneBox && messagePaneBox.parentNode) {
+        messagePaneBox.parentNode.insertBefore(banner, messagePaneBox);
+      } else {
+        const notificationBox = doc.getElementById("mail-notification-top");
+        if (notificationBox) notificationBox.appendChild(banner);
+      }
     }
   }
 
@@ -2404,20 +2951,33 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     loadUnsubscribeRules(this.extension);
     return {
       materialAssistant: {
-        showUnsubscribeBanner: async (unsubscribeUrl, senderName, tabId) => {
-          // L URL vient d un courriel via le script d arriere-plan : elle est
-          // revalidee ici, au dernier point avant affichage d un bouton chrome.
+        showUnsubscribeBanner: async (details) => {
+          if (!details || !unsubscribeBannerEnabled()) return;
+          if (isUnsubscribeHiddenForMessage(details.messageId)) return;
+          if (isUnsubscribeKeyIgnored(details.key)) return;
+          // Les liens viennent d un courriel via le script d arriere-plan : ils
+          // sont revalides ici, au dernier point avant affichage d un bouton chrome.
           const rules = UnsubscribeRules;
-          if (!rules || !rules.isSafeUrl(unsubscribeUrl)) return;
+          const urlOk = !!rules && rules.isSafeUrl(details.url);
+          if (!urlOk && !isSafeMailto(details.mailto)) return;
 
           // Le bandeau appartient a un message, donc a un onglet. Il etait rendu
           // dans toutes les fenetres courrier ouvertes : une infolettre lue dans
           // l une en faisait apparaitre un dans l autre, ou aucun message
           // correspondant n etait affiche.
-          const target = this._windowForTab(context, tabId) ||
+          const target = this._windowForTab(context, details.tabId) ||
                          Services.wm.getMostRecentWindow("mail:3pane");
           if (target) {
-            this._renderUnsubscribeBanner(target, unsubscribeUrl, senderName);
+            this._renderUnsubscribeBanner(target, {
+              kind: details.kind === "list" ? "list" : "newsletter",
+              url: urlOk ? details.url : "",
+              mailto: urlOk ? "" : details.mailto,
+              oneClick: urlOk && !!details.oneClick,
+              listName: details.listName || "",
+              senderName: details.senderName || "",
+              key: details.key || "",
+              messageId: details.messageId || ""
+            });
           }
         },
         hideUnsubscribeBanner: async () => {

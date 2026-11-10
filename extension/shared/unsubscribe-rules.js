@@ -18,14 +18,15 @@
     "desinscrire", "se desinscrire", "desinscription",
     "desabonner", "se desabonner", "desabonnement",
     "unsubscribe", "opt out", "opt-out", "leave this list",
-    "manage preferences", "manage your preferences",
     "abmelden", "darse de baja", "annulla iscrizione",
     "cancelar subscricao", "uitschrijven"
   ];
 
   // Indices plus faibles : ne suffisent pas seuls a declencher le bandeau.
+  // "manage preferences" etait un mot-cle fort : les pieds de page des
+  // courriels de compte (codes, alertes) le contiennent aussi.
   var SOFT_KEYWORDS = [
-    "preferences", "ne plus recevoir", "stop receiving", "email settings",
+    "manage preferences", "manage your preferences", "preferences", "ne plus recevoir", "stop receiving", "email settings",
     "notification settings", "parametres de notification",
     "liste de diffusion", "gerer mon abonnement", "gerer vos abonnements"
   ];
@@ -202,6 +203,180 @@
     return null;
   }
 
+  /**
+   * Extrait l adresse mailto: d une valeur d en-tete List-Unsubscribe.
+   * Sert de repli quand l en-tete ne propose aucune URL web (listes Sympa,
+   * Mailman, LISTSERV) : le bandeau prepare alors un courriel, jamais envoye
+   * sans que l utilisateur clique lui-meme sur Envoyer.
+   */
+  function findMailtoInListUnsubscribeHeader(headerValue) {
+    if (!headerValue) return null;
+    var match = /<\s*(mailto:[^>\s]+)\s*>/i.exec(String(headerValue));
+    if (!match) return null;
+    var value = match[1].trim();
+    // Une adresse, eventuellement suivie de parametres (?subject=...).
+    return /^mailto:[^@\s?]+@[^@\s?]+(?:\?.*)?$/i.test(value) ? value : null;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Classement du message
+  //
+  // La presence d un lien de desinscription ne suffit pas a reconnaitre une
+  // infolettre. Les plateformes d envoi (Brevo, SendGrid...) ajoutent
+  // List-Unsubscribe et meme List-Unsubscribe-Post a des courriels
+  // transactionnels : un code de connexion Doctolib en porte un. Les listes de
+  // diffusion en portent aussi, mais ce ne sont pas des infolettres. Le
+  // bandeau distingue donc trois cas : infolettre, liste de diffusion, rien.
+  // ---------------------------------------------------------------------------
+
+  // Sujets et debuts de corps qui signalent un courriel transactionnel ou de
+  // securite : codes, mots de passe, confirmations de compte, commandes.
+  var TRANSACTIONAL_PATTERNS = [
+    /\bcode\b.{0,40}\b(?:verification|securite|connexion|confirmation|validation|acces|activation|unique)\b/,
+    /\b(?:verification|securite|connexion|confirmation|validation|acces|activation|login|security|sign[ -]?in|one[ -]?time)\b.{0,25}\bcode\b/,
+    /\bverification code\b|\bsecurity code\b|\blogin code\b|\bpasscode\b|\bone[ -]time password\b|\botp\b|\b2fa\b|\btwo[ -]factor\b|\bdouble authentification\b|\bauthentification a deux facteurs\b/,
+    /\bmot de passe\b|\bpassword\b|\breinitialis\w*\b|\breset your\b/,
+    /\bconfirm(?:ez)? (?:votre|your) (?:adresse|e-?mail|inscription|compte|account|email address)\b/,
+    /\bactiv(?:ez|ate) (?:votre|your) (?:compte|account)\b/,
+    /\bnouvelle connexion\b|\bnew (?:sign[ -]?in|login)\b|\balerte de securite\b|\bsecurity alert\b/,
+    /\bvotre commande\b|\byour order\b|\bconfirmation de commande\b|\border confirmation\b|\bfacture\b|\binvoice\b|\breceipt\b|\brecu de paiement\b|\bexpedition de votre\b|\byour (?:package|parcel) (?:has|is)\b/
+  ];
+
+  // Un code a usage unique : 4 a 8 chiffres, isoles, pres du mot code.
+  var OTP_IN_TEXT = /\bcode\b[^0-9]{0,80}\b\d{4,8}\b|\b\d{4,8}\b[^0-9]{0,40}\bcode\b/;
+
+  function isTransactional(subject, text) {
+    var s = normalize(subject);
+    var i;
+    for (i = 0; i < TRANSACTIONAL_PATTERNS.length; i++) {
+      if (TRANSACTIONAL_PATTERNS[i].test(s)) return true;
+    }
+    // Le debut du corps seulement : une infolettre peut parler de mots de passe
+    // dans un article, un courriel de code le dit des les premieres lignes.
+    var t = normalize(String(text || "").slice(0, 700));
+    if (OTP_IN_TEXT.test(t)) return true;
+    for (i = 0; i < 3; i++) {
+      if (TRANSACTIONAL_PATTERNS[i].test(t)) return true;
+    }
+    return false;
+  }
+
+  // Lit un en-tete dans un objet { nom-en-minuscules: [valeurs] } ou { nom: valeur }.
+  function headerValue(headers, name) {
+    if (!headers) return "";
+    var value = headers[name];
+    if (Array.isArray(value)) return value.length ? String(value[0]) : "";
+    return value ? String(value) : "";
+  }
+
+  /**
+   * Nom lisible d une liste a partir de List-Id (RFC 2919) :
+   *   "Seminaires du labo <seminaires.labo.example.org>" -> "Seminaires du labo"
+   *   "<ashra-france.groupes.renater.fr>"               -> "ashra-france"
+   */
+  function listNameFrom(listId) {
+    if (!listId) return "";
+    var text = String(listId);
+    var phrase = text.replace(/<[^>]*>/g, "").replace(/^["'\s]+|["'\s]+$/g, "");
+    if (phrase) return phrase;
+    var id = /<([^>]+)>/.exec(text);
+    return id ? id[1].split(".")[0] : "";
+  }
+
+  // Cle stable d un message pour les choix de l utilisateur.
+  function listKeyFrom(listId) {
+    var id = /<([^>]+)>/.exec(String(listId || ""));
+    return id ? id[1].trim().toLowerCase() : "";
+  }
+
+  // Logiciels de listes de discussion reconnaissables dans leurs en-tetes.
+  var LIST_SOFTWARE = /\bsympa\b|mailman|listserv|groups\.google|googlegroups|groups\.io|\/wws\b|\/lists?\//i;
+
+  // Adresse electronique nue d un en-tete From.
+  function emailFrom(from) {
+    var text = String(from || "");
+    var angle = /<([^>]+)>/.exec(text);
+    var raw = (angle ? angle[1] : text).trim().toLowerCase();
+    return /^[^@\s]+@[^@\s]+$/.test(raw) ? raw : "";
+  }
+
+  /**
+   * Classe un message pour le bandeau.
+   *
+   * details : {
+   *   headers : en-tetes en minuscules (format de messages.getFull),
+   *   subject : sujet,
+   *   text    : debut du corps en texte brut,
+   *   bodyUrl : lien trouve dans le corps HTML (findInHtml), facultatif
+   * }
+   *
+   * Retourne null, ou { kind: "newsletter" | "list", url, mailto, oneClick,
+   * listName, key } ; key identifie l expediteur ou la liste pour
+   * "Ne plus proposer".
+   */
+  function classifyMessage(details) {
+    details = details || {};
+    var h = details.headers || {};
+    var listUnsub = headerValue(h, "list-unsubscribe");
+    var listUnsubPost = headerValue(h, "list-unsubscribe-post");
+    var listId = headerValue(h, "list-id");
+    var listPost = headerValue(h, "list-post");
+    var precedence = normalize(headerValue(h, "precedence"));
+    var listHelp = headerValue(h, "list-help");
+
+    var url = findInListUnsubscribeHeader(listUnsub);
+    var mailto = findMailtoInListUnsubscribeHeader(listUnsub);
+    var oneClick = !!url && /list-unsubscribe\s*=\s*one-click/i.test(listUnsubPost);
+
+    // 1. Liste de discussion : un List-Id et une adresse de publication, ou un
+    //    logiciel de listes reconnaissable. Les infolettres portent parfois un
+    //    List-Id (Mailchimp), jamais de List-Post.
+    var isDiscussionList = !!listId && (
+      (listPost && !/^\s*no\b/i.test(listPost)) ||
+      precedence === "list" ||
+      LIST_SOFTWARE.test(listUnsub + " " + listHelp)
+    );
+    if (isDiscussionList) {
+      if (!url && !mailto) return null;
+      return {
+        kind: "list",
+        url: url,
+        mailto: url ? null : mailto,
+        oneClick: oneClick,
+        listName: listNameFrom(listId),
+        key: "list:" + listKeyFrom(listId)
+      };
+    }
+
+    // 2. Courriel transactionnel ou de securite : jamais de bandeau, meme si la
+    //    plateforme d envoi a ajoute List-Unsubscribe.
+    if (isTransactional(details.subject, details.text)) return null;
+
+    // 3. Infolettre : il faut un signal d envoi en masse dans les en-tetes. Le
+    //    corps sert a trouver le lien, plus a decider seul.
+    var bulk = !!listUnsub || !!listUnsubPost || precedence === "bulk" ||
+               !!headerValue(h, "feedback-id") || !!headerValue(h, "x-campaign") ||
+               !!headerValue(h, "x-campaign-id") || !!headerValue(h, "x-mailgun-tag") ||
+               !!headerValue(h, "x-mc-user") || !!headerValue(h, "x-sg-eid");
+    if (!bulk) return null;
+
+    if (!url && details.bodyUrl && isSafeUrl(details.bodyUrl)) url = details.bodyUrl;
+    if (!url && !mailto) {
+      // Le lien viendra peut-etre du DOM rendu : le message est bien une
+      // infolettre, seul le lien manque encore.
+      return { kind: "newsletter", url: null, mailto: null, oneClick: false, listName: "",
+               key: "from:" + emailFrom(headerValue(h, "from")) };
+    }
+    return {
+      kind: "newsletter",
+      url: url,
+      mailto: url ? null : mailto,
+      oneClick: oneClick,
+      listName: "",
+      key: "from:" + emailFrom(headerValue(h, "from"))
+    };
+  }
+
   var api = {
     EXACT_KEYWORDS: EXACT_KEYWORDS,
     SOFT_KEYWORDS: SOFT_KEYWORDS,
@@ -214,7 +389,12 @@
     findBestLink: findBestLink,
     findInDocument: findInDocument,
     findInHtml: findInHtml,
-    findInListUnsubscribeHeader: findInListUnsubscribeHeader
+    findInListUnsubscribeHeader: findInListUnsubscribeHeader,
+    findMailtoInListUnsubscribeHeader: findMailtoInListUnsubscribeHeader,
+    isTransactional: isTransactional,
+    listNameFrom: listNameFrom,
+    emailFrom: emailFrom,
+    classifyMessage: classifyMessage
   };
 
   global.MaterialUnsubscribeRules = api;

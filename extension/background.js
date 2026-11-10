@@ -1,17 +1,20 @@
 /**
  * Material-Thunderbird - Background Service
- * Detection de desinscription et pilotage du bandeau natif.
+ * Classement des messages et pilotage du bandeau de desinscription.
  *
- * Les regles de detection vivent dans shared/unsubscribe-rules.js, charge avant ce
- * script par manifest.json. Le bandeau lui-meme est rendu une seule fois, dans la
- * fenetre chrome, par experiment materialAssistant.
+ * Les regles vivent dans shared/unsubscribe-rules.js, charge avant ce script par
+ * manifest.json. Le bandeau lui-meme est rendu une seule fois, dans la fenetre
+ * chrome, par l experiment materialAssistant, qui garde aussi les choix de
+ * l utilisateur (bandeau desactive, message ou expediteur ignore).
  *
- * Ce script est le seul a decider s il y a un lien de desinscription. L experiment
- * menait en parallele sa propre detection sur mutation de l en-tete, et son
- * chemin negatif retirait le bandeau : la passe tardive pouvait donc effacer un
- * bandeau que ce script venait de demander, apres quoi bannerTabId restait pose
- * et le repli DOM etait ignore -- plus aucun bandeau pour ce message. L experiment
- * ne fait plus qu afficher et masquer sur demande.
+ * Ce script est le seul a decider s il faut un bandeau, et lequel :
+ * - "newsletter" : infolettre ou courriel commercial ;
+ * - "list"       : liste de diffusion, bandeau discret ;
+ * - rien         : courriel personnel ou transactionnel (codes, mots de passe,
+ *                  commandes), meme si la plateforme d envoi a ajoute
+ *                  List-Unsubscribe.
+ * Le lien trouve dans le corps par le script de message ne sert qu a completer
+ * un message deja reconnu comme infolettre, jamais a en reconnaitre un.
  */
 
 (function () {
@@ -27,11 +30,11 @@
   // d un autre onglet lors d un simple changement de selection.
   var bannerTabId = null;
 
-  // Expediteur du dernier message affiche, par onglet. Le script de message ne voit
-  // que le corps rendu : il ne peut pas nommer l expediteur, et le bandeau retombait
-  // donc sur "Cet expediteur" chaque fois que le lien venait du DOM et non de
-  // l en-tete. Cette table lui prete le nom deja lu ici.
-  var senderByTab = new Map();
+  // Dernier message affiche par onglet, avec son classement. Le script de
+  // message ne voit que le corps rendu : il ne peut ni nommer l expediteur ni
+  // savoir si le message est une infolettre. Cette table lui prete ce qui a
+  // deja ete lu ici.
+  var pendingByTab = new Map();
 
   function normalizeTabId(value) {
     return typeof value === "number" ? value : null;
@@ -53,59 +56,71 @@
     }
   }
 
-  async function showBanner(url, senderName, tabId) {
-    if (!Rules.isSafeUrl(url)) return;
+  async function showBanner(entry, tabId) {
+    var c = entry.classification;
+    if (!c || (!Rules.isSafeUrl(c.url) && !c.mailto)) return;
     if (!hasAssistant()) return;
     // Pose avant l attente, pas apres : le repli DOM ne s execute que si
     // bannerTabId est nul, et il pouvait donc s intercaler pendant l appel pour
     // afficher un second bandeau par-dessus celui-ci.
     bannerTabId = normalizeTabId(tabId);
     try {
-      await browser.materialAssistant.showUnsubscribeBanner(url, senderName || "", bannerTabId);
+      await browser.materialAssistant.showUnsubscribeBanner({
+        kind: c.kind,
+        url: c.url || "",
+        mailto: c.mailto || "",
+        oneClick: !!c.oneClick,
+        listName: c.listName || "",
+        senderName: entry.senderName || "",
+        key: c.key || "",
+        messageId: entry.messageId || "",
+        tabId: bannerTabId === null ? -1 : bannerTabId
+      });
     } catch (e) {
       bannerTabId = null;
       console.warn("[Material-Thunderbird] Affichage du bandeau impossible :", e);
     }
   }
 
+  // Retire balises, styles et entites d un corps HTML pour en lire le debut.
+  function htmlToText(html) {
+    return Rules.decodeEntities(String(html)
+      .replace(/<(style|script|head)[^>]*>[\s\S]*?<\/\1>/gi, " ")
+      .replace(/<[^>]+>/g, " "))
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   /**
-   * Cherche une URL de desinscription dans un message complet.
-   * 1. En-tete List-Unsubscribe (RFC 2369), la source la plus fiable.
-   * 2. A defaut, les parties text/html du corps.
+   * Parcourt les parties d un message complet et retourne le debut du texte
+   * (text/plain de preference) et le meilleur lien de desinscription du HTML.
    */
-  function extractUnsubscribeUrl(fullMessage) {
-    if (!fullMessage) return null;
+  function readBody(fullMessage) {
+    var plain = "";
+    var html = "";
+    var bodyUrl = null;
 
-    if (fullMessage.headers) {
-      // Thunderbird normalise les noms d en-tete en minuscules.
-      var values = fullMessage.headers["list-unsubscribe"];
-      if (Array.isArray(values)) {
-        for (var i = 0; i < values.length; i++) {
-          var fromHeader = Rules.findInListUnsubscribeHeader(values[i]);
-          if (fromHeader) return fromHeader;
-        }
-      }
-    }
-
-    var found = null;
-
-    // Le parcours s arrete des qu une correspondance est trouvee. Sans ce garde-fou
-    // dans la boucle, une partie soeur traitee ensuite ecrasait le resultat.
     function scanParts(parts) {
-      if (!parts || found) return;
-      for (var i = 0; i < parts.length && !found; i++) {
+      if (!parts) return;
+      for (var i = 0; i < parts.length; i++) {
         var part = parts[i];
         var type = (part.contentType || "").toLowerCase();
-        if (typeof part.body === "string" && part.body && type.indexOf("text/") === 0) {
-          var url = Rules.findInHtml(part.body);
-          if (url) { found = url; return; }
+        if (typeof part.body === "string" && part.body) {
+          if (type === "text/plain" && !plain) plain = part.body;
+          if (type === "text/html") {
+            if (!html) html = part.body;
+            // Le parcours garde le premier lien trouve : une partie soeur
+            // traitee ensuite l ecrasait.
+            if (!bodyUrl) bodyUrl = Rules.findInHtml(part.body);
+          }
         }
         if (Array.isArray(part.parts)) scanParts(part.parts);
       }
     }
 
-    if (Array.isArray(fullMessage.parts)) scanParts(fullMessage.parts);
-    return found;
+    if (fullMessage && Array.isArray(fullMessage.parts)) scanParts(fullMessage.parts);
+    var text = plain ? plain.replace(/\s+/g, " ").trim() : (html ? htmlToText(html) : "");
+    return { text: text.slice(0, 2000), bodyUrl: bodyUrl };
   }
 
   function senderFromMessage(message, fullMessage) {
@@ -118,18 +133,31 @@
 
   if (browser.messageDisplay && browser.messageDisplay.onMessageDisplayed) {
     browser.messageDisplay.onMessageDisplayed.addListener(async function (tab, message) {
+      var tabId = normalizeTabId(tab && tab.id);
       try {
         await hideBanner();
+        if (tabId !== null) pendingByTab.delete(tabId);
         if (!message || !message.id) return;
 
-        var tabId = normalizeTabId(tab && tab.id);
         var fullMessage = await browser.messages.getFull(message.id);
-        var senderName = senderFromMessage(message, fullMessage);
-        if (tabId !== null) senderByTab.set(tabId, senderName);
+        var headers = (fullMessage && fullMessage.headers) || {};
+        var body = readBody(fullMessage);
+        var classification = Rules.classifyMessage({
+          headers: headers,
+          subject: message.subject || (headers.subject && headers.subject[0]) || "",
+          text: body.text,
+          bodyUrl: body.bodyUrl
+        });
 
-        var url = extractUnsubscribeUrl(fullMessage);
-        if (url) {
-          await showBanner(url, senderName, tabId);
+        var entry = {
+          classification: classification,
+          senderName: senderFromMessage(message, fullMessage),
+          messageId: message.headerMessageId || ""
+        };
+        if (tabId !== null) pendingByTab.set(tabId, entry);
+
+        if (classification && (classification.url || classification.mailto)) {
+          await showBanner(entry, tabId);
         }
       } catch (err) {
         console.warn("[Material-Thunderbird] Analyse du message impossible :", err);
@@ -140,14 +168,18 @@
   /**
    * Repli : le script de message signale un lien trouve dans le DOM rendu, que
    * getFull ne voit pas toujours (corps charge a distance, parties encodees).
-   * Le bandeau reste rendu dans la fenetre chrome, jamais dans le corps du mail.
+   * Il ne sert qu a un message deja classe comme infolettre sans lien connu.
    */
   if (browser.runtime && browser.runtime.onMessage) {
     browser.runtime.onMessage.addListener(function (msg, sender) {
       if (!msg || msg.type !== "material-unsubscribe-found") return;
       if (bannerTabId !== null) return; // l en-tete a deja fourni un lien
       var tabId = normalizeTabId(sender && sender.tab && sender.tab.id);
-      showBanner(msg.url, tabId !== null ? senderByTab.get(tabId) : "", tabId);
+      var entry = tabId !== null ? pendingByTab.get(tabId) : null;
+      var c = entry && entry.classification;
+      if (!c || c.url || c.mailto || !Rules.isSafeUrl(msg.url)) return;
+      c.url = msg.url;
+      showBanner(entry, tabId);
     });
   }
 
@@ -159,10 +191,10 @@
     });
   }
 
-  // Sans cela senderByTab grossit pour toute la duree de la session.
+  // Sans cela pendingByTab grossit pour toute la duree de la session.
   if (browser.tabs && browser.tabs.onRemoved) {
     browser.tabs.onRemoved.addListener(function (tabId) {
-      senderByTab.delete(tabId);
+      pendingByTab.delete(tabId);
       if (bannerTabId === tabId) bannerTabId = null;
     });
   }

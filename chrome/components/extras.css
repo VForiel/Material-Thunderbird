@@ -983,3 +983,49 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   flex-direction: column !important;
   gap: 12px !important;
 }
+
+/* Expediteurs et listes pour lesquels le bandeau de desinscription est masque */
+.material-unsub-ignored {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  max-height: 168px !important;
+  overflow-y: auto !important;
+  margin-top: 6px !important;
+}
+
+.material-unsub-ignored:empty {
+  display: none !important;
+}
+
+.material-unsub-ignored-title {
+  padding: 4px 16px !important;
+}
+
+.material-unsub-ignored-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 2px 4px 2px 16px !important;
+  font-size: 13px !important;
+}
+
+.material-unsub-ignored-label {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: var(--md-sys-color-on-surface, #1f1f1f) !important;
+}
+
+.material-unsub-ignored-state {
+  font-size: 12px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+}
+
+.material-modal-section-desc {
+  font-size: 12px !important;
+  color: var(--md-sys-color-on-surface-variant, #444746) !important;
+  margin: -2px 4px 2px !important;
+}

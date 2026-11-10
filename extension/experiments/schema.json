@@ -6,22 +6,58 @@
         "name": "showUnsubscribeBanner",
         "type": "function",
         "async": true,
-        "description": "Affiche le bandeau Material You de désinscription entre l'en-tête et le corps du mail.",
+        "description": "Affiche le bandeau de désinscription entre l'en-tête et le corps du mail, sauf si l'utilisateur l'a désactivé ou a ignoré ce message ou cet expéditeur.",
         "parameters": [
           {
-            "name": "unsubscribeUrl",
-            "type": "string"
-          },
-          {
-            "name": "senderName",
-            "type": "string",
-            "optional": true
-          },
-          {
-            "name": "tabId",
-            "type": "integer",
-            "optional": true,
-            "description": "Onglet auquel le bandeau appartient. Sans lui, le bandeau va a la fenetre courrier la plus recente."
+            "name": "details",
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "newsletter",
+                  "list"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "optional": true,
+                "description": "Lien http(s) de désinscription."
+              },
+              "mailto": {
+                "type": "string",
+                "optional": true,
+                "description": "Adresse mailto: de désinscription, quand il n'y a pas de lien web."
+              },
+              "oneClick": {
+                "type": "boolean",
+                "optional": true,
+                "description": "L'expéditeur accepte la désinscription en un clic (RFC 8058)."
+              },
+              "listName": {
+                "type": "string",
+                "optional": true
+              },
+              "senderName": {
+                "type": "string",
+                "optional": true
+              },
+              "key": {
+                "type": "string",
+                "optional": true,
+                "description": "Identifiant de l'expéditeur ou de la liste, pour « Ne plus proposer »."
+              },
+              "messageId": {
+                "type": "string",
+                "optional": true,
+                "description": "Message-ID, pour « Masquer pour ce message »."
+              },
+              "tabId": {
+                "type": "integer",
+                "optional": true,
+                "description": "Onglet auquel le bandeau appartient, -1 si inconnu."
+              }
+            }
           }
         ]
       },
