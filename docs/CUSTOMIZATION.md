@@ -7,7 +7,11 @@ ou utilisez **`Alt+M`**, ou **Outils > Personnaliser le thème Material (M3)...*
 
 - **Apparence** : clair, sombre, ou le mode de Windows / macOS (*Système*) ;
 - **Couleur d'accent** : quatre palettes Material You, détaillées plus bas ;
-- **Icônes émojis** : remplace les icônes des dossiers et de la barre des espaces.
+- **Icônes émojis** : remplace les icônes des dossiers et de la barre des espaces ;
+- **Avatars** : logos des marques et Gravatar (voir plus bas) ;
+- **Fils de discussion** : masquer les réponses déjà lues ;
+- **Désinscription** : activer ou couper le bandeau, et retrouver les expéditeurs pour lesquels
+  il est masqué (bouton *Retirer* pour le proposer à nouveau).
 
 Tout s'applique immédiatement, dans toutes les fenêtres, et se retire avec l'extension.
 
@@ -77,22 +81,38 @@ entrée pour proposer une teinte de plus.
 
 ---
 
-## 2. Avatars Gravatar (désactivés par défaut)
+## 2. Avatars
 
-Le thème peut afficher la photo Gravatar de vos correspondants. Cette option est
-**désactivée par défaut** car elle a un coût en vie privée : pour chaque message
-ouvert, une empreinte de l'adresse de l'expéditeur est envoyée à `gravatar.com`,
-ce qui révèle à un tiers avec qui vous correspondez et quand vous lisez son courrier.
-L'empreinte est facile à inverser pour une adresse déjà connue.
+Ordre de priorité :
 
-Sans cette option, les avatars utilisent la photo de votre carnet d'adresses, puis
-l'initiale colorée du contact. **Aucune requête réseau n'est émise.**
+1. **Photo du contact** dans votre carnet d'adresses ;
+2. **Logo de la marque** (activé par défaut) ;
+3. **Gravatar** (désactivé par défaut) ;
+4. **Initiale colorée** du contact ou de l'adresse.
 
-Pour l'activer en connaissance de cause :
+La photo d'un compte Google ou Microsoft n'est pas publique : Gmail la tire de ses propres
+serveurs, et aucun client de messagerie tiers ne peut l'obtenir.
 
-1. Ouvrez `about:config` dans Thunderbird (Paramètres > Général > Éditeur de configuration).
-2. Recherchez `extensions.material-thunderbird.gravatar.enabled`.
-3. Basculez la valeur à `true`.
+### Logos des marques (BIMI)
+
+C'est ce que Gmail affiche pour une banque, Doctolib ou un réseau social : le domaine de
+l'expéditeur publie dans son DNS (`default._bimi.<domaine>`) l'adresse de son logo officiel.
+L'extension ne l'affiche que si ce domaine applique DMARC en mode strict (`p=quarantine` ou
+`p=reject`) : un courriel qui usurpe ce domaine est alors refusé ou classé en indésirable par
+votre serveur, et ne peut pas emprunter le logo.
+
+Coût réseau : une requête DNS par domaine d'expéditeur, puis le téléchargement du logo depuis le
+serveur de la marque. Rien sur vous ni sur le message n'est transmis, et le résultat est gardé
+7 jours. Si le résolveur DNS du système ne répond pas aux requêtes de ce type, la recherche passe
+par le DNS sur HTTPS de Cloudflare, comme Firefox en mode DoH. Option *Logos des marques* dans la
+fenêtre de personnalisation pour la couper.
+
+### Gravatar
+
+Désactivé par défaut car il a un coût en vie privée : pour chaque expéditeur, une empreinte de
+son adresse est envoyée à `gravatar.com`, ce qui révèle à un tiers avec qui vous correspondez.
+L'empreinte est facile à inverser pour une adresse déjà connue. Option *Gravatar* dans la
+fenêtre de personnalisation pour l'activer en connaissance de cause.
 
 ---
 

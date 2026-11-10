@@ -44,6 +44,28 @@ jobs:
 
           echo "Paquets téléchargeables générés avec succès dans docs/dist/"
 
+      # Thunderbird lit updates.json (update_url du manifeste) une fois par jour
+      # et installe seul toute version plus récente. Le lien pointe vers une
+      # copie versionnée du .xpi, et l'empreinte permet à Thunderbird de vérifier
+      # le fichier téléchargé.
+      - name: Manifeste de mise à jour (updates.json)
+        run: |
+          VERSION=$(node -p "require('./extension/manifest.json').version")
+          cp docs/dist/material-thunderbird.xpi "docs/dist/material-thunderbird-$VERSION.xpi"
+          HASH=$(sha256sum "docs/dist/material-thunderbird-$VERSION.xpi" | cut -d' ' -f1)
+          node -e "
+            const m = require('./extension/manifest.json');
+            const id = m.applications.gecko.id;
+            const out = { addons: { [id]: { updates: [{
+              version: m.version,
+              update_link: 'https://vforiel.github.io/Material-Thunderbird/dist/material-thunderbird-' + m.version + '.xpi',
+              update_hash: 'sha256:$HASH',
+              applications: { gecko: { strict_min_version: m.applications.gecko.strict_min_version } }
+            }] } } };
+            require('fs').writeFileSync('docs/updates.json', JSON.stringify(out, null, 2) + '\n');
+          "
+          cat docs/updates.json
+
       - name: Configuration de GitHub Pages
         uses: actions/configure-pages@v5
 

@@ -22,11 +22,14 @@ Aucun script, aucune préférence à modifier, aucun fichier à copier dans le p
    (`Ctrl + Maj + A`), roue crantée > **Installer un module depuis un fichier...**
 3. Confirmez avec **Ajouter**.
 
-Le thème s'applique aussitôt, sans redémarrage.
+Le thème s'applique aussitôt, sans redémarrage. Les versions suivantes s'installent ensuite
+toutes seules : Thunderbird vérifie chaque jour le fichier `updates.json` publié sur le site.
 
 > [!NOTE]
 > Thunderbird prévient que le module aura « un accès complet et illimité ». C'est le cas de toute
-> extension qui modifie l'interface de Thunderbird elle-même : l'extension n'envoie aucune donnée.
+> extension qui modifie l'interface de Thunderbird elle-même : l'extension n'envoie aucune donnée
+> personnelle. Seuls les logos des marques sont téléchargés depuis le site de l'expéditeur
+> (option désactivable, voir [CUSTOMIZATION.md](CUSTOMIZATION.md#2-avatars)).
 
 ---
 
@@ -34,7 +37,8 @@ Le thème s'applique aussitôt, sans redémarrage.
 
 Bouton palette dans la barre de gauche (au-dessus de la roue des paramètres), raccourci **`Alt+M`**,
 ou **Outils > Personnaliser le thème Material (M3)...** : mode clair / sombre / système, couleur
-d'accent et icônes émojis. Les changements s'appliquent immédiatement à toutes les fenêtres.
+d'accent, icônes émojis, avatars, fils de discussion et bandeau de désinscription. Les changements
+s'appliquent immédiatement à toutes les fenêtres.
 
 ---
 

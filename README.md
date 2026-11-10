@@ -1,6 +1,6 @@
 # Material-Thunderbird ✉️🎨
 
-[![Site Web & Guide Débutant](https://img.shields.io/badge/Site%20Web-D%C3%A9monstration%20%26%20Installation%20Facile-4285F4?logo=googlechrome&logoColor=white)](https://vforiel.github.io/Material-Thunderbird/)
+[![Site Web & Guide Débutant](https://img.shields.io/badge/Site%20Web-Aper%C3%A7u%20%26%20Installation-4285F4?logo=googlechrome&logoColor=white)](https://vforiel.github.io/Material-Thunderbird/)
 [![Sponsor](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/VForiel)
 [![Thunderbird](https://img.shields.io/badge/Thunderbird-115%2B%20%7C%20128%2B%20Nebula-0A84FF?logo=thunderbird&logoColor=white)](https://www.thunderbird.net/)
 [![Material Design 3](https://img.shields.io/badge/Design-Material%20You%20(M3)-4285F4?logo=google&logoColor=white)](https://m3.material.io/)
@@ -10,7 +10,7 @@
 **Material-Thunderbird** métamorphose l'interface de **Mozilla Thunderbird** (compatible avec les versions modernes Supernova 115+ et Nebula 128+) en adoptant le langage visuel **Material You (Material Design 3)** : formes en pilules douces, barres d'outils aérées, palettes tonales dynamiques, cartes surélevées et bouton d'action flottant (Extended FAB).
 
 🌐 **Site Web & Démonstrateur Interactif :** [https://vforiel.github.io/Material-Thunderbird/](https://vforiel.github.io/Material-Thunderbird/)  
-*(Présentation visuelle, simulateur en direct et guide pas à pas pour les personnes non-techniques).*
+*(Présentation, aperçu interactif et guide pas à pas pour les personnes non-techniques).*
 
 ---
 
@@ -24,10 +24,10 @@
 - **🗂️ Vue Cartes pour les Messages & Fils (Threads)** : Liste des messages présentée sous forme de cartes aérées avec point indicateur d'état non lu. Padding vertical optimisé pour les conversations avec réponses et affichage direct d'une puce pour les réponses non lues même lorsque le fil est replié.
 - **📑 Vue Multi-Messages Material You (`multimessageview`)** : Refonte totale du panneau de sélection multiple / conversation complète sous forme de cartes d'e-mails d'un blanc pur (`#ffffff`), sans bordure, sur fond bleu doux (`surface-container-low`), avec en-tête surélevée, titre en gras et boutons d'action Material 3.
 - **✉️ En-tête de Message Surélevé** : Fiche d'en-tête de courriel élégante avec boutons d'actions en pilules (Répondre, Transférer, Archiver, Supprimer).
-- **⚡ Avatars Non-Bloquants avec Placeholder Instantané** : Placeholder neutre affiché immédiatement lors du défilement, suivi d'une résolution asynchrone progressive sans gel d'affichage. Les avatars proviennent de votre carnet d'adresses puis de l'initiale colorée du contact, **sans aucune requête réseau**. La recherche Gravatar existe mais reste désactivée par défaut ([pourquoi](docs/CUSTOMIZATION.md#2-avatars-gravatar-désactivés-par-défaut)).
-- **🛡️ Détecteur de Désinscription Intelligent** : Analyse de l'en-tête `List-Unsubscribe` (RFC 2369) puis du message affiché (mots-clés multilingues, plateformes emailing majeures), et affichage d'un bandeau Material You dans la fenêtre de Thunderbird pour se désinscrire en 1 clic. Seules les URL `http(s)` sont ouvrables, et le domaine de destination est indiqué au survol.
+- **⚡ Avatars comme dans Gmail** : photo du carnet d'adresses, puis **logo officiel de la marque** (BIMI, seulement pour les domaines protégés contre l'usurpation), puis Gravatar (désactivé par défaut), puis l'initiale colorée. Affichage immédiat, résolution en arrière-plan sans gel ([détails](docs/CUSTOMIZATION.md#2-avatars)).
+- **🛡️ Désinscription Intelligente** : un bandeau pour les infolettres, une ligne discrète pour les listes de diffusion, et rien pour les codes de connexion, mots de passe ou commandes, même quand la plateforme d'envoi y a mis un lien de désinscription. Désinscription **en un clic** (RFC 8058) quand l'expéditeur l'accepte, sinon ouverture de sa page ou préparation du courriel (jamais envoyé sans vous). Le bandeau se masque pour un message ou pour un expéditeur, et ce choix est retenu.
 - **📅 Agenda & Calendrier Modernisés** : Événements sous forme de cartes Material 3 aux coins arrondis, sélecteur de vues en boutons segmentés, badge "Aujourd'hui" en pilule tonale et volet d'agenda restylé.
-- **⚡ Une seule extension** : un fichier `.xpi` à ouvrir avec Thunderbird. Thème, personnalisation et désinstallation se font depuis Thunderbird, sans script ni redémarrage.
+- **⚡ Une seule extension** : un fichier `.xpi` à ouvrir avec Thunderbird. Thème, personnalisation et désinstallation se font depuis Thunderbird, sans script ni redémarrage, et les nouvelles versions s'installent toutes seules.
 
 ---
 
@@ -49,12 +49,13 @@ sont à jour.
 
 ---
 
-## 🖥️ Démonstrateur Web Interactif
+## 🖥️ Aperçu
 
-Vous souhaitez visualiser le rendu avant de l'installer ?
-Ouvrez le fichier **[`docs/preview.html`](docs/preview.html)** directement dans votre navigateur web favori :
-- Testez la bascule entre le **Mode Clair** et le **Mode Sombre**.
-- Essayez les différentes teintes dynamiques : **Google Blue**, **Émeraude**, **Améthyste** et **Corail**.
+L'[aperçu du site](https://vforiel.github.io/Material-Thunderbird/preview.html) reproduit
+Thunderbird 128 avec les couleurs exactes de l'extension (`docs/theme/tokens/`, copiés depuis
+`chrome/tokens/` par `scripts/build.ps1`). Son bouton palette ouvre la même fenêtre de
+personnalisation que dans Thunderbird. Pour le servir en local :
+`python -m http.server --directory docs`.
 
 ---
 
@@ -91,25 +92,28 @@ Material-Thunderbird/
 │   ├── experiments/               # API privilégiée : thème, boutons, personnalisation
 │   ├── material-theme.css         # GÉNÉRÉ depuis chrome/ par scripts/build.ps1
 │   ├── message-content.css        # GÉNÉRÉ depuis chrome/userContent.css
-│   ├── background.js              # Script d'arrière-plan et enregistrement d'APIs
+│   ├── background.js              # Classement des messages et pilotage du bandeau
 │   ├── shared/                    # Code partagé par les trois contextes
 │   │   └── unsubscribe-rules.js   # Règles de détection de désinscription
 │   ├── scripts/                   # Scripts d'assistance non-bloquants
 │   │   └── unsubscribe-detector.js # Analyse du message affiché
-│   └── icons/                     # Icône de l'extension au format SVG
-│       └── icon.svg
+│   └── icons/                     # Logo de l'extension (32, 64 et 128 px)
 ├── scripts/
 │   └── build.ps1                  # Génération des feuilles et du package .xpi
 ├── tests/                         # Suite de tests (`npm test`, sans dépendance)
 │   ├── unsubscribe-rules.test.js  # Détection de désinscription et URL sûres
 │   ├── generated-css.test.js      # material-theme.css toujours aligné sur chrome/
-│   └── tokens-parity.test.js      # Palettes sombres identiques, encodage sain
+│   ├── tokens-parity.test.js      # Palettes sombres identiques, encodage sain
+│   ├── classify-message.test.js   # Infolettre, liste ou rien (en-têtes réels anonymisés)
+│   └── site-sync.test.js          # Jetons et palettes du site identiques à l'extension
 ├── dist/                          # Sortie de build (ignorée par Git)
 │   └── material-thunderbird.xpi   # Générée par scripts/build.ps1
 └── docs/                          # Documentation complémentaire
     ├── INSTALL.md                 # Installation, désinstallation, dépannage
-    ├── CUSTOMIZATION.md           # Guide pour changer de palette de couleurs
-    └── preview.html               # Vitrine interactive Material You pour navigateur
+    ├── CUSTOMIZATION.md           # Personnalisation, avatars, palettes
+    ├── index.html                 # Site du projet
+    ├── preview.html               # Aperçu interactif de Thunderbird avec le thème
+    └── theme/                     # Réglages partagés et copie des jetons pour l'aperçu
 ```
 
 ---

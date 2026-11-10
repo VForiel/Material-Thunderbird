@@ -1,11 +1,11 @@
 {
   "name": "material-thunderbird",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Theme Material You (Material Design 3) pour Mozilla Thunderbird.",
   "homepage": "https://github.com/VForiel/Material-Thunderbird",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "node tests/unsubscribe-rules.test.js && node tests/generated-css.test.js && node tests/tokens-parity.test.js"
+    "test": "node tests/unsubscribe-rules.test.js && node tests/classify-message.test.js && node tests/generated-css.test.js && node tests/tokens-parity.test.js && node tests/site-sync.test.js"
   }
 }
