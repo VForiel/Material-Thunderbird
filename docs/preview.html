@@ -770,8 +770,8 @@
         btns = '<button class="text-btn" data-unsub="close">Fermer</button>';
       } else if (step === "dismiss") {
         title = "Masquer ce bandeau ?";
-        btns = '<button class="text-btn muted" data-unsub="back">Annuler</button><button class="text-btn" data-unsub="hide">Pour ce message</button>' +
-          '<button class="text-btn" data-unsub="ignore">' + (isList ? "Pour cette liste" : "Pour cet expéditeur") + "</button>";
+        btns = '<button class="text-btn" data-unsub="hide">Pour ce message</button>' +
+          '<button class="text-btn" data-unsub="ignore">' + (isList ? "Pour cette liste" : "Pour cet expéditeur") + '</button><button class="text-btn muted" data-unsub="back">Annuler</button>';
       }
       var done = step === "sent" || step === "noted";
       return '<div class="unsub' + (isList ? " list" : "") + (done ? " done" : "") + '" role="status">' +

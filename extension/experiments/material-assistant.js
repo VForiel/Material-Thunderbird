@@ -647,7 +647,10 @@ function checkGravatar(win, cleanEmail, onResolved) {
  * Firefox en mode DoH.
  */
 const PREF_BRAND_LOGOS = "extensions.material-thunderbird.brand-logos";
-const PREF_BRAND_CACHE = "extensions.material-thunderbird.brand-logo-cache";
+const PREF_BRAND_CACHE = "extensions.material-thunderbird.brand-logo-cache-v5";
+// Remplis de fausses absences (resolveur natif sans TXT, puis CSP) : oublies.
+const PREF_BRAND_CACHE_OLD = "extensions.material-thunderbird.brand-logo-cache";
+const PREF_BRAND_CACHE_OLD2 = "extensions.material-thunderbird.brand-logo-cache-v4";
 const BRAND_TTL_FOUND = 7 * 24 * 3600 * 1000;
 const BRAND_TTL_MISSING = 24 * 3600 * 1000;
 const BRAND_CACHE_MAX = 400;
@@ -662,6 +665,8 @@ let brandCache = null;
 function loadBrandCache() {
   if (brandCache) return brandCache;
   brandCache = new Map();
+  try { Services.prefs.clearUserPref(PREF_BRAND_CACHE_OLD); } catch (e) {}
+  try { Services.prefs.clearUserPref(PREF_BRAND_CACHE_OLD2); } catch (e) {}
   try {
     const stored = JSON.parse(Services.prefs.getStringPref(PREF_BRAND_CACHE, "{}"));
     for (const [domain, entry] of Object.entries(stored || {})) {
@@ -739,7 +744,10 @@ function nativeTxtLookup(name) {
 // Repli : DNS sur HTTPS (format JSON), sans cookie.
 async function dohTxtLookup(win, name) {
   try {
-    const response = await win.fetch(`${DOH_ENDPOINT}?name=${encodeURIComponent(name)}&type=TXT`, {
+    // about:message et about:3pane interdisent toute connexion par leur CSP
+    // (default-src chrome:) : la requete part de la fenetre principale.
+    const host = Services.wm.getMostRecentWindow("mail:3pane") || win.top || win;
+    const response = await host.fetch(`${DOH_ENDPOINT}?name=${encodeURIComponent(name)}&type=TXT`, {
       headers: { accept: "application/dns-json" },
       credentials: "omit"
     });
@@ -753,12 +761,22 @@ async function dohTxtLookup(win, name) {
   }
 }
 
-let nativeTxtWorks = true;
+/**
+ * Sans DNS sur HTTPS active, le resolveur de Gecko ne sait pas faire de requete
+ * TXT : il repond NS_ERROR_UNKNOWN_HOST meme pour un nom qui existe, ce qui
+ * ressemble a "pas de logo". Un premier essai sur un nom qui a toujours des
+ * enregistrements TXT dit si le resolveur natif est utilisable ; sinon toutes
+ * les recherches passent par le DNS sur HTTPS.
+ */
+let nativeTxtWorks = null;
 async function txtLookup(win, name) {
+  if (nativeTxtWorks === null) {
+    const probe = await nativeTxtLookup("google.com");
+    nativeTxtWorks = Array.isArray(probe) && probe.length > 0;
+  }
   if (nativeTxtWorks) {
     const records = await nativeTxtLookup(name);
     if (records !== null) return records;
-    nativeTxtWorks = false;
   }
   return dohTxtLookup(win, name);
 }
@@ -800,8 +818,33 @@ async function lookupBrandLogo(win, domain) {
 
 const pendingBrandCallbacks = new Map();
 
+// domaine -> logo en data:, pour la session. about:message et about:3pane
+// n acceptent que les images chrome:, moz-icon: et data: (CSP) : le SVG est
+// telecharge par la fenetre principale puis transmis en data:. Il n est pas
+// garde dans les preferences, seule son adresse l est.
+const brandDataUris = new Map();
+const BRAND_LOGO_MAX_BYTES = 64 * 1024;
+
+async function fetchBrandLogo(win, url) {
+  const host = Services.wm.getMostRecentWindow("mail:3pane") || win.top || win;
+  const response = await host.fetch(url, { credentials: "omit" });
+  if (!response.ok) return "";
+  const text = await response.text();
+  // Un logo BIMI est un SVG (profil SVG Tiny PS) : tout le reste est refuse.
+  if (text.length > BRAND_LOGO_MAX_BYTES || !/<svg[\s>]/i.test(text)) return "";
+  // Encodage d URL plutot que base64 : ni TextEncoder ni btoa ne sont surs
+  // dans le bac a sable de l experiment.
+  // Un logo transparent laissait voir la couleur pastel de l avatar : il est
+  // pose sur un fond blanc, comme dans Gmail.
+  const logo = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(text);
+  const framed = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">' +
+    '<rect width="100" height="100" fill="#ffffff"/>' +
+    '<image width="100" height="100" href="' + logo + '" xlink:href="' + logo + '"/></svg>';
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(framed);
+}
+
 /**
- * Cherche le logo de la marque du domaine de cleanEmail. onResolved(url) est
+ * Cherche le logo de la marque du domaine de cleanEmail. onResolved(dataUri) est
  * appele si un logo est trouve et se charge ; onMissing() sinon, pour passer a
  * la source suivante (Gravatar).
  */
@@ -811,9 +854,13 @@ function checkBrandLogo(win, cleanEmail, onResolved, onMissing) {
     onMissing();
     return;
   }
+  if (brandDataUris.has(domain)) {
+    onResolved(brandDataUris.get(domain));
+    return;
+  }
   const cached = freshBrandEntry(domain);
-  if (cached) {
-    if (cached.u) onResolved(cached.u); else onMissing();
+  if (cached && !cached.u) {
+    onMissing();
     return;
   }
   if (pendingBrandCallbacks.has(domain)) {
@@ -822,37 +869,37 @@ function checkBrandLogo(win, cleanEmail, onResolved, onMissing) {
   }
   pendingBrandCallbacks.set(domain, [[onResolved, onMissing]]);
 
-  const settle = (url) => {
-    loadBrandCache().set(domain, { u: url || "", t: Date.now() });
+  const settle = (url, dataUri) => {
+    loadBrandCache().set(domain, { u: dataUri ? url : "", t: Date.now() });
     saveBrandCache();
+    if (dataUri) brandDataUris.set(domain, dataUri);
     const callbacks = pendingBrandCallbacks.get(domain) || [];
     pendingBrandCallbacks.delete(domain);
     for (const [ok, missing] of callbacks) {
-      try { if (url) ok(url); else missing(); } catch (e) {}
+      try { if (dataUri) ok(dataUri); else missing(); } catch (e) {}
     }
   };
 
-  lookupBrandLogo(win, domain).then((url) => {
-    if (!url) { settle(""); return; }
-    // Le logo doit effectivement se charger : une URL morte retomberait sinon
-    // sur une image cassee.
-    const img = new win.Image();
-    const timer = win.setTimeout(() => { img.onload = img.onerror = null; settle(""); }, 4000);
-    img.onload = () => { win.clearTimeout(timer); settle(url); };
-    img.onerror = () => { win.clearTimeout(timer); settle(""); };
-    img.src = url;
-  }, () => settle(""));
+  // Adresse deja connue : seul le telechargement du logo est a refaire.
+  const known = cached && cached.u ? Promise.resolve(cached.u) : lookupBrandLogo(win, domain);
+  known
+    .then((url) => (url ? fetchBrandLogo(win, url).then((data) => settle(url, data)) : settle("", "")))
+    .catch((err) => {
+      console.warn("[Material-Thunderbird] Logo de marque indisponible pour " + domain + " : " + err);
+      settle("", "");
+    });
 }
 
 /**
- * Valeur synchrone pour un premier rendu : l URL du logo si elle est connue,
- * "" si le domaine n en a pas, null si la recherche n a pas encore eu lieu.
+ * Valeur synchrone pour un premier rendu : le logo s il est deja en memoire,
+ * "" si le domaine n en a pas, null s il reste a le chercher ou a le telecharger.
  */
 function cachedBrandLogo(cleanEmail) {
   const domain = (cleanEmail.split("@")[1] || "").toLowerCase();
   if (!domain || !areBrandLogosEnabled()) return "";
+  if (brandDataUris.has(domain)) return brandDataUris.get(domain);
   const entry = freshBrandEntry(domain);
-  return entry ? entry.u : null;
+  return entry && !entry.u ? "" : null;
 }
 
 // Normalize initial letter (removes quotes, accents, brackets)
@@ -881,10 +928,13 @@ function parseNameAndEmail(raw) {
     return { displayName, email };
   }
   
-  if (str.includes("@")) {
-    return { displayName: "", email: str.replace(/[<>]/g, "").trim() };
+  // Texte d interface ou chaine composite : la premiere adresse trouvee.
+  const inner = str.match(/<([^<>\s]+@[^<>\s]+)>/) || str.match(/([^\s<>"']+@[^\s<>"']+\.[a-z]{2,})/i);
+  if (inner) {
+    const displayName = str.slice(0, str.indexOf(inner[0])).replace(/^["'\s]+|["'\s]+$/g, "");
+    return { displayName, email: inner[1].trim() };
   }
-  
+
   return { displayName: str, email: "" };
 }
 
@@ -1947,7 +1997,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const legacyRemoved = this._removeLegacyProfileInstall();
     for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_HIDE_READ_REPLIES,
                         PREF_UNSUB_ENABLED, PREF_UNSUB_IGNORED, PREF_UNSUB_HIDDEN,
-                        PREF_BRAND_LOGOS, PREF_BRAND_CACHE, GRAVATAR_PREF]) {
+                        PREF_BRAND_LOGOS, PREF_BRAND_CACHE, PREF_BRAND_CACHE_OLD, PREF_BRAND_CACHE_OLD2, GRAVATAR_PREF]) {
       try { Services.prefs.clearUserPref(pref); } catch (e) {}
     }
     releaseThemeModeOverride();
@@ -2465,7 +2515,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       };
       const back = button("material-unsub-text-btn material-unsub-back", "Annuler");
       back.onclick = (e) => { stop(e); showInitial(); };
-      setActions(back, thisMessage, always);
+      setActions(thisMessage, always, back);
     };
 
     const showInitial = () => {
@@ -2560,7 +2610,12 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       const fromBox = doc.getElementById("expandedfromBox");
       if (fromBox) {
         const fromRec = fromBox.querySelector(".header-recipient, mail-emailaddress, [emailAddress], .email-address") || fromBox;
-        const rawFrom = fromRec.getAttribute("label") ||
+        // Thunderbird 128 expose l adresse en proprietes de <li is="header-recipient">,
+        // pas en attributs : le repli sur textContent melangeait le libelle "De",
+        // l initiale de l avatar et le nom, et l adresse n etait pas reconnue.
+        const rawFrom = fromRec.fullAddress ||
+                        fromRec.emailAddress ||
+                        fromRec.getAttribute("label") ||
                         fromRec.getAttribute("displayName") ||
                         fromRec.getAttribute("emailAddress") ||
                         fromRec.getAttribute("title") ||
