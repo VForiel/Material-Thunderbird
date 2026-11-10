@@ -1,0 +1,35 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Design Tokens: Shapes, Elevation, Transitions & Typography
+ * Reference: https://m3.material.io
+ */
+
+:root {
+  /* MD3 Typography */
+  --md-sys-font-family: -apple-system, BlinkMacSystemFont, "Google Sans", "Roboto", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --md-sys-font-family-mono: "Roboto Mono", "Cascadia Code", "Consolas", monospace;
+
+  /* MD3 Shape Radii */
+  --md-shape-none: 0px;
+  --md-shape-corner-extra-small: 4px;
+  --md-shape-corner-small: 8px;
+  --md-shape-corner-medium: 12px;
+  --md-shape-corner-large: 16px;
+  --md-shape-corner-extra-large: 28px;
+  --md-shape-corner-full: 9999px;
+
+  /* MD3 Motion & Easing */
+  --md-motion-duration-short: 150ms;
+  --md-motion-duration-medium: 250ms;
+  --md-motion-duration-long: 350ms;
+  --md-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-motion-easing-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* MD3 Elevation Shadows */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.14);
+  --md-sys-elevation-2: 0 2px 6px 2px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.14);
+  --md-sys-elevation-3: 0 4px 10px 3px rgba(0, 0, 0, 0.10), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+  --md-sys-elevation-4: 0 6px 14px 4px rgba(0, 0, 0, 0.12), 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+  --md-sys-elevation-5: 0 8px 18px 6px rgba(0, 0, 0, 0.14), 0 4px 8px 0 rgba(0, 0, 0, 0.18);
+}

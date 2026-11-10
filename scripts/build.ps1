@@ -126,6 +126,14 @@ finally {
 Write-Host "[+] Extension (.xpi) creee avec succes :" -ForegroundColor Green
 Write-Host "    $OutputFile" -ForegroundColor Yellow
 
+# L apercu du site charge les memes jetons de couleur que l extension.
+$DocsTokens = Join-Path $ProjectRoot "docs\theme\tokens"
+if (-not (Test-Path $DocsTokens)) {
+    New-Item -ItemType Directory -Path $DocsTokens | Out-Null
+}
+Copy-Item (Join-Path $ChromeDir "tokens\*.css") $DocsTokens -Force
+Write-Host "[+] Jetons copies dans docs/theme/tokens/ pour l apercu du site" -ForegroundColor Green
+
 $DocsDist = Join-Path $ProjectRoot "docs\dist"
 if (-not (Test-Path $DocsDist)) {
     New-Item -ItemType Directory -Path $DocsDist | Out-Null

@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Material-Thunderbird — Métamorphosez votre messagerie en toute simplicité</title>
   <meta name="description" content="Thème Material You (Material Design 3) pour Mozilla Thunderbird. Modernisez votre boîte de réception en quelques clics sans compétences informatiques.">
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/png" href="favicon-48.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <!-- Open Graph / Meta Réseaux Sociaux -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Material-Thunderbird — Thème Material You pour Mozilla Thunderbird">
   <meta property="og:description" content="Une interface moderne, aérée et reposante pour votre messagerie Thunderbird. 100% gratuit, sécurisé et facile à installer.">
-  <meta property="og:image" content="icon.svg">
+  <meta property="og:image" content="https://vforiel.github.io/Material-Thunderbird/logo.png">
 
-  <!-- Polices Google Fonts (Material 3) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Réglages partagés avec l'aperçu (apparence, couleur, options). -->
+  <script src="theme/settings.js"></script>
+  <script>MaterialSettings.apply(document, MaterialSettings.load());</script>
 
   <style>
     /* ==========================================================================
        VARIABLES DE DESIGN MATERIAL YOU (M3)
        ========================================================================== */
     :root {
-      --font-main: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', sans-serif;
+      --font-main: -apple-system, BlinkMacSystemFont, "Google Sans", "Roboto", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
       --font-mono: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
       
       --radius-sm: 8px;
@@ -239,9 +239,7 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: color-mix(in srgb, var(--md-surface) 85%, transparent);
+      background: var(--md-surface);
       border-bottom: 1px solid var(--md-outline-variant);
       transition: background-color var(--transition), border-color var(--transition);
     }
@@ -265,8 +263,6 @@
     .brand-logo {
       width: 42px;
       height: 42px;
-      border-radius: var(--radius-md);
-      box-shadow: var(--elevation-1);
       display: block;
       transition: transform var(--transition);
     }
@@ -281,6 +277,7 @@
     }
 
     .brand-name {
+      white-space: nowrap;
       font-size: 19px;
       font-weight: 700;
       letter-spacing: -0.3px;
@@ -302,6 +299,7 @@
     }
 
     .nav-link {
+      white-space: nowrap;
       color: var(--md-on-surface-variant);
       font-weight: 500;
       font-size: 15px;
@@ -319,39 +317,172 @@
       gap: 12px;
     }
 
-    /* Sélecteurs de couleur et de thème */
-    .palette-chips {
+    /* Bouton palette : mêmes réglages que la fenêtre de personnalisation de Thunderbird. */
+    .theme-menu {
+      position: relative;
+    }
+
+    .theme-popover {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      padding: 18px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--md-surface-container);
+      color: var(--md-on-surface);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--radius-lg, 24px);
+      box-shadow: var(--elevation-3, 0 4px 10px 3px rgba(0,0,0,.1));
+      z-index: 1100;
+    }
+
+    .theme-popover.open {
       display: flex;
+    }
+
+    .theme-popover h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .tp-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--md-on-surface-variant);
+      margin-bottom: 8px;
+    }
+
+    .tp-segmented {
+      display: flex;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .tp-segmented button {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      background: transparent;
+      color: var(--md-on-surface);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .tp-segmented button + button {
+      border-left: 1px solid var(--md-outline);
+    }
+
+    .tp-segmented button[aria-pressed="true"] {
+      background: var(--md-secondary-container);
+      color: var(--md-on-secondary-container, var(--md-on-surface));
+    }
+
+    .tp-swatches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .tp-swatch {
+      display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 6px;
-      background: var(--md-surface-low);
-      padding: 4px 8px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--md-outline-variant);
-    }
-
-    .color-chip {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid transparent;
+      padding: 8px 2px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--md-on-surface);
+      font: inherit;
+      font-size: 12px;
       cursor: pointer;
-      transition: transform 180ms ease, border-color 180ms ease;
     }
 
-    .color-chip:hover {
-      transform: scale(1.2);
+    .tp-swatch:hover {
+      background: var(--md-state-hover, rgba(0,0,0,.06));
     }
 
-    .color-chip.active {
-      border-color: var(--md-on-surface);
-      transform: scale(1.15);
+    .tp-swatch[aria-pressed="true"] {
+      border-color: var(--md-outline-variant);
+      background: var(--md-surface-low);
+      font-weight: 600;
     }
 
-    .chip-blue { background: #0b57d0; }
-    .chip-emerald { background: #006a60; }
-    .chip-purple { background: #6750a4; }
-    .chip-coral { background: #9c4125; }
+    .tp-swatch span {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.35);
+    }
+
+    .tp-swatch[aria-pressed="true"] span {
+      box-shadow: 0 0 0 2px var(--md-surface-container), 0 0 0 4px var(--md-on-surface);
+    }
+
+    .tp-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 2px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .tp-option span {
+      flex: 1;
+    }
+
+    .tp-option small {
+      display: block;
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+    }
+
+    .tp-option input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--md-primary);
+      flex: none;
+    }
+
+    .tp-note {
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
+      margin: 0;
+    }
+
+    /* Sur téléphone, la fenêtre palette prend la largeur de l'écran. */
+    @media (max-width: 600px) {
+      .theme-popover {
+        position: fixed;
+        top: 70px;
+        left: 16px;
+        right: 16px;
+        width: auto;
+        max-height: calc(100vh - 86px);
+        overflow-y: auto;
+      }
+    }
+
+    /* Le bouton Installer du bandeau laisse sa place : il est repris juste en dessous. */
+    @media (max-width: 420px) {
+      .header-install-btn {
+        display: none !important;
+      }
+    }
+
+    /* Les ancres ne passent plus sous la barre de navigation fixe. */
+    section[id] {
+      scroll-margin-top: 84px;
+    }
 
     .icon-btn {
       width: 40px;
@@ -790,7 +921,7 @@
       line-height: 1.5;
     }
 
-    /* Section Simulateur en Direct */
+    /* Section Aperçu */
     .demo-section {
       padding: 80px 0;
       border-bottom: 1px solid var(--md-outline-variant);
@@ -802,6 +933,13 @@
       border: 1px solid var(--md-outline-variant);
       box-shadow: var(--elevation-3);
       overflow: hidden;
+    }
+
+    .demo-notice {
+      margin: 14px 4px 0;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--md-on-surface-variant);
     }
 
     .demo-frame-toolbar {
@@ -1327,14 +1465,18 @@
       }
     }
 
-    /* Tablette Portrait & Écrans Réduits (<= 900px) */
-    @media (max-width: 900px) {
+    /* Liens de navigation repliés dans le menu avant de manquer de place. */
+    @media (max-width: 1100px) {
       .nav-links {
         display: none;
       }
       .mobile-menu-toggle {
         display: flex;
       }
+    }
+
+    /* Tablette Portrait & Écrans Réduits (<= 900px) */
+    @media (max-width: 900px) {
       .hero-grid {
         grid-template-columns: 1fr;
         gap: 40px;
@@ -1579,7 +1721,7 @@
   <header class="app-header">
     <div class="container header-content">
       <a href="#" class="brand-link">
-        <img src="icon.svg" alt="Logo Material-Thunderbird" class="brand-logo">
+        <img src="logo.png" alt="" width="42" height="42" class="brand-logo">
         <div class="brand-text">
           <span class="brand-name">Material-Thunderbird</span>
           <span class="brand-badge">Thème Material You</span>
@@ -1589,32 +1731,48 @@
       <nav>
         <ul class="nav-links">
           <li><a href="#presentation" class="nav-link">Nouveautés</a></li>
-          <li><a href="#demo" class="nav-link">Aperçu en direct</a></li>
-          <li><a href="#installer" class="nav-link">Installation Facile</a></li>
+          <li><a href="#demo" class="nav-link">Aperçu</a></li>
+          <li><a href="#installer" class="nav-link">Installation</a></li>
           <li><a href="#faq" class="nav-link">Aide & FAQ</a></li>
         </ul>
       </nav>
 
       <div class="header-actions">
-        <!-- Sélecteur de palette de couleurs -->
-        <div class="palette-chips" title="Changer la couleur du thème">
-          <button class="color-chip chip-blue active" data-pal="blue" onclick="changePalette('blue')" aria-label="Bleu Google"></button>
-          <button class="color-chip chip-emerald" data-pal="emerald" onclick="changePalette('emerald')" aria-label="Vert Émeraude"></button>
-          <button class="color-chip chip-purple" data-pal="purple" onclick="changePalette('purple')" aria-label="Violet Améthyste"></button>
-          <button class="color-chip chip-coral" data-pal="coral" onclick="changePalette('coral')" aria-label="Corail"></button>
+        <!-- Personnalisation de la page et de l'aperçu, comme dans Thunderbird -->
+        <div class="theme-menu">
+          <button class="icon-btn" id="themeMenuBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="themePopover" title="Personnaliser le thème" aria-label="Personnaliser le thème">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          </button>
+          <div class="theme-popover" id="themePopover" role="dialog" aria-label="Personnaliser le thème">
+            <h2>Personnaliser le thème</h2>
+            <div>
+              <div class="tp-title">Apparence</div>
+              <div class="tp-segmented" id="tpMode">
+                <button type="button" data-mode="light">Clair</button>
+                <button type="button" data-mode="dark">Sombre</button>
+                <button type="button" data-mode="auto">Système</button>
+              </div>
+            </div>
+            <div>
+              <div class="tp-title">Couleur d'accent</div>
+              <div class="tp-swatches" id="tpPalette"></div>
+            </div>
+            <div>
+              <div class="tp-title">Aperçu</div>
+              <label class="tp-option"><span>Icônes émojis</span><input type="checkbox" data-setting="emojis"></label>
+              <label class="tp-option"><span>Masquer les réponses déjà lues</span><input type="checkbox" data-setting="hideRead"></label>
+              <label class="tp-option"><span>Proposer la désinscription</span><input type="checkbox" data-setting="unsub"></label>
+            </div>
+            <p class="tp-note">Les mêmes réglages que dans Thunderbird, avec le bouton palette ou Alt+M.</p>
+          </div>
         </div>
 
-        <!-- Bascule Mode Clair / Sombre -->
-        <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Basculer Mode Clair / Mode Sombre" aria-label="Changer de thème">
-          🌙
-        </button>
-
         <a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="btn-pill btn-sponsor header-sponsor-btn" style="padding: 8px 16px; font-size: 13.5px;" title="Soutenir le projet sur GitHub Sponsors">
-          <span>💖 Soutenir</span>
+          <span>Soutenir</span>
         </a>
 
         <a href="#installer" class="btn-pill btn-primary header-install-btn">
-          <span>🚀 Installer</span>
+          <span>Installer</span>
         </a>
 
         <!-- Bouton Menu Mobile (Hamburger) -->
@@ -1628,13 +1786,13 @@
     <div class="mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true">
       <div class="container mobile-nav-content">
         <ul class="mobile-nav-links">
-          <li><a href="#presentation" class="mobile-nav-link" onclick="closeMobileMenu()">✨ Nouveautés & Comparatif</a></li>
-          <li><a href="#demo" class="mobile-nav-link" onclick="closeMobileMenu()">👁️ Aperçu en direct</a></li>
-          <li><a href="#installer" class="mobile-nav-link" onclick="closeMobileMenu()">🚀 Guide d'installation</a></li>
-          <li><a href="#faq" class="mobile-nav-link" onclick="closeMobileMenu()">❓ Foire Aux Questions (FAQ)</a></li>
-          <li><a href="preview.html" target="_blank" class="mobile-nav-link" onclick="closeMobileMenu()">🖥️ Simulateur plein écran</a></li>
-          <li><a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="mobile-nav-link sponsor-link" onclick="closeMobileMenu()">💖 Soutenir sur GitHub Sponsors</a></li>
-          <li><a href="https://github.com/VForiel/Material-Thunderbird" target="_blank" class="mobile-nav-link" onclick="closeMobileMenu()">📦 Code source GitHub</a></li>
+          <li><a href="#presentation" class="mobile-nav-link" onclick="closeMobileMenu()">Nouveautés</a></li>
+          <li><a href="#demo" class="mobile-nav-link" onclick="closeMobileMenu()">Aperçu</a></li>
+          <li><a href="#installer" class="mobile-nav-link" onclick="closeMobileMenu()">Installation</a></li>
+          <li><a href="#faq" class="mobile-nav-link" onclick="closeMobileMenu()">Aide & FAQ</a></li>
+          <li><a href="preview.html" target="_blank" class="mobile-nav-link" onclick="closeMobileMenu()">Aperçu en plein écran</a></li>
+          <li><a href="https://github.com/sponsors/VForiel" target="_blank" rel="noopener noreferrer" class="mobile-nav-link sponsor-link" onclick="closeMobileMenu()">Soutenir sur GitHub Sponsors</a></li>
+          <li><a href="https://github.com/VForiel/Material-Thunderbird" target="_blank" class="mobile-nav-link" onclick="closeMobileMenu()">Code source sur GitHub</a></li>
         </ul>
       </div>
     </div>
@@ -1662,10 +1820,10 @@
 
           <div class="hero-ctas">
             <a href="#installer" class="btn-pill btn-primary" style="font-size: 16px; padding: 14px 28px;">
-              <span>📥 Installer le thème</span>
+              <span>Installer le thème</span>
             </a>
             <a href="#demo" class="btn-pill btn-secondary" style="font-size: 16px; padding: 14px 24px;">
-              <span>👁️ Tester en direct</span>
+              <span>Voir l'aperçu</span>
             </a>
           </div>
 
@@ -1684,8 +1842,8 @@
               <span><strong>Désinstallable :</strong> Retour à l'état d'origine en 1 clic.</span>
             </div>
             <div class="reassurance-item">
-              <span class="icon">⚡</span>
-              <span><strong>Automatisé :</strong> Détection de votre profil sans réglage pénible.</span>
+              <span class="icon">🔄</span>
+              <span><strong>Mises à jour :</strong> les nouvelles versions s'installent toutes seules.</span>
             </div>
           </div>
         </div>
@@ -1699,7 +1857,6 @@
               <span class="window-dot dot-green"></span>
             </div>
             <span class="hero-visual-title">Aperçu Material-Thunderbird</span>
-            <span style="font-size: 11px; color: var(--md-primary); font-weight: 700;">LIVE</span>
           </div>
 
           <div class="hero-mini-mockup">
@@ -1863,55 +2020,36 @@
     </section>
 
     <!-- ======================================================================
-         SECTION SIMULATEUR EN DIRECT
+         SECTION APERÇU
          ====================================================================== -->
     <section class="demo-section" id="demo">
       <div class="container">
         <div class="section-header">
-          <span class="section-badge">Démonstration Interactive</span>
-          <h2 class="section-title">Essayez le thème en direct</h2>
+          <span class="section-badge">Aperçu</span>
+          <h2 class="section-title">À quoi ça ressemble ?</h2>
           <p class="section-subtitle">
-            Testez l'interface ci-dessous comme si vous étiez dans Thunderbird ! Changez les couleurs ou passez en mode sombre :
+            Ouvrez les messages, dépliez les fils, essayez les bandeaux. Le bouton palette, en haut de la page ou en bas à gauche de l'aperçu, change l'apparence comme dans Thunderbird.
           </p>
         </div>
 
         <div class="demo-frame-container">
           <div class="demo-frame-toolbar">
             <div class="demo-frame-left">
-              <div class="window-dots">
-                <span class="window-dot dot-red"></span>
-                <span class="window-dot dot-yellow"></span>
-                <span class="window-dot dot-green"></span>
-              </div>
-              <span class="demo-frame-title">Simulateur Thunderbird — Material You</span>
+              <span class="demo-frame-title">Thunderbird avec Material-Thunderbird</span>
             </div>
-
             <div class="demo-frame-controls">
-              <!-- Vue simple vs Vue multi-messages -->
-              <div class="demo-segmented-btn">
-                <button class="segmented-item active" id="btnSimSingle" onclick="setSimView('single')">Message Unique</button>
-                <button class="segmented-item" id="btnSimMulti" onclick="setSimView('multi')">Conversation Complète</button>
-              </div>
-
-              <!-- Lien Plein Écran -->
               <a href="preview.html" target="_blank" class="btn-pill btn-outlined" style="padding: 6px 16px; font-size: 13px;">
-                <span>🖥️ Plein écran</span>
+                <span>Plein écran</span>
               </a>
             </div>
           </div>
 
-          <!-- Intégration de l'iframe du simulateur -->
-          <iframe id="simIframe" src="preview.html" class="demo-iframe" title="Simulateur Material-Thunderbird"></iframe>
+          <iframe id="simIframe" src="preview.html" class="demo-iframe" title="Aperçu de Thunderbird avec Material-Thunderbird"></iframe>
         </div>
 
-        <!-- Note explicative sur la démo de concept vs logiciel réel -->
-        <div class="demo-notice-card" style="margin-top: 18px; background: var(--md-surface-container); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: flex-start; gap: 14px; font-size: 13.5px; line-height: 1.5; color: var(--md-on-surface-variant); border-left: 4px solid var(--md-primary);">
-          <span style="font-size: 20px; line-height: 1;">💡</span>
-          <div>
-            <strong style="color: var(--md-on-surface);">Démonstration web & concept visuel :</strong>
-            Cet aperçu interactif illustre les principes graphiques du design <em>Material You</em> (formes en pilules, palettes tonales, hiérarchie aérée). La modification en profondeur d'un logiciel comme Mozilla Thunderbird étant techniquement plus complexe et contrainte par son moteur interne que cette page web, de légères différences visuelles ou d'agencement peuvent exister avec le rendu réel dans le logiciel.
-          </div>
-        </div>
+        <p class="demo-notice">
+          Les couleurs de l'aperçu sont celles de l'extension, chargées depuis ses propres fichiers. La mise en page est reconstruite pour le navigateur : quelques détails diffèrent dans Thunderbird.
+        </p>
       </div>
     </section>
 
@@ -1958,7 +2096,7 @@
             <div class="step-number">3</div>
             <h3 class="step-title">Confirmer avec « Ajouter »</h3>
             <p class="step-desc">
-              Le thème s'applique aussitôt, sans redémarrage. Thunderbird prévient que le module aura un accès complet : c'est le cas de toute extension qui modifie l'interface elle-même. Aucune donnée n'est envoyée.
+              Le thème s'applique aussitôt, sans redémarrage. Thunderbird prévient que le module aura un accès complet : c'est le cas de toute extension qui modifie l'interface elle-même. Aucune donnée personnelle n'est envoyée.
             </p>
           </div>
         </div>
@@ -2024,7 +2162,7 @@
               <span class="faq-icon">▼</span>
             </button>
             <div class="faq-answer">
-              Pour redessiner l'interface de Thunderbird elle-même (dossiers, barre de gauche, en-têtes), une extension doit utiliser une API privilégiée, et Thunderbird l'annonce par cet avertissement. L'extension n'envoie aucune donnée, et son code source est public et vérifiable sur GitHub.
+              Pour redessiner l'interface de Thunderbird elle-même (dossiers, barre de gauche, en-têtes), une extension doit utiliser une API privilégiée, et Thunderbird l'annonce par cet avertissement. L'extension n'envoie aucune donnée personnelle, et son code source est public et vérifiable sur GitHub. Seuls les logos des marques (comme dans Gmail) sont téléchargés depuis le site de l'expéditeur ; cette option se coupe dans la fenêtre de personnalisation.
             </div>
           </div>
 
@@ -2100,7 +2238,7 @@
         <ul class="footer-links-list">
           <li><a href="https://github.com/VForiel/Material-Thunderbird/blob/main/docs/INSTALL.md" target="_blank">Guide d'installation complet</a></li>
           <li><a href="https://github.com/VForiel/Material-Thunderbird/blob/main/docs/CUSTOMIZATION.md" target="_blank">Personnaliser les couleurs</a></li>
-          <li><a href="preview.html" target="_blank">Simulateur plein écran</a></li>
+          <li><a href="preview.html" target="_blank">Aperçu en plein écran</a></li>
         </ul>
       </div>
 
@@ -2127,59 +2265,88 @@
        JAVASCRIPT INTERACTIF
        ======================================================================== -->
   <script>
-    // Gestion des onglets d'installation
-    // Gestion de la palette de couleurs
-    function changePalette(name) {
-      document.documentElement.setAttribute('data-palette', name);
-      document.querySelectorAll('.color-chip').forEach(chip => {
-        chip.classList.toggle('active', chip.getAttribute('data-pal') === name);
+    // ---- Réglages du thème (page et aperçu) ------------------------------
+    const S = window.MaterialSettings;
+    let settings = S.load();
+
+    function sendToPreview(action, extra) {
+      const iframe = document.getElementById('simIframe');
+      if (!iframe || !iframe.contentWindow) return;
+      try {
+        iframe.contentWindow.postMessage(Object.assign({ source: 'mt-site', action }, extra || {}), location.origin);
+      } catch (e) {}
+    }
+
+    function renderThemeMenu() {
+      document.querySelectorAll('#tpMode [data-mode]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(b.dataset.mode === settings.mode));
       });
-
-      // Synchronisation avec l'iframe du simulateur
-      const iframe = document.getElementById('simIframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ action: 'setPalette', palette: name }, '*');
+      const palettes = document.getElementById('tpPalette');
+      if (!palettes.childElementCount) {
+        Object.keys(S.PALETTES).forEach((key) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tp-swatch';
+          b.dataset.pal = key;
+          const dot = document.createElement('span');
+          dot.style.background = S.PALETTES[key].color;
+          b.append(dot, S.PALETTES[key].name);
+          palettes.appendChild(b);
+        });
       }
-
-      localStorage.setItem('mt-palette', name);
+      palettes.querySelectorAll('[data-pal]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(b.dataset.pal === settings.palette));
+      });
+      document.querySelectorAll('#themePopover [data-setting]').forEach((input) => {
+        input.checked = !!settings[input.dataset.setting];
+      });
     }
 
-    // Gestion du Mode Sombre / Mode Clair
-    function toggleTheme() {
-      const html = document.documentElement;
-      const isDark = html.getAttribute('data-theme') === 'dark';
-      const newTheme = isDark ? 'light' : 'dark';
-      html.setAttribute('data-theme', newTheme);
-
-      const btn = document.getElementById('themeToggleBtn');
-      if (btn) btn.textContent = isDark ? '🌙' : '☀️';
-
-      // Synchronisation avec l'iframe du simulateur
-      const iframe = document.getElementById('simIframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ action: 'setTheme', theme: newTheme }, '*');
-      }
-
-      localStorage.setItem('mt-theme', newTheme);
+    function updateSettings(next, fromPreview) {
+      settings = S.sanitize(Object.assign({}, settings, next));
+      S.save(settings);
+      S.apply(document, settings);
+      renderThemeMenu();
+      if (!fromPreview) sendToPreview('settings', { settings });
     }
 
-    // Contrôles du simulateur embarqué
-    function setSimView(mode) {
-      const btnSingle = document.getElementById('btnSimSingle');
-      const btnMulti = document.getElementById('btnSimMulti');
-      if (mode === 'single') {
-        btnSingle.classList.add('active');
-        btnMulti.classList.remove('active');
-      } else {
-        btnSingle.classList.remove('active');
-        btnMulti.classList.add('active');
-      }
+    document.getElementById('tpMode').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-mode]');
+      if (b) updateSettings({ mode: b.dataset.mode });
+    });
+    document.getElementById('tpPalette').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-pal]');
+      if (b) updateSettings({ palette: b.dataset.pal });
+    });
+    document.querySelectorAll('#themePopover [data-setting]').forEach((input) => {
+      input.addEventListener('change', () => updateSettings({ [input.dataset.setting]: input.checked }));
+    });
 
-      const iframe = document.getElementById('simIframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ action: 'setViewMode', mode: mode }, '*');
-      }
+    const themeBtn = document.getElementById('themeMenuBtn');
+    const popover = document.getElementById('themePopover');
+    function setPopover(open) {
+      popover.classList.toggle('open', open);
+      themeBtn.setAttribute('aria-expanded', String(open));
     }
+    themeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setPopover(!popover.classList.contains('open'));
+    });
+    document.addEventListener('click', (e) => {
+      if (popover.classList.contains('open') && !popover.contains(e.target)) setPopover(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && popover.classList.contains('open')) { setPopover(false); themeBtn.focus(); }
+    });
+
+    // L'aperçu a son propre bouton palette : ses changements reviennent ici.
+    window.addEventListener('message', (e) => {
+      if (e.origin !== location.origin || !e.data || e.data.source !== 'mt-preview') return;
+      if (e.data.action === 'settings') updateSettings(e.data.settings, true);
+      if (e.data.action === 'ready') sendToPreview('settings', { settings });
+    });
+    S.watchSystem(() => { if (settings.mode === 'auto') S.apply(document, settings); });
+    renderThemeMenu();
 
     // Accordéon FAQ
     function toggleFaq(button) {
@@ -2236,20 +2403,6 @@
       }
     }
 
-    // Restauration des préférences au chargement
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('mt-theme');
-      if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        const btn = document.getElementById('themeToggleBtn');
-        if (btn) btn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-      }
-
-      const savedPalette = localStorage.getItem('mt-palette');
-      if (savedPalette) {
-        changePalette(savedPalette);
-      }
-    });
   </script>
 </body>
 </html>

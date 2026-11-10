@@ -1,1884 +1,945 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="light" data-palette="blue">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Material-Thunderbird — Démonstrateur Interactif Material You</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  
+  <title>Aperçu de Material-Thunderbird</title>
+  <meta name="description" content="Aperçu interactif du thème Material-Thunderbird, avec les couleurs exactes de l'extension.">
+  <link rel="icon" type="image/png" href="favicon-48.png">
+  <!-- Les jetons de couleur de l'extension, copiés tels quels par scripts/build.ps1. -->
+  <link rel="stylesheet" href="theme/tokens/shapes.css">
+  <link rel="stylesheet" href="theme/tokens/colors-light.css">
+  <link rel="stylesheet" href="theme/tokens/colors-dark.css">
+  <link rel="stylesheet" href="theme/tokens/bridge.css">
+  <script src="theme/settings.js"></script>
+  <script>
+    // Avant le premier rendu : pas de flash de la mauvaise palette.
+    MaterialSettings.apply(document, MaterialSettings.load());
+  </script>
   <style>
-    /* ==========================================================================
-       CSS Variables: Material You (Material Design 3) Design Tokens
-       ========================================================================== */
-    :root {
-      --font-main: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', sans-serif;
-      
-      /* Shapes */
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 28px;
-      --radius-full: 9999px;
-      
-      /* Elevations */
-      --elevation-1: 0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);
-      --elevation-2: 0 2px 6px 2px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.12);
-      --elevation-3: 0 4px 12px 3px rgba(0, 0, 0, 0.10), 0 2px 4px 0 rgba(0, 0, 0, 0.14);
-      
-      --transition: 200ms cubic-bezier(0.2, 0, 0, 1);
-    }
-
-    /* Palette: Google Blue (Par défaut) */
-    html[data-palette="blue"] {
-      --md-primary: #0b57d0;
-      --md-on-primary: #ffffff;
-      --md-primary-container: #d3e3fd;
-      --md-on-primary-container: #041e49;
-      --md-secondary-container: #c2e7ff;
-      --md-on-secondary-container: #001d35;
-      --md-surface: #f0f4fa;
-      --md-surface-low: #edf2fa;
-      --md-surface-container: #e2e8f0;
-      --md-surface-high: #dbe3f0;
-      --md-surface-lowest: #ffffff;
-      --md-on-surface: #1f1f1f;
-      --md-on-surface-variant: #444746;
-      --md-outline: #747775;
-      --md-outline-variant: #c4c7c5;
-      --md-state-hover: rgba(26, 115, 232, 0.08);
-      --md-state-active: rgba(26, 115, 232, 0.14);
-    }
-
-    /* Palette: Emerald Green */
-    html[data-palette="emerald"] {
-      --md-primary: #006a60;
-      --md-on-primary: #ffffff;
-      --md-primary-container: #74f8e5;
-      --md-on-primary-container: #00201c;
-      --md-secondary-container: #cce8e3;
-      --md-on-secondary-container: #05201d;
-      --md-surface: #fbfdf9;
-      --md-surface-low: #f4f7f3;
-      --md-surface-container: #eaefea;
-      --md-surface-high: #dfe6df;
-      --md-surface-lowest: #ffffff;
-      --md-on-surface: #191c1b;
-      --md-on-surface-variant: #3f4946;
-      --md-outline: #6f7976;
-      --md-outline-variant: #bec9c5;
-      --md-state-hover: rgba(0, 106, 96, 0.08);
-      --md-state-active: rgba(0, 106, 96, 0.14);
-    }
-
-    /* Palette: Amethyst / Purple */
-    html[data-palette="purple"] {
-      --md-primary: #6750a4;
-      --md-on-primary: #ffffff;
-      --md-primary-container: #eaddff;
-      --md-on-primary-container: #21005d;
-      --md-secondary-container: #e8def8;
-      --md-on-secondary-container: #1d192b;
-      --md-surface: #fef7ff;
-      --md-surface-low: #f7f2fa;
-      --md-surface-container: #f3edf7;
-      --md-surface-high: #ece6f0;
-      --md-surface-lowest: #ffffff;
-      --md-on-surface: #1d1b20;
-      --md-on-surface-variant: #49454f;
-      --md-outline: #79747e;
-      --md-outline-variant: #cac4d0;
-      --md-state-hover: rgba(103, 80, 164, 0.08);
-      --md-state-active: rgba(103, 80, 164, 0.14);
-    }
-
-    /* Palette: Coral / Terracotta */
-    html[data-palette="coral"] {
-      --md-primary: #9c4125;
-      --md-on-primary: #ffffff;
-      --md-primary-container: #ffdbd1;
-      --md-on-primary-container: #3b0900;
-      --md-secondary-container: #f5ddd6;
-      --md-on-secondary-container: #2c150e;
-      --md-surface: #fff8f6;
-      --md-surface-low: #fdf1ed;
-      --md-surface-container: #f7ebe6;
-      --md-surface-high: #f1e5e0;
-      --md-surface-lowest: #ffffff;
-      --md-on-surface: #231917;
-      --md-on-surface-variant: #53433f;
-      --md-outline: #85736e;
-      --md-outline-variant: #d8c2bc;
-      --md-state-hover: rgba(156, 65, 37, 0.08);
-      --md-state-active: rgba(156, 65, 37, 0.14);
-    }
-
-    /* Mode Sombre */
-    html[data-theme="dark"][data-palette="blue"] {
-      --md-primary: #a8c7fa;
-      --md-on-primary: #00315b;
-      --md-primary-container: #004a77;
-      --md-on-primary-container: #c2e7ff;
-      --md-secondary-container: #004b72;
-      --md-on-secondary-container: #c7e7ff;
-      --md-surface: #111315;
-      --md-surface-low: #191c1e;
-      --md-surface-container: #1d2023;
-      --md-surface-high: #272a2d;
-      --md-surface-lowest: #0c0e10;
-      --md-on-surface: #e2e2e5;
-      --md-on-surface-variant: #c4c7c5;
-      --md-outline: #8e918f;
-      --md-outline-variant: #444746;
-      --md-state-hover: rgba(168, 199, 250, 0.08);
-      --md-state-active: rgba(168, 199, 250, 0.16);
-    }
-
-    html[data-theme="dark"][data-palette="emerald"] {
-      --md-primary: #53dbc9;
-      --md-on-primary: #003731;
-      --md-primary-container: #005048;
-      --md-on-primary-container: #74f8e5;
-      --md-secondary-container: #334b46;
-      --md-on-secondary-container: #cce8e3;
-      --md-surface: #101413;
-      --md-surface-low: #181d1c;
-      --md-surface-container: #1c2120;
-      --md-surface-high: #262b2a;
-      --md-surface-lowest: #0b0f0e;
-      --md-on-surface: #e1e3e0;
-      --md-on-surface-variant: #bec9c5;
-      --md-outline: #89938f;
-      --md-outline-variant: #3f4946;
-      --md-state-hover: rgba(83, 219, 201, 0.08);
-      --md-state-active: rgba(83, 219, 201, 0.16);
-    }
-
-    html[data-theme="dark"][data-palette="purple"] {
-      --md-primary: #d0bcff;
-      --md-on-primary: #381e72;
-      --md-primary-container: #4f378b;
-      --md-on-primary-container: #eaddff;
-      --md-secondary-container: #4a4458;
-      --md-on-secondary-container: #e8def8;
-      --md-surface: #141218;
-      --md-surface-low: #1d1b20;
-      --md-surface-container: #211f26;
-      --md-surface-high: #2b2930;
-      --md-surface-lowest: #0f0d13;
-      --md-on-surface: #e6e0e9;
-      --md-on-surface-variant: #cac4d0;
-      --md-outline: #938f99;
-      --md-outline-variant: #49454f;
-      --md-state-hover: rgba(208, 188, 255, 0.08);
-      --md-state-active: rgba(208, 188, 255, 0.16);
-    }
-
-    html[data-theme="dark"][data-palette="coral"] {
-      --md-primary: #ffb59f;
-      --md-on-primary: #5c1800;
-      --md-primary-container: #7d2b11;
-      --md-on-primary-container: #ffdbd1;
-      --md-secondary-container: #5d3f37;
-      --md-on-secondary-container: #f5ddd6;
-      --md-surface: #1a110f;
-      --md-surface-low: #231a17;
-      --md-surface-container: #271e1b;
-      --md-surface-high: #322825;
-      --md-surface-lowest: #140c0a;
-      --md-on-surface: #f1dfda;
-      --md-on-surface-variant: #d8c2bc;
-      --md-outline: #a08c87;
-      --md-outline-variant: #53433f;
-      --md-state-hover: rgba(255, 181, 159, 0.08);
-      --md-state-active: rgba(255, 181, 159, 0.16);
-    }
-
-    /* ==========================================================================
-       Global App Demo Styles
-       ========================================================================== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      scrollbar-width: thin;
-      scrollbar-color: transparent transparent;
-      transition: scrollbar-color var(--transition);
-    }
-
-    *:hover {
-      scrollbar-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent) transparent;
-    }
-
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background-color: transparent;
-      border-radius: var(--radius-full);
-      transition: background-color var(--transition);
-    }
-
-    *:hover::-webkit-scrollbar-thumb,
-    ::-webkit-scrollbar:hover::-webkit-scrollbar-thumb,
-    ::-webkit-scrollbar-thumb:hover {
-      background-color: color-mix(in srgb, var(--md-outline-variant) 80%, transparent);
-    }
-
+    /* L'aperçu reproduit la disposition de Thunderbird 128 (Nebula) avec les
+       jetons de chrome/tokens/ : seules les couleurs viennent de l'extension,
+       la mise en page est réécrite en HTML. */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
     body {
-      font-family: var(--font-main);
-      background-color: var(--md-surface);
-      color: var(--md-on-surface);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-      transition: background-color var(--transition), color var(--transition);
-    }
-
-    /* Controls Header (Barre de contrôle de la démo) */
-    .demo-controls-bar {
-      background: var(--md-surface-low);
-      border-bottom: 1px solid var(--md-outline-variant);
-      padding: 10px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      z-index: 100;
-    }
-
-    .demo-branding {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .demo-logo-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-md);
-      background: var(--md-primary);
-      color: var(--md-on-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 18px;
-      box-shadow: var(--elevation-1);
-    }
-
-    .demo-title {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-    }
-
-    .demo-subtitle {
-      font-size: 12px;
-      color: var(--md-on-surface-variant);
-    }
-
-    .demo-settings {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .color-picker {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .color-chip {
-      width: 26px;
-      height: 26px;
-      border-radius: var(--radius-full);
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform var(--transition);
-    }
-
-    .color-chip:hover {
-      transform: scale(1.15);
-    }
-
-    .color-chip.active {
-      border-color: var(--md-on-surface);
-      box-shadow: var(--elevation-1);
-    }
-
-    .theme-toggle-btn {
-      background: var(--md-surface-high);
-      border: 1px solid var(--md-outline-variant);
-      color: var(--md-on-surface);
-      border-radius: var(--radius-full);
-      padding: 6px 14px;
-      font-family: inherit;
+      font-family: var(--md-sys-font-family);
       font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all var(--transition);
-    }
-
-    .theme-toggle-btn:hover {
-      background: var(--md-state-hover);
-      border-color: var(--md-primary);
-    }
-
-    /* ==========================================================================
-       Thunderbird Window Mockup Container
-       ========================================================================== */
-    .tb-window-frame {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+      color: var(--md-sys-color-on-surface);
+      background: var(--md-sys-color-surface-container);
       overflow: hidden;
-      background: var(--md-surface);
     }
+    button { font: inherit; color: inherit; }
+    svg.i { width: 20px; height: 20px; fill: currentColor; flex: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
-    /* Top Unified Toolbar */
-    .tb-unified-toolbar {
-      height: 56px;
-      background: var(--md-surface-low);
-      border-bottom: none;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 16px;
+    /* Icônes émojis : même principe que l'option de l'extension. */
+    .ico { display: inline-flex; align-items: center; justify-content: center; }
+    .mt-emojis .ico[data-emoji] svg { display: none; }
+    .mt-emojis .ico[data-emoji]::after { content: attr(data-emoji); font-size: 16px; line-height: 1; }
+
+    .window { display: flex; flex-direction: column; height: 100%; }
+
+    /* ---- Onglets et barre d'outils unifiée ---- */
+    .tabs-bar {
+      display: flex; align-items: flex-end; gap: 4px;
+      padding: 6px 10px 0 64px;
+      background: var(--md-sys-color-surface-container);
+      min-height: 38px;
     }
-
-    /* Extended FAB "Écrire" */
-    .tb-fab-write {
-      background: var(--md-primary);
-      color: var(--md-on-primary);
-      border: none;
-      border-radius: var(--radius-lg);
-      padding: 10px 20px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow: var(--elevation-1);
-      transition: all var(--transition);
+    .tab {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px; max-width: 220px;
+      border-radius: var(--md-shape-corner-medium) var(--md-shape-corner-medium) 0 0;
+      color: var(--md-sys-color-on-surface-variant);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .tab.active { background: var(--md-sys-color-surface-container-low); color: var(--md-sys-color-on-surface); font-weight: 500; }
+    .tab svg.i { width: 16px; height: 16px; }
 
-    .tb-fab-write:hover {
-      box-shadow: var(--elevation-2);
-      transform: translateY(-1px);
+    .toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px 6px 64px;
+      background: var(--md-sys-color-surface-container-low);
     }
+    .search {
+      flex: 1 1 auto; max-width: 560px; margin: 0 auto;
+      display: flex; align-items: center; gap: 10px;
+      height: 36px; padding: 0 16px;
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
+      border-radius: var(--md-shape-corner-full);
+    }
+    .search kbd { margin-left: auto; font: inherit; font-size: 11px; opacity: .7; }
+    .icon-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border: none; background: transparent;
+      border-radius: var(--md-shape-corner-full);
+      color: var(--md-sys-color-on-surface-variant); cursor: pointer;
+    }
+    .icon-btn:hover { background: var(--md-sys-state-hover); color: var(--md-sys-color-on-surface); }
 
-    /* Search Bar Pill */
-    .tb-search-container {
-      flex: 1;
-      max-width: 580px;
+    /* ---- Corps ---- */
+    .body { flex: 1 1 auto; display: flex; min-height: 0; }
+
+    /* Barre des espaces (Navigation Rail) */
+    .spaces {
+      width: 56px; flex: none;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 8px 0;
+      background: var(--spaces-bg-color, var(--md-sys-color-surface-container));
+    }
+    .space-btn {
+      width: 40px; height: 32px; border: none; cursor: pointer;
+      border-radius: var(--md-shape-corner-full);
+      background: transparent; color: var(--md-sys-color-on-surface-variant);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .space-btn:hover { background: var(--md-sys-state-hover); }
+    .space-btn.active { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+    .spaces .spacer { flex: 1; }
+
+    /* Volet des dossiers */
+    .folders {
+      width: 216px; flex: none; overflow-y: auto;
+      padding: 8px 8px 16px;
+      background: var(--md-sys-color-surface-container);
+    }
+    .folder-header { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; }
+    .fab {
+      flex: 1; display: flex; align-items: center; gap: 10px;
+      height: 44px; padding: 0 16px; border: none; cursor: pointer;
+      border-radius: var(--md-shape-corner-large);
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      font-weight: 600; box-shadow: var(--md-sys-elevation-1); white-space: nowrap;
+    }
+    .fab:hover { box-shadow: var(--md-sys-elevation-2); }
+    .account {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px 4px; font-size: 11px; font-weight: 700;
+      letter-spacing: .04em; text-transform: uppercase;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .folder {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      height: 36px; padding: 0 12px; border: none; cursor: pointer; text-align: left;
+      border-radius: var(--md-shape-corner-full);
+      background: transparent; color: var(--md-sys-color-on-surface);
+    }
+    .folder:hover { background: var(--md-sys-state-hover); }
+    .folder.active {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container); font-weight: 600;
+    }
+    .folder .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .folder .count {
+      min-width: 22px; padding: 1px 7px; border-radius: var(--md-shape-corner-full);
+      font-size: 11px; font-weight: 600; text-align: center;
+      background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);
+    }
+    .folder.active .count { background: transparent; color: inherit; }
+    .folder svg.i { width: 18px; height: 18px; }
+
+    /* Liste des messages */
+    .threads {
+      width: clamp(280px, 31vw, 380px); flex: none; display: flex; flex-direction: column; min-width: 0;
+      background: var(--md-sys-color-surface-container-low);
+      border-radius: var(--md-shape-corner-large) 0 0 0;
+    }
+    .threads-header {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 10px 8px 16px;
+    }
+    .threads-header h1 { font-size: 15px; font-weight: 600; margin: 0; }
+    .threads-header h1, .threads-header .sub { white-space: nowrap; }
+    .threads-header .sub { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .threads-header .sub { color: var(--md-sys-color-on-surface-variant); font-size: 12px; margin-left: 2px; }
+    .threads-header .grow { flex: 1; }
+    .chip-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border: none; cursor: pointer;
+      border-radius: var(--md-shape-corner-full);
+      background: transparent; color: var(--md-sys-color-on-surface-variant);
+      font-size: 12px; font-weight: 500;
+    }
+    .chip-btn:hover { background: var(--md-sys-state-hover); color: var(--md-sys-color-on-surface); }
+    .chip-btn svg.i { width: 16px; height: 16px; }
+    .list { flex: 1; overflow-y: auto; padding: 0 8px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+    .card {
+      display: flex; gap: 12px; width: 100%; text-align: left; cursor: pointer;
+      padding: 10px 12px; border: 1px solid transparent;
+      border-radius: var(--md-shape-corner-medium);
+      background: var(--tree-card-background, var(--md-sys-color-surface-container-lowest));
       position: relative;
     }
-
-    .tb-search-input {
-      width: 100%;
-      background: var(--md-surface-high);
-      border: 1px solid transparent;
-      border-radius: var(--radius-full);
-      padding: 8px 18px 8px 42px;
-      font-family: inherit;
-      font-size: 13.5px;
-      color: var(--md-on-surface);
-      outline: none;
-      transition: all var(--transition);
-    }
-
-    .tb-search-input:focus {
-      background: var(--md-surface-lowest);
-      border-color: transparent;
-      box-shadow: none;
-    }
-
-    .tb-search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 16px;
-      color: var(--md-on-surface-variant);
-    }
-
-    .tb-toolbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto;
-    }
-
-    .tb-icon-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: var(--radius-full);
-      border: none;
-      background: transparent;
-      color: var(--md-on-surface-variant);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 17px;
-      transition: background var(--transition);
-    }
-
-    .tb-icon-btn:hover {
-      background: var(--md-state-hover);
-      color: var(--md-on-surface);
-    }
-
-    /* ==========================================================================
-       Main Workspace Layout (Navigation Rail + Drawer + Messages + Reader)
-       ========================================================================== */
-    .tb-workspace {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    /* 1. Spaces Toolbar (Navigation Rail) */
-    .tb-spaces-rail {
-      width: 68px;
-      background: var(--md-surface-container);
-      border-right: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px 0;
-      gap: 8px;
-    }
-
-    .tb-rail-item {
-      width: 52px;
-      height: 44px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-lg);
-      cursor: pointer;
-      color: var(--md-on-surface-variant);
-      transition: all var(--transition);
-      position: relative;
-    }
-
-    .tb-rail-item:hover {
-      background: var(--md-state-hover);
-    }
-
-    /* Active Pill Indicator (MD3 Nav Rail) */
-    .tb-rail-item.active {
-      background: var(--md-secondary-container);
-      color: var(--md-on-secondary-container);
-      border-radius: var(--radius-full);
-    }
-
-    .tb-rail-icon {
-      font-size: 20px;
-    }
-
-    /* 2. Folder Pane (Navigation Drawer) */
-    .tb-folder-pane {
-      width: 240px;
-      background: var(--md-surface-low);
-      border-right: none;
-      display: flex;
-      flex-direction: column;
-      padding: 12px 6px;
-      overflow-y: auto;
-    }
-
-    .tb-drawer-header {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--md-outline);
-      padding: 8px 12px 4px 12px;
-    }
-
-    .tb-drawer-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 14px;
-      margin: 1px 0;
-      border-radius: var(--radius-full);
-      font-size: 13.5px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .tb-drawer-item:hover {
-      background: var(--md-state-hover);
-    }
-
-    .tb-drawer-item.active {
-      background: var(--md-secondary-container);
-      color: var(--md-on-secondary-container);
-      font-weight: 700;
-    }
-
-    .tb-item-badge {
-      margin-left: auto;
-      background: var(--md-primary-container);
-      color: var(--md-on-primary-container);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: var(--radius-full);
-    }
-
-    /* 3. Message List Pane (Cards View) */
-    .tb-thread-pane {
-      width: 340px;
-      background: var(--md-surface-low);
-      border-right: none;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 8px;
-      gap: 6px;
-    }
-
-    .tb-thread-header {
-      padding: 8px 10px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--md-on-surface-variant);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .tb-card-message {
-      background: var(--md-surface-lowest);
-      border: none;
-      border-radius: var(--radius-md);
-      padding: 8px 12px;
-      cursor: pointer;
-      box-shadow: var(--elevation-1);
-      transition: all var(--transition);
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      border-inline-start: 4px solid transparent;
-    }
-
-    .tb-card-message.unread {
-      border-inline-start: 4px solid var(--md-primary) !important;
-    }
-
-    .tb-card-message:hover {
-      background: var(--md-surface-lowest);
-      box-shadow: var(--elevation-2);
-    }
-
-    .tb-card-message.active {
-      background: var(--md-secondary-container);
-      color: var(--md-on-secondary-container);
-      border: none;
-      box-shadow: var(--elevation-1);
-    }
-
-    .tb-card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .tb-card-sender {
-      font-size: 13.5px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .unread-dot {
-      display: none !important;
-    }
-
-    .tb-card-message.unread:not(.active) .tb-card-sender {
-      font-weight: 700;
-      color: var(--md-on-surface);
-    }
-
-    .tb-card-message.unread:not(.active) .tb-card-subject {
-      font-weight: 600;
-      color: var(--md-primary);
-    }
-
-    .tb-filter-btn {
-      background: transparent;
-      border: none;
-      border-radius: var(--radius-full);
-      padding: 4px 10px;
-      font-size: 12px;
-      color: var(--md-on-surface-variant);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: background var(--transition), color var(--transition);
-    }
-
-    .tb-filter-btn:hover {
-      background: var(--md-state-hover);
-      color: var(--md-on-surface);
-    }
-
-    .tb-card-time {
-      font-size: 11.5px;
-      color: var(--md-on-surface-variant);
-    }
-
-    .tb-card-subject {
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tb-card-snippet {
-      font-size: 12px;
-      color: var(--md-on-surface-variant);
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    /* 4. Message Reader Pane (Soft Blue Canvas with Elevated Floating Cards) */
-    .tb-reader-pane {
-      flex: 1;
-      background: var(--md-surface-low);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 12px 14px;
-      gap: 12px;
-    }
-
-    /* Elevated Card for Message Header */
-    .tb-reader-card {
-      background: var(--md-surface-lowest);
-      border: none;
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      box-shadow: var(--elevation-1);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .tb-reader-subject-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .tb-reader-subject {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-
-    .tb-reader-sender-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .tb-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-full);
-      background: var(--md-primary-container);
-      color: var(--md-on-primary-container);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .tb-sender-details {
-      display: flex;
-      flex-direction: column;
-      padding: 6px 14px;
-      border-radius: var(--radius-full);
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .tb-sender-details:hover {
-      background: var(--md-state-hover);
-    }
-
-    .tb-sender-name {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .tb-sender-email {
-      font-size: 12.5px;
-      color: var(--md-on-surface-variant);
-    }
-
-    .tb-reader-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-left: auto;
-    }
-
-    .tb-pill-btn {
-      background: var(--md-surface-low);
-      color: var(--md-on-surface);
-      border: none;
-      border-radius: var(--radius-full);
-      padding: 6px 16px;
-      font-family: inherit;
-      font-size: 12.5px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all var(--transition);
-    }
-
-    .tb-pill-btn:hover {
-      background: var(--md-surface-container);
-      color: var(--md-on-surface);
-    }
-
-    .tb-pill-btn.primary {
-      background: var(--md-secondary-container);
-      color: var(--md-on-secondary-container);
-      font-weight: 600;
-      border-color: transparent;
-    }
-
-    .tb-pill-btn.primary:hover {
-      background: #b9dcf7;
-      color: var(--md-on-secondary-container);
-    }
-
-    /* Material You Warning Banner */
-    .tb-notification-banner {
-      background-color: #fef7da;
-      color: #494518;
-      border-radius: var(--radius-md);
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    html[data-theme="dark"] .tb-notification-banner {
-      background-color: #3b3511;
-      color: #fef7da;
-    }
-
-    .tb-notif-text {
-      flex: 1;
-    }
-
-    .tb-notif-btn {
-      background: rgba(0, 0, 0, 0.08);
-      color: inherit;
-      border: none;
-      border-radius: var(--radius-full);
-      padding: 4px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    html[data-theme="dark"] .tb-notif-btn {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .tb-notif-btn:hover {
-      background: rgba(0, 0, 0, 0.14);
-    }
-
-    .tb-notif-close {
-      background: transparent;
-      border: none;
-      color: inherit;
-      border-radius: var(--radius-full);
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .tb-notif-close:hover {
-      background: rgba(0, 0, 0, 0.08);
-    }
-
-    /* Message Body Card (Pure White Center, Rounded Corners, Clean Separation) */
-    .tb-message-body-card {
-      background: var(--md-surface-lowest);
-      border: none;
-      border-radius: var(--radius-lg);
-      box-shadow: none;
-      padding: 24px 28px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    /* Message Body */
-    .tb-message-body {
-      padding: 0;
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--md-on-surface);
-    }
-
-    .tb-message-body p {
-      margin-bottom: 12px;
-    }
-
-    .tb-callout {
-      background: var(--md-surface-low);
-      border-left: 4px solid var(--md-primary);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      padding: 12px 16px;
-      margin: 14px 0;
-      font-size: 13.5px;
-    }
-
-    /* Multi-Message View Styling (Material You) */
-    .tb-multimessage-header {
-      background: var(--md-surface-lowest);
-      border: none;
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      box-shadow: var(--elevation-1);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .tb-multimessage-title-box {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tb-multimessage-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--md-on-surface);
-      margin: 0;
-    }
-
-    .tb-multimessage-count {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--md-on-surface-variant);
-    }
-
-    .tb-multimessage-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .tb-multimessage-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .tb-multimessage-card {
-      background: var(--md-surface-lowest);
-      border: none;
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      box-shadow: var(--elevation-1);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .tb-multimessage-card:hover {
-      box-shadow: var(--elevation-2);
-      transform: translateY(-1px);
-    }
-
-    .tb-multimessage-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .tb-multi-author {
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--md-on-surface);
-    }
-
-    .tb-multi-date {
-      font-size: 12px;
-      color: var(--md-outline);
-    }
-
-    .tb-multi-snippet {
-      font-size: 13.5px;
-      line-height: 1.5;
-      color: var(--md-on-surface-variant);
-    }
-
-    .tb-multimessage-footer {
-      font-size: 12px;
-      color: var(--md-on-surface-variant);
-      padding: 10px 4px;
-      opacity: 0.8;
-    }
-
-    /* Thread card with replies */
-    .thread-card-has-children {
-      padding: 8px 12px !important;
-    }
-
-    .tb-twisty-row {
-      display: flex;
-      align-items: center;
-      margin-top: 6px;
-    }
-
-    .tb-twisty-btn {
-      background: var(--md-surface-low);
-      color: var(--md-on-surface-variant);
-      border: none;
-      border-radius: var(--radius-full);
-      padding: 3px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .tb-twisty-btn:hover {
-      background: var(--md-surface-container);
-      color: var(--md-on-surface);
-    }
-
-    .tb-avatar-small {
-      width: 18px;
-      height: 18px;
-      border-radius: var(--radius-full);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    /* Unsubscribe Material Banner */
-    .material-unsubscribe-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: var(--md-secondary-container);
-      color: var(--md-on-secondary-container);
-      border-radius: var(--radius-md);
-      padding: 8px 16px;
-      margin-bottom: 12px;
-      font-size: 12.5px;
-      gap: 12px;
-      box-shadow: var(--elevation-1);
-    }
-
-    .material-unsub-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .material-unsub-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: var(--radius-full);
-      background: rgba(0, 0, 0, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .material-unsub-btn {
-      background: var(--md-primary);
-      color: var(--md-on-primary) !important;
-      border: none;
-      border-radius: var(--radius-full);
-      padding: 5px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .material-unsub-btn:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-
-    .material-unsub-close {
-      background: transparent;
-      border: none;
-      color: inherit;
-      border-radius: var(--radius-full);
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Masquage de la barre d'outils dupliquée quand preview.html est intégré dans index.html */
-    body.is-embedded .demo-controls-bar {
-      display: none !important;
-    }
-
-    body.is-embedded .tb-window-frame {
-      height: 100vh;
-      border-radius: 0;
-    }
-
-    /* ==========================================================================
-       Responsive Design & Mobile Pane Navigation
-       ========================================================================== */
-    .tb-mobile-nav-bar {
-      display: none;
-      background: var(--md-surface-low);
-      border-bottom: 1px solid var(--md-outline-variant);
-      padding: 6px 10px;
-      gap: 6px;
-      align-items: center;
-      justify-content: space-around;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-
-    .tb-mobile-nav-tab {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: var(--radius-full);
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--md-on-surface-variant);
-      font-family: inherit;
-      font-size: 12.5px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all var(--transition);
-      white-space: nowrap;
-    }
-
-    .tb-mobile-nav-tab:hover {
-      background: var(--md-state-hover);
-      color: var(--md-on-surface);
-    }
-
-    .tb-mobile-nav-tab.active {
-      background: var(--md-secondary-container);
-      color: var(--md-on-secondary-container);
-      border-color: transparent;
-      font-weight: 700;
-    }
-
-    .tb-mobile-badge {
-      background: var(--md-primary);
-      color: var(--md-on-primary);
-      font-size: 10px;
-      padding: 1px 6px;
-      border-radius: var(--radius-full);
-      font-weight: 700;
-    }
-
-    .tb-mobile-reader-header {
-      display: none;
-      padding: 4px 0 8px 0;
-    }
-
-    .tb-mobile-back-btn {
-      background: var(--md-surface-lowest);
-      color: var(--md-primary);
-      border: 1px solid var(--md-outline-variant);
-      border-radius: var(--radius-full);
-      padding: 7px 14px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all var(--transition);
-      box-shadow: var(--elevation-1);
-    }
-
-    .tb-mobile-back-btn:hover {
-      background: var(--md-primary-container);
-      color: var(--md-on-primary-container);
-      border-color: var(--md-primary);
-    }
-
-    /* Tablet Landscape & Medium Screens (769px to 1080px) */
-    @media (max-width: 1080px) {
-      .tb-spaces-rail {
-        width: 56px;
-      }
-      .tb-rail-item {
-        width: 44px;
-        height: 38px;
-      }
-      .tb-folder-pane {
-        width: 200px;
-      }
-      .tb-thread-pane {
-        width: 290px;
-      }
-    }
-
-    /* Small Tablet (769px to 900px) */
-    @media (max-width: 900px) {
-      .demo-controls-bar {
-        padding: 8px 16px;
-        gap: 12px;
-      }
-      .demo-branding {
-        gap: 8px;
-      }
-      .demo-title {
-        font-size: 14.5px;
-      }
-      .demo-settings {
-        gap: 10px;
-      }
-      .tb-folder-pane {
-        width: 180px;
-      }
-      .tb-thread-pane {
-        width: 270px;
-      }
-    }
-
-    /* Mobile & Narrow Screens (<= 768px) */
-    @media (max-width: 768px) {
-      .demo-controls-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-        padding: 10px 14px;
-      }
-      .demo-branding {
-        justify-content: space-between;
-      }
-      .demo-settings {
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .tb-unified-toolbar {
-        padding: 0 10px;
-        gap: 8px;
-        height: 52px;
-      }
-      .tb-fab-write {
-        padding: 8px 12px;
-        font-size: 13px;
-      }
-      .tb-search-container {
-        max-width: none;
-      }
-      .tb-search-input {
-        padding: 6px 12px 6px 34px;
-        font-size: 13px;
-      }
-      .tb-search-icon {
-        left: 10px;
-        font-size: 14px;
-      }
-      .tb-toolbar-actions .tb-icon-btn:nth-child(2),
-      .tb-toolbar-actions .tb-icon-btn:nth-child(3) {
-        display: none; /* Hide calendar & address book from top bar on mobile */
-      }
-
-      /* Mobile Pane Navigation Tabs */
-      .tb-mobile-nav-bar {
-        display: flex;
-      }
-      .tb-mobile-reader-header {
-        display: flex;
-      }
-
-      /* Hide spaces rail on mobile, folders contain everything */
-      .tb-spaces-rail {
-        display: none !important;
-      }
-
-      /* Single pane visible at a time */
-      .tb-folder-pane,
-      .tb-thread-pane,
-      .tb-reader-pane {
-        display: none !important;
-        width: 100% !important;
-        flex: 1 1 100% !important;
-      }
-
-      .tb-workspace[data-active-pane="dossiers"] .tb-folder-pane {
-        display: flex !important;
-      }
-      .tb-workspace[data-active-pane="liste"] .tb-thread-pane {
-        display: flex !important;
-      }
-      .tb-workspace[data-active-pane="lecture"] .tb-reader-pane {
-        display: flex !important;
-      }
-
-      /* Reader mobile optimizations */
-      .tb-reader-pane {
-        padding: 8px 10px;
-        gap: 10px;
-      }
-      .tb-reader-card {
-        padding: 14px 16px;
-        gap: 12px;
-      }
-      .tb-reader-subject {
-        font-size: 17px;
-      }
-      .tb-reader-sender-row {
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .tb-reader-actions {
-        width: 100%;
-        margin-left: 0;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        gap: 6px;
-        padding-top: 6px;
-        border-top: 1px solid var(--md-outline-variant);
-      }
-      .tb-pill-btn {
-        padding: 6px 12px;
-        font-size: 12px;
-      }
-      .tb-message-body-card {
-        padding: 16px 18px;
-      }
-      .material-unsubscribe-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 10px 14px;
-      }
-      .tb-notification-banner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        padding: 10px 14px;
-      }
-      .tb-multimessage-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 14px 16px;
-      }
-      .tb-multimessage-actions {
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-    }
-
-    /* Small Mobile (<= 440px) */
-    @media (max-width: 440px) {
-      .tb-fab-write span:last-child {
-        display: none;
-      }
-      .tb-fab-write {
-        padding: 8px 10px;
-        border-radius: var(--radius-full);
-      }
-      .tb-unified-toolbar {
-        padding: 0 8px;
-        gap: 6px;
-      }
-      .color-chip {
-        width: 22px;
-        height: 22px;
-      }
-      .theme-toggle-btn {
-        padding: 4px 10px;
-        font-size: 12px;
-      }
-      .tb-multimessage-title {
-        font-size: 16px;
-      }
+    .card:hover { border-color: var(--tree-card-border-hover, var(--md-sys-color-outline-variant)); }
+    .card.selected {
+      background: var(--tree-card-background-selected, var(--md-sys-color-secondary-container));
+      color: var(--md-sys-color-on-secondary-container);
+    }
+    .card .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .card .line { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .card .from { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card .date { font-size: 11.5px; color: var(--md-sys-color-on-surface-variant); flex: none; }
+    .card.selected .date { color: inherit; opacity: .8; }
+    .card .subject { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--md-sys-color-on-surface-variant); }
+    .card.selected .subject { color: inherit; }
+    .card.unread .from, .card.unread .subject { font-weight: 700; color: inherit; }
+    .card.unread::before {
+      content: ""; position: absolute; left: 4px; top: 50%; width: 6px; height: 6px; margin-top: -3px;
+      border-radius: 50%; background: var(--md-sys-color-primary);
+    }
+    .card .meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+    .twisty {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 9px; border: none; cursor: pointer;
+      border-radius: var(--md-shape-corner-full);
+      background: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 11px; font-weight: 600;
+    }
+    .card.selected .twisty { background: rgba(255, 255, 255, .5); color: inherit; }
+    .twisty svg.i { width: 14px; height: 14px; transition: transform var(--md-motion-duration-short) var(--md-motion-easing-standard); }
+    .twisty[aria-expanded="true"] svg.i { transform: rotate(180deg); }
+    .twisty .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--md-sys-color-primary); }
+
+    .card.child { margin-left: 22px; width: calc(100% - 22px); padding-top: 8px; padding-bottom: 8px; }
+    .card.child.read { opacity: .72; }
+    .card.child.read:hover, .card.child.read.selected { opacity: 1; }
+    .reveal {
+      margin-left: 22px; align-self: flex-start;
+      padding: 4px 12px; border: 1px dashed var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-full); background: transparent; cursor: pointer;
+      color: var(--md-sys-color-primary); font-size: 12px; font-weight: 600;
+    }
+    .reveal:hover { background: var(--md-sys-state-hover); }
+
+    /* Avatars : initiale colorée, ou logo de la marque (BIMI). */
+    .avatar {
+      width: 36px; height: 36px; flex: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 15px; overflow: hidden;
+    }
+    .avatar.small { width: 28px; height: 28px; font-size: 12px; }
+    .avatar img { width: 100%; height: 100%; display: block; }
+
+    /* Volet de lecture */
+    .reader {
+      flex: 1 1 auto; min-width: 0; overflow-y: auto;
+      background: var(--md-sys-color-surface-container-low);
+      padding: 0 14px 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .reader .back, .phone-only { display: none; }
+    .header-card {
+      margin-top: 10px; padding: 16px 18px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-radius: var(--md-shape-corner-large);
+      box-shadow: var(--md-sys-elevation-1);
+    }
+    .header-top { display: flex; gap: 12px; align-items: flex-start; }
+    .header-top .who { flex: 1; min-width: 0; }
+    .header-top .who b { display: block; }
+    .header-top .who span { color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
+    .header-top .when { color: var(--md-sys-color-on-surface-variant); font-size: 12px; white-space: nowrap; }
+    .subject-line { font-size: 18px; font-weight: 600; margin: 12px 0 10px; line-height: 1.3; }
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-full);
+      background: transparent; color: var(--md-sys-color-on-surface); cursor: pointer;
+      font-size: 12.5px; font-weight: 500;
+    }
+    .pill:hover { background: var(--md-sys-state-hover); }
+    .pill.primary { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border-color: transparent; }
+    .pill svg.i { width: 16px; height: 16px; }
+
+    .body-card {
+      padding: 18px 22px; line-height: 1.6;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-radius: var(--md-shape-corner-large);
+    }
+    .body-card p { margin: 0 0 12px; }
+    .body-card p:last-child { margin-bottom: 0; }
+    .body-card ul { margin: 0 0 12px; padding-left: 20px; }
+    .body-card .code {
+      display: inline-block; margin: 4px 0 12px; padding: 10px 18px;
+      border-radius: var(--md-shape-corner-medium);
+      background: var(--md-sys-color-surface-container-high);
+      font: 700 26px/1 var(--md-sys-font-family-mono); letter-spacing: 6px;
+    }
+    .body-card .footer { margin-top: 18px; font-size: 11.5px; color: var(--md-sys-color-on-surface-variant); }
+    .body-card .footer a { color: inherit; }
+    .body-card a { color: var(--md-sys-color-primary); }
+    .hint {
+      padding: 10px 14px; border-radius: var(--md-shape-corner-medium);
+      background: var(--md-sys-color-surface-container-high);
+      font-size: 12.5px; color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* Bandeau de désinscription : mêmes règles que message-header.css. */
+    .unsub {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 18px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-medium);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+      animation: unsubIn 220ms var(--md-motion-easing-standard);
+    }
+    @keyframes unsubIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .unsub .left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .unsub .icon {
+      width: 32px; height: 32px; flex: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container);
+    }
+    .unsub .icon svg.i { width: 18px; height: 18px; }
+    .unsub .title { display: block; font-weight: 700; }
+    .unsub .desc { display: block; font-size: 12px; color: var(--md-sys-color-on-surface-variant); }
+    .unsub .btns { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .unsub .btns:not(:has(> :nth-child(3))) { flex-wrap: nowrap; flex-shrink: 0; }
+    .unsub .go {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: none; cursor: pointer;
+      border-radius: var(--md-shape-corner-full);
+      background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);
+      font-size: 12.5px; font-weight: 600; white-space: nowrap;
+    }
+    .unsub .go svg.i { width: 14px; height: 14px; }
+    .unsub .text-btn {
+      padding: 6px 12px; border: none; cursor: pointer; background: transparent;
+      border-radius: var(--md-shape-corner-full);
+      color: var(--md-sys-color-primary); font-size: 12.5px; font-weight: 600; white-space: nowrap;
+    }
+    .unsub .text-btn:hover { background: var(--md-sys-state-hover); }
+    .unsub .text-btn.muted { color: var(--md-sys-color-on-surface-variant); }
+    .unsub .close {
+      width: 28px; height: 28px; border: none; cursor: pointer; background: transparent;
+      border-radius: 50%; color: var(--md-sys-color-on-surface-variant);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .unsub .close:hover { background: var(--md-sys-state-hover); }
+    .unsub .close svg.i { width: 16px; height: 16px; }
+    .unsub.list {
+      background: transparent; box-shadow: none; border-color: transparent;
+      border-top: 1px solid var(--md-sys-color-outline-variant); border-radius: 0;
+      padding: 4px 6px;
+    }
+    .unsub.list .icon { width: 24px; height: 24px; background: transparent; color: var(--md-sys-color-on-surface-variant); }
+    .unsub.list .title { font-weight: 500; font-size: 12.5px; color: var(--md-sys-color-on-surface-variant); }
+    .unsub.done .icon { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+
+    /* Vue conversation (multimessage) */
+    .conv-head {
+      margin-top: 10px; padding: 16px 18px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-radius: var(--md-shape-corner-large); box-shadow: var(--md-sys-elevation-1);
+    }
+    .conv-head h2 { margin: 0 0 4px; font-size: 18px; }
+    .conv-head .sub { color: var(--md-sys-color-on-surface-variant); font-size: 12.5px; margin-bottom: 10px; }
+    .conv-card {
+      display: flex; gap: 12px; padding: 14px 16px; text-align: left; border: none; cursor: pointer; width: 100%;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-radius: var(--md-shape-corner-large);
+    }
+    .conv-card:hover { box-shadow: var(--md-sys-elevation-1); }
+    .conv-card .main { flex: 1; min-width: 0; }
+    .conv-card .line { display: flex; gap: 8px; align-items: baseline; }
+    .conv-card .line b { flex: 1; }
+    .conv-card .date { font-size: 11.5px; color: var(--md-sys-color-on-surface-variant); }
+    .conv-card p { margin: 4px 0 0; color: var(--md-sys-color-on-surface-variant); }
+    .conv-card.unread b { color: var(--md-sys-color-primary); }
+
+    /* Fenêtre de personnalisation : reprise de celle de l'extension. */
+    .backdrop {
+      position: fixed; inset: 0; z-index: 10; display: none;
+      align-items: center; justify-content: center; padding: 16px;
+      background: rgba(0, 0, 0, .32);
+    }
+    .backdrop.open { display: flex; }
+    .dialog {
+      width: 420px; max-width: 100%; max-height: 100%; overflow-y: auto;
+      padding: 22px 22px 16px; display: flex; flex-direction: column; gap: 16px;
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border-radius: var(--md-shape-corner-extra-large); box-shadow: var(--md-sys-elevation-3);
+    }
+    .dialog h2 { margin: 0; font-size: 20px; font-weight: 500; }
+    .dialog .dsub { font-size: 12px; color: var(--md-sys-color-on-surface-variant); }
+    .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; }
+    .section-title { font-size: 12px; font-weight: 600; color: var(--md-sys-color-on-surface-variant); margin-bottom: 8px; }
+    .segmented { display: flex; border: 1px solid var(--md-sys-color-outline); border-radius: var(--md-shape-corner-full); overflow: hidden; }
+    .segmented button {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 6px; border: none; cursor: pointer; background: transparent; font-weight: 500;
+    }
+    .segmented button + button { border-left: 1px solid var(--md-sys-color-outline); }
+    .segmented button[aria-pressed="true"] { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+    .segmented svg.i { width: 16px; height: 16px; display: none; }
+    .segmented button[aria-pressed="true"] svg.i { display: block; }
+    .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .swatch {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 10px 4px; border: 1px solid transparent; cursor: pointer; background: transparent;
+      border-radius: var(--md-shape-corner-large); font-size: 12px;
+    }
+    .swatch:hover { background: var(--md-sys-state-hover); }
+    .swatch[aria-pressed="true"] { border-color: var(--md-sys-color-outline-variant); background: var(--md-sys-color-surface-container-low); font-weight: 600; }
+    .swatch .dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; }
+    .swatch .dot svg.i { width: 18px; height: 18px; visibility: hidden; }
+    .swatch[aria-pressed="true"] .dot svg.i { visibility: visible; }
+    .option {
+      display: flex; align-items: center; gap: 16px; cursor: pointer;
+      padding: 12px 16px; border-radius: var(--md-shape-corner-large);
+      background: var(--md-sys-color-surface-container-low);
+    }
+    .option + .option { margin-top: 6px; }
+    .option .info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .option .t { font-weight: 500; }
+    .option .d { font-size: 12px; color: var(--md-sys-color-on-surface-variant); }
+    .switch { position: relative; width: 52px; height: 32px; flex: none; }
+    .switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .switch .track {
+      position: absolute; inset: 0; border-radius: 16px; pointer-events: none;
+      border: 2px solid var(--md-sys-color-outline); background: var(--md-sys-color-surface-container-highest);
+      transition: background var(--md-motion-duration-short);
+    }
+    .switch .track::after {
+      content: ""; position: absolute; top: 6px; left: 6px; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--md-sys-color-outline);
+      transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard);
+    }
+    .switch input:checked + .track { background: var(--md-sys-color-primary); border-color: var(--md-sys-color-primary); }
+    .switch input:checked + .track::after { left: 22px; top: 2px; width: 24px; height: 24px; background: var(--md-sys-color-on-primary); }
+    .switch input:focus-visible + .track { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
+    .dialog-foot { display: flex; justify-content: flex-end; }
+
+    /* Petits écrans : une colonne à la fois, comme sur un téléphone. */
+    @media (max-width: 960px) {
+      .folders { display: none; }
+      .tabs-bar, .toolbar { padding-left: 10px; }
+    }
+    @media (max-width: 760px) {
+      .spaces { display: none; }
+      .tabs-bar { display: none; }
+      .threads { width: 100%; border-radius: 0; }
+      .reader { display: none; padding-left: 10px; padding-right: 10px; }
+      .window.reading .threads { display: none; }
+      .window.reading .reader { display: flex; }
+      .reader .back { display: inline-flex; align-self: flex-start; margin-top: 8px; }
+      .phone-only { display: inline-flex; }
+      .search kbd { display: none; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Controls Header (Pour tester dynamiquement) -->
-  <header class="demo-controls-bar">
-    <div class="demo-branding">
-      <div class="demo-logo-badge">M</div>
-      <div>
-        <div class="demo-title">Material-Thunderbird (Material You M3)</div>
-        <div class="demo-subtitle">Aperçu interactif de l'interface modernisée</div>
+  <div class="window" id="window">
+    <div class="tabs-bar" aria-hidden="true">
+      <div class="tab active"><span class="ico" data-emoji="📥"><svg class="i" viewBox="0 0 24 24"><use href="#ic-inbox"/></svg></span>Boîte de réception</div>
+      <div class="tab"><span class="ico" data-emoji="📅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span>Agenda</div>
+    </div>
+    <div class="toolbar">
+      <div class="search" role="search">
+        <svg class="i" viewBox="0 0 24 24"><use href="#ic-search"/></svg>
+        <span>Rechercher…</span>
+        <kbd>Ctrl+K</kbd>
       </div>
+      <button class="icon-btn phone-only" id="openCustomizerPhone" title="Personnaliser le thème" aria-label="Personnaliser le thème"><svg class="i" viewBox="0 0 24 24"><use href="#ic-palette"/></svg></button>
+      <button class="icon-btn" title="Menu de l'application" aria-label="Menu de l'application"><svg class="i" viewBox="0 0 24 24"><use href="#ic-menu"/></svg></button>
     </div>
 
-    <div class="demo-settings">
-      <!-- Sélecteur de vue : Unique vs Multi-messages -->
-      <div style="display: flex; background: var(--md-surface-container); border-radius: var(--radius-full); padding: 3px; gap: 4px;">
-        <button id="viewSingleBtn" class="tb-pill-btn" style="padding: 4px 12px; font-size: 12px;" onclick="setViewMode('single')">✉️ Message Unique</button>
-        <button id="viewMultiBtn" class="tb-pill-btn primary" style="padding: 4px 12px; font-size: 12px;" onclick="setViewMode('multi')">📑 Multi-messages (Thread)</button>
-      </div>
-
-      <!-- Sélecteur de teintes Material You -->
-      <div class="color-picker">
-        <span style="font-size: 12px; font-weight: 500; color: var(--md-on-surface-variant);">Teinte :</span>
-        <div class="color-chip active" style="background: #0b57d0;" data-pal="blue" title="Google Blue / Indigo" onclick="setPalette('blue')"></div>
-        <div class="color-chip" style="background: #006a60;" data-pal="emerald" title="Émeraude / Sarcelle" onclick="setPalette('emerald')"></div>
-        <div class="color-chip" style="background: #6750a4;" data-pal="purple" title="Améthyste / Violet" onclick="setPalette('purple')"></div>
-        <div class="color-chip" style="background: #9c4125;" data-pal="coral" title="Corail / Terracotta" onclick="setPalette('coral')"></div>
-      </div>
-
-      <!-- Bascule Clair / Sombre -->
-      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
-        <span id="themeIcon">🌙</span>
-        <span id="themeLabel">Mode Sombre</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Thunderbird Window Simulation -->
-  <main class="tb-window-frame">
-    <!-- Top Unified Toolbar -->
-    <div class="tb-unified-toolbar">
-      <!-- Extended FAB -->
-      <button class="tb-fab-write">
-        <span>✏️</span>
-        <span>Écrire</span>
-      </button>
-
-      <!-- Search Input Pill -->
-      <div class="tb-search-container">
-        <span class="tb-search-icon">🔍</span>
-        <input type="text" class="tb-search-input" placeholder="Rechercher dans les messages, adresses et événements...">
-      </div>
-
-      <!-- Actions -->
-      <div class="tb-toolbar-actions">
-        <button class="tb-icon-btn" title="Relever les courriels">📥</button>
-        <button class="tb-icon-btn" title="Carnet d'adresses">👥</button>
-        <button class="tb-icon-btn" title="Calendrier">📅</button>
-        <button class="tb-icon-btn" title="Paramètres">⚙️</button>
-      </div>
-    </div>
-
-    <!-- Barre de navigation mobile entre les panneaux (Dossiers / Messages / Lecture) -->
-    <nav class="tb-mobile-nav-bar" id="mobileNavBar" aria-label="Navigation mobile">
-      <button class="tb-mobile-nav-tab" id="tabDossiers" data-pane="dossiers" onclick="setMobilePane('dossiers')">
-        <span>📁 Dossiers</span>
-      </button>
-      <button class="tb-mobile-nav-tab active" id="tabListe" data-pane="liste" onclick="setMobilePane('liste')">
-        <span>✉️ Messages <span class="tb-mobile-badge">4</span></span>
-      </button>
-      <button class="tb-mobile-nav-tab" id="tabLecture" data-pane="lecture" onclick="setMobilePane('lecture')">
-        <span>📖 Lecture</span>
-      </button>
-    </nav>
-
-    <!-- Main Workspace -->
-    <div class="tb-workspace" id="workspaceContainer" data-active-pane="liste">
-      <!-- 1. Spaces Toolbar (Navigation Rail) -->
-      <nav class="tb-spaces-rail">
-        <div class="tb-rail-item active" title="Courrier">
-          <span class="tb-rail-icon">✉️</span>
-        </div>
-        <div class="tb-rail-item" title="Carnet d'adresses">
-          <span class="tb-rail-icon">📇</span>
-        </div>
-        <div class="tb-rail-item" title="Calendrier">
-          <span class="tb-rail-icon">📆</span>
-        </div>
-        <div class="tb-rail-item" title="Tâches">
-          <span class="tb-rail-icon">✔️</span>
-        </div>
-        <div class="tb-rail-item" title="Discussion">
-          <span class="tb-rail-icon">💬</span>
-        </div>
+    <div class="body">
+      <nav class="spaces" aria-label="Espaces">
+        <button class="space-btn active" title="Courrier" aria-label="Courrier"><span class="ico" data-emoji="✉️"><svg class="i" viewBox="0 0 24 24"><use href="#ic-mail"/></svg></span></button>
+        <button class="space-btn" title="Carnet d'adresses" aria-label="Carnet d'adresses"><span class="ico" data-emoji="👥"><svg class="i" viewBox="0 0 24 24"><use href="#ic-person"/></svg></span></button>
+        <button class="space-btn" title="Agenda" aria-label="Agenda"><span class="ico" data-emoji="📅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span></button>
+        <button class="space-btn" title="Tâches" aria-label="Tâches"><span class="ico" data-emoji="✅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-task"/></svg></span></button>
+        <button class="space-btn" title="Messagerie instantanée" aria-label="Messagerie instantanée"><span class="ico" data-emoji="💬"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chat"/></svg></span></button>
+        <span class="spacer"></span>
+        <button class="space-btn" id="openCustomizer" title="Personnaliser le thème (Alt+M)" aria-label="Personnaliser le thème"><span class="ico" data-emoji="🎨"><svg class="i" viewBox="0 0 24 24"><use href="#ic-palette"/></svg></span></button>
+        <button class="space-btn" title="Paramètres" aria-label="Paramètres"><span class="ico" data-emoji="⚙️"><svg class="i" viewBox="0 0 24 24"><use href="#ic-settings"/></svg></span></button>
       </nav>
 
-      <!-- 2. Folder Pane (Navigation Drawer) -->
-      <aside class="tb-folder-pane">
-        <div style="display: flex; align-items: center; gap: 8px; padding: 4px 6px 12px 6px;">
-          <button style="flex: 1; background: var(--md-primary); color: var(--md-on-primary); border: none; border-radius: var(--radius-lg); padding: 8px 14px; font-weight: 600; font-size: 12.5px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: var(--elevation-1);">
-            <span>✏️</span>
-            <span>Écrire</span>
-          </button>
-          <button title="Relever les nouveaux messages" style="width: 32px; height: 32px; border-radius: var(--radius-full); border: none; background: transparent; color: var(--md-on-surface-variant); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: background var(--transition);" onmouseover="this.style.background='var(--md-state-hover)'; this.style.color='var(--md-primary)';" onmouseout="this.style.background='transparent'; this.style.color='var(--md-on-surface-variant)';">
-            🔄
-          </button>
-          <button title="Options du panneau des dossiers" style="width: 32px; height: 32px; border-radius: var(--radius-full); border: none; background: transparent; color: var(--md-on-surface-variant); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: background var(--transition);" onmouseover="this.style.background='var(--md-state-hover)'; this.style.color='var(--md-primary)';" onmouseout="this.style.background='transparent'; this.style.color='var(--md-on-surface-variant)';">
-            ⋮
-          </button>
+      <aside class="folders" aria-label="Dossiers">
+        <div class="folder-header">
+          <button class="fab"><svg class="i" viewBox="0 0 24 24"><use href="#ic-edit"/></svg>Nouveau message</button>
+          <button class="icon-btn" title="Relever les messages" aria-label="Relever les messages"><svg class="i" viewBox="0 0 24 24"><use href="#ic-refresh"/></svg></button>
         </div>
-        <div class="tb-drawer-header">Boîtes aux lettres</div>
-        <div class="tb-drawer-item active" onclick="selectFolder(this)">
-          <span>📥</span>
-          <span>Boîte de réception</span>
-          <span class="tb-item-badge">4</span>
-        </div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>⭐</span>
-          <span>Messages suivis</span>
-        </div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>📤</span>
-          <span>Messages envoyés</span>
-        </div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>📝</span>
-          <span>Brouillons</span>
-          <span class="tb-item-badge" style="background: var(--md-surface-high); color: var(--md-on-surface);">1</span>
-        </div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>📁</span>
-          <span>Archives</span>
-        </div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>🗑️</span>
-          <span>Corbeille</span>
-        </div>
-
-        <div class="tb-drawer-header" style="margin-top: 16px;">Dossiers personnels</div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>💼</span>
-          <span>Projets 2026</span>
-          <span class="tb-item-badge">2</span>
-        </div>
-        <div class="tb-drawer-item" onclick="selectFolder(this)">
-          <span>✈️</span>
-          <span>Voyages</span>
-        </div>
+        <div class="account">camille@exemple.fr</div>
+        <div id="folderList"></div>
+        <div class="account">Dossiers locaux</div>
+        <div id="localFolders"></div>
       </aside>
 
-      <!-- 3. Messages List (Cards View) -->
-      <section class="tb-thread-pane">
-        <div class="tb-thread-header">
-          <span>Courrier entrant <span style="font-size: 11.5px; font-weight: 500; opacity: 0.8;">9 451 messages</span></span>
-          <button class="tb-filter-btn" title="Filtre rapide">
-            <span>🔍</span>
-            <span>Filtre rapide</span>
-          </button>
+      <section class="threads" aria-label="Messages">
+        <div class="threads-header">
+          <h1>Boîte de réception</h1><span class="sub" id="countLabel"></span>
+          <span class="grow"></span>
+          <button class="chip-btn" title="Filtre rapide"><svg class="i" viewBox="0 0 24 24"><use href="#ic-filter"/></svg>Filtrer</button>
         </div>
-
-        <!-- Message Card 1 (Thread with Replies & Unread replies) -->
-        <div class="tb-card-message active thread-card-has-children" style="border-inline-start: 4px solid var(--md-primary);" onclick="selectMessageCard(this)">
-          <div class="tb-card-top">
-            <span class="tb-card-sender">
-              Mozilla Thunderbird Community
-            </span>
-            <span class="tb-card-time">10:42</span>
-          </div>
-          <!-- 1. Subject strictly BEFORE twisty button -->
-          <div class="tb-card-subject">Bienvenue sur votre nouvelle interface Material You !</div>
-          <div class="tb-card-snippet">Découvrez la modernité du design Material 3 : arrondis doux, palettes dynamiques et lisibilité accrue...</div>
-          
-          <!-- 2. Twisty button strictly AFTER subject: Vibrant primary blue pill for unread replies -->
-          <div class="tb-twisty-row">
-            <button class="tb-twisty-btn" data-expanded="false" style="background: var(--md-primary); color: var(--md-on-primary); font-weight: 700;" onclick="event.stopPropagation(); toggleThreadReplies(this);">
-              <span>▼</span> 2 réponses
-            </button>
-          </div>
-        </div>
-
-        <!-- Message Card 2 (Unread) -->
-        <div class="tb-card-message unread" onclick="selectMessageCard(this)">
-          <div class="tb-card-top">
-            <span class="tb-card-sender">
-              Équipe Design
-            </span>
-            <span class="tb-card-time">09:15</span>
-          </div>
-          <div class="tb-card-subject">Nouvelles spécifications Material Design 3</div>
-          <div class="tb-card-snippet">Voici le compte-rendu des jetons de conception pour les états survolés et les cartes surélevées.</div>
-        </div>
-
-        <!-- Message Card 3 -->
-        <div class="tb-card-message" onclick="selectMessageCard(this)">
-          <div class="tb-card-top">
-            <span class="tb-card-sender">GitHub Notifications</span>
-            <span class="tb-card-time">Hier</span>
-          </div>
-          <div class="tb-card-subject">[VForiel/Material-Thunderbird] Release v1.0.0 prête</div>
-          <div class="tb-card-snippet">La version initiale du thème Material-Thunderbird est désormais disponible pour Supernova & Nebula.</div>
-        </div>
-
-        <!-- Message Card 4 -->
-        <div class="tb-card-message" onclick="selectMessageCard(this)">
-          <div class="tb-card-top">
-            <span class="tb-card-sender">Antigravity Pair</span>
-            <span class="tb-card-time">07 sept.</span>
-          </div>
-          <div class="tb-card-subject">Installation automatisée en 1 clic validée</div>
-          <div class="tb-card-snippet">Le script install.bat détecte parfaitement le profil actif et applique les styles sans manipulation manuelle.</div>
-        </div>
+        <div class="list" id="list" role="listbox" aria-label="Liste des messages"></div>
       </section>
 
-      <!-- 4. Message Reader Pane -->
-      <article class="tb-reader-pane">
-
-        <!-- En-tête de retour sur mobile -->
-        <div class="tb-mobile-reader-header">
-          <button class="tb-mobile-back-btn" onclick="setMobilePane('liste')">
-            <span>←</span>
-            <span>Retour aux messages</span>
-          </button>
-        </div>
-
-        <!-- ==================================================================
-             Multi-Message Summary View (multimessageview.xhtml modernisé)
-             ================================================================== -->
-        <div id="multiMessageView" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-          <!-- Header card: Elevated with shadow, bold title, M3 pill buttons -->
-          <div class="tb-multimessage-header">
-            <div class="tb-multimessage-title-box">
-              <h1 class="tb-multimessage-title">3 messages sélectionnés dans la conversation</h1>
-              <span class="tb-multimessage-count">(1 non lu)</span>
-            </div>
-            <div class="tb-multimessage-actions">
-              <button class="tb-pill-btn primary">
-                <span>↩️</span>
-                <span>Répondre à tous</span>
-              </button>
-              <button class="tb-pill-btn">
-                <span>📦</span>
-                <span>Archiver</span>
-              </button>
-              <button class="tb-pill-btn">
-                <span>🗑️</span>
-                <span>Supprimer</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Message Cards List (pure white cards with 16px rounded corners on soft blue canvas) -->
-          <div class="tb-multimessage-list">
-            <!-- Mail Card 1 -->
-            <div class="tb-multimessage-card" onclick="setViewMode('single')">
-              <div class="tb-multimessage-card-top">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div class="tb-avatar-small" style="background: var(--md-primary-container); color: var(--md-on-primary-container);">M</div>
-                  <span class="tb-multi-author">Mozilla Thunderbird Community</span>
-                </div>
-                <span class="tb-multi-date">Aujourd'hui 10:42</span>
-              </div>
-              <div style="font-weight: 500; font-size: 13.5px; color: var(--md-on-surface-variant);">Bienvenue sur votre nouvelle interface Material You !</div>
-              <div class="tb-multi-snippet">
-                Bonjour, Félicitations ! Votre client de messagerie Mozilla Thunderbird bénéficie désormais de la métamorphose visuelle Material You (Material Design 3)...
-              </div>
-            </div>
-
-            <!-- Mail Card 2 (Unread reply - perfectly harmonized with main list) -->
-            <div class="tb-multimessage-card" style="border-inline-start: 4px solid var(--md-primary);" onclick="setViewMode('single')">
-              <div class="tb-multimessage-card-top">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div class="tb-avatar-small" style="background: #c2e7ff; color: #001d35;">S</div>
-                  <span class="tb-multi-author" style="font-weight: 700; color: var(--md-on-surface);">Sarah Connor &lt;sarah.connor@resistance.org&gt;</span>
-                </div>
-                <span class="tb-multi-date">Aujourd'hui 11:15</span>
-              </div>
-              <div style="font-weight: 600; font-size: 13.5px; color: var(--md-primary);">Re: Bienvenue sur votre nouvelle interface Material You !</div>
-              <div class="tb-multi-snippet">
-                J'ai validé la maquette Material You ! Les cartes blanches sans bordures sur le fond bleu ressortent avec beaucoup d'élégance et la lisibilité est impeccable.
-              </div>
-            </div>
-
-            <!-- Mail Card 3 -->
-            <div class="tb-multimessage-card" onclick="setViewMode('single')">
-              <div class="tb-multimessage-card-top">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div class="tb-avatar-small" style="background: #fedbd0; color: #7d2b11;">J</div>
-                  <span class="tb-multi-author">John Doe &lt;john.doe@example.com&gt;</span>
-                </div>
-                <span class="tb-multi-date">Aujourd'hui 11:30</span>
-              </div>
-              <div style="font-weight: 500; font-size: 13.5px; color: var(--md-on-surface-variant);">Re: Bienvenue sur votre nouvelle interface Material You !</div>
-              <div class="tb-multi-snippet">
-                Excellent travail sur le padding vertical des cartes de conversation et le script de détection de désinscription !
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="tb-multimessage-footer">
-            <span>3 messages chargés de manière non-bloquante &bull; Rendu optimisé Material You M3</span>
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             Single Message Reader View
-             ================================================================== -->
-        <div id="singleMessageView" style="display: none; flex-direction: column; gap: 12px; width: 100%;">
-          <!-- Elevated Card for Email Header -->
-          <div class="tb-reader-card">
-            <div class="tb-reader-subject-row">
-              <h1 class="tb-reader-subject">Bienvenue sur votre nouvelle interface Material You !</h1>
-            </div>
-
-            <div class="tb-reader-sender-row">
-              <div class="tb-avatar">MT</div>
-              <div class="tb-sender-details">
-                <span class="tb-sender-name">Mozilla Thunderbird Community</span>
-                <span class="tb-sender-email">&lt;welcome@material-thunderbird.org&gt;</span>
-                <!-- Clean recipient row showing avatar contact button on the left -->
-                <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; margin-top: 4px;">
-                  <span style="color: var(--md-on-surface-variant);">Pour</span>
-                  <div class="tb-recipient-chip" style="display: inline-flex; align-items: center; gap: 6px; background: var(--md-surface-low); padding: 2px 10px 2px 4px; border-radius: var(--radius-full); cursor: pointer;" title="Cliquer pour éditer le contact" onclick="alert('Édition du contact vincent.foriel@gmail.com');">
-                    <span class="tb-recipient-avatar-btn" style="width: 20px; height: 20px; border-radius: 50%; background: #c2e7ff; color: #001d35; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold;">V</span>
-                    <span style="color: var(--md-on-surface); font-size: 12px; font-weight: 500;">vincent.foriel@gmail.com</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Action Buttons Pills (Thunderbird native dynamic display) -->
-              <div class="tb-reader-actions">
-                <button class="tb-pill-btn primary">
-                  <span>↩️</span>
-                  <span>Répondre</span>
-                </button>
-                <button class="tb-pill-btn">
-                  <span>↪️</span>
-                  <span>Transférer</span>
-                </button>
-                <button class="tb-pill-btn">
-                  <span>📦</span>
-                  <span>Archiver</span>
-                </button>
-                <button class="tb-pill-btn">
-                  <span>🗑️</span>
-                  <span>Supprimer</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Material You 1-Click Unsubscribe Banner (Positioned between Header and Body) -->
-          <div class="material-unsubscribe-card" id="demo-unsub-banner">
-            <div class="material-unsub-left">
-              <div class="material-unsub-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-              </div>
-              <div class="material-unsub-details" style="display: flex; flex-direction: column; gap: 1px;">
-                <span style="font-weight: 700; font-size: 13px;">Courrier commercial / Infolettre</span>
-                <span style="font-size: 12px; color: var(--md-on-surface-variant);">Un lien de désinscription a été détecté pour cet expéditeur.</span>
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <a class="material-unsub-btn" href="#" onclick="alert('Lien de désinscription détecté avec succès !'); return false;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-                Se désinscrire
-              </a>
-              <button class="material-unsub-close" onclick="document.getElementById('demo-unsub-banner').style.display='none'" title="Ignorer">✕</button>
-            </div>
-          </div>
-
-          <!-- Material You Warning / Notification Banner -->
-          <div class="tb-notification-banner">
-            <span class="tb-notif-icon">🛡️</span>
-            <span class="tb-notif-text">Pour protéger votre vie privée, Thunderbird a bloqué l'affichage du contenu distant dans ce message.</span>
-            <div class="tb-notif-actions" style="display: flex; align-items: center; gap: 8px;">
-              <button class="tb-notif-btn">Options ▾</button>
-              <button class="tb-notif-close">✕</button>
-            </div>
-          </div>
-
-          <!-- Email Body Card (Pure White Center, Rounded Corners on Soft Blue) -->
-          <div class="tb-message-body-card">
-            <div class="tb-message-body">
-              <p>Bonjour,</p>
-              <p>Félicitations ! Votre client de messagerie <strong>Mozilla Thunderbird</strong> bénéficie désormais de la métamorphose visuelle <strong>Material You (Material Design 3)</strong>.</p>
-              
-              <div class="tb-callout">
-                💡 <strong>Points forts du thème :</strong>
-                <ul style="margin-top: 6px; margin-left: 20px;">
-                  <li><strong>Vue multi-messages (multimessageview)</strong> avec cartes blanches flottantes sans bordure et en-tête surélevée.</li>
-                  <li><strong>Fil de discussion ergonomique</strong> avec padding vertical corrigé et puce pour les réponses non lues.</li>
-                  <li><strong>Chargement d'avatars non-bloquant</strong> avec placeholders instantanés neutres et colorimétrie dynamique.</li>
-                  <li><strong>Détecteur de désinscription non-bloquant</strong> pour se désinscrire des newsletters en un clic.</li>
-                </ul>
-              </div>
-
-              <p>Vous pouvez tester les différentes ambiances de couleurs en utilisant le sélecteur en haut à droite ainsi que le basculement entre vue unique et vue multi-messages.</p>
-              
-              <p>Bonne navigation avec <strong>Material-Thunderbird</strong> !</p>
-            </div>
-          </div>
-        </div>
-
-      </article>
+      <section class="reader" id="reader" aria-live="polite"></section>
     </div>
-  </main>
+  </div>
+
+  <!-- Fenêtre de personnalisation, comme dans Thunderbird (palette ou Alt+M). -->
+  <div class="backdrop" id="backdrop">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+      <div class="dialog-head">
+        <div>
+          <h2 id="dlgTitle">Personnaliser le thème</h2>
+          <div class="dsub">Material-Thunderbird · Alt+M</div>
+        </div>
+        <button class="icon-btn" id="closeCustomizer" title="Fermer (Échap)" aria-label="Fermer"><svg class="i" viewBox="0 0 24 24"><use href="#ic-close"/></svg></button>
+      </div>
+      <div>
+        <div class="section-title">Apparence</div>
+        <div class="segmented" id="modeGroup"></div>
+      </div>
+      <div>
+        <div class="section-title">Couleur d'accent</div>
+        <div class="swatches" id="paletteGroup"></div>
+      </div>
+      <div>
+        <div class="section-title">Options</div>
+        <label class="option"><span class="info"><span class="t">Icônes émojis</span><span class="d">Remplace les icônes des dossiers et de la barre des espaces par des émojis.</span></span><span class="switch"><input type="checkbox" data-setting="emojis"><span class="track"></span></span></label>
+        <label class="option"><span class="info"><span class="t">Masquer les réponses déjà lues</span><span class="d">Un fil qui reçoit un nouveau message s'ouvre sur ses réponses non lues.</span></span><span class="switch"><input type="checkbox" data-setting="hideRead"><span class="track"></span></span></label>
+        <label class="option"><span class="info"><span class="t">Proposer la désinscription</span><span class="d">Bandeau sur les infolettres et les listes de diffusion, jamais sur les codes ni les commandes.</span></span><span class="switch"><input type="checkbox" data-setting="unsub"><span class="track"></span></span></label>
+      </div>
+      <div class="dialog-foot"><button class="pill primary" id="doneCustomizer">Terminé</button></div>
+    </div>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="ic-inbox" viewBox="0 0 24 24"><path d="M19 3H4.99c-1.11 0-1.98.89-1.98 2L3 19c0 1.1.88 2 1.99 2H19c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H4.99V5H19v10z"/></symbol>
+      <symbol id="ic-drafts" viewBox="0 0 24 24"><path d="M21.99 8c0-.72-.37-1.35-.94-1.7L12 1 2.95 6.3C2.38 6.65 2 7.28 2 8v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2l-.01-10zM12 13 3.74 7.84 12 3l8.26 4.84L12 13z"/></symbol>
+      <symbol id="ic-send" viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
+      <symbol id="ic-archive" viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5 6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"/></symbol>
+      <symbol id="ic-junk" viewBox="0 0 24 24"><path d="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z"/></symbol>
+      <symbol id="ic-delete" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+      <symbol id="ic-folder" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+      <symbol id="ic-mail" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></symbol>
+      <symbol id="ic-person" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol>
+      <symbol id="ic-group" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+      <symbol id="ic-calendar" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/></symbol>
+      <symbol id="ic-task" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol>
+      <symbol id="ic-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></symbol>
+      <symbol id="ic-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol>
+      <symbol id="ic-settings" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+      <symbol id="ic-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+      <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol>
+      <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+      <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></symbol>
+      <symbol id="ic-filter" viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></symbol>
+      <symbol id="ic-reply" viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></symbol>
+      <symbol id="ic-forward" viewBox="0 0 24 24"><path d="M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z"/></symbol>
+      <symbol id="ic-expand" viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+      <symbol id="ic-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+      <symbol id="ic-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+      <symbol id="ic-check" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+      <symbol id="ic-open" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></symbol>
+    </defs>
+  </svg>
 
   <script>
-    // Navigation mobile entre les panneaux (Dossiers, Liste, Lecture)
-    function setMobilePane(paneName) {
-      const workspace = document.getElementById('workspaceContainer');
-      if (workspace) {
-        workspace.setAttribute('data-active-pane', paneName);
-      }
-      document.querySelectorAll('.tb-mobile-nav-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.getAttribute('data-pane') === paneName);
+  (function () {
+    "use strict";
+    var S = window.MaterialSettings;
+    var settings = S.load();
+    var embedded = window.parent !== window;
+
+    // Palettes des avatars : celles de M3_AVATAR_PALETTES dans l'extension.
+    var AVATAR_COLORS = [
+      ["#D3E3FD", "#041E49"], ["#FFD8D3", "#3A0B07"], ["#C4EED0", "#072711"], ["#EEDCFF", "#2E004E"],
+      ["#FFE088", "#261900"], ["#FFD8E4", "#3B071E"], ["#C2E7FF", "#001D35"], ["#E1EAAF", "#1B1F00"]
+    ];
+
+    // Un logo de marque publié par BIMI : ici une pièce d'or dessinée pour l'exemple.
+    var DRAGON_LOGO = "data:image/svg+xml," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#1b1b1f"/>' +
+      '<circle cx="32" cy="32" r="20" fill="#f2b705"/><circle cx="32" cy="32" r="14" fill="none" stroke="#a87800" stroke-width="3"/>' +
+      '<path d="M26 38c4-1 7-4 8-9l4 3-2-7 6 1c-3-4-9-5-13-2-4 3-5 9-3 14z" fill="#a87800"/></svg>');
+
+    function esc(text) {
+      return String(text).replace(/[&<>"]/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c];
       });
     }
-
-    function selectFolder(el) {
-      document.querySelectorAll('.tb-drawer-item').forEach(item => item.classList.remove('active'));
-      el.classList.add('active');
-      if (window.innerWidth <= 768) {
-        setMobilePane('liste');
-      }
+    function icon(id) { return '<svg class="i" viewBox="0 0 24 24"><use href="#ic-' + id + '"/></svg>'; }
+    function avatar(m, small) {
+      var cls = "avatar" + (small ? " small" : "");
+      if (m.logo) return '<span class="' + cls + '"><img src="' + m.logo + '" alt=""></span>';
+      var h = 0;
+      for (var i = 0; i < m.email.length; i++) h = (h * 31 + m.email.charCodeAt(i)) >>> 0;
+      var c = AVATAR_COLORS[h % AVATAR_COLORS.length];
+      return '<span class="' + cls + '" style="background:' + c[0] + ';color:' + c[1] + '">' +
+        esc(m.from.charAt(0).toUpperCase()) + "</span>";
     }
 
-    function selectMessageCard(card) {
-      document.querySelectorAll('.tb-card-message').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      if (window.innerWidth <= 768) {
-        setMobilePane('lecture');
-      }
-    }
+    // ---- Les courriels ----------------------------------------------------
+    var MESSAGES = [
+      { id: "welcome", from: "Material-Thunderbird", email: "bonjour@material-thunderbird.example",
+        subject: "Bienvenue dans votre nouvelle interface", date: "10:42", unread: true,
+        body:
+          "<p>Bonjour !</p>" +
+          "<p>Ceci est un aperçu de Thunderbird avec le thème Material-Thunderbird. Les couleurs sont exactement celles de l'extension ; la mise en page, elle, est reconstruite pour le navigateur.</p>" +
+          "<p>Quelques choses à essayer :</p>" +
+          "<ul>" +
+          "<li>la <b>palette</b> en bas de la barre de gauche (ou <b>Alt+M</b>) : clair, sombre, couleurs, émojis ;</li>" +
+          "<li><b>La Gazette du Disque</b> : une infolettre, avec désinscription en un clic ;</li>" +
+          "<li><b>[club-astro]</b> : une liste de diffusion, avec un bandeau plus discret ;</li>" +
+          "<li><b>Skynet Cloud</b> : un code de connexion, et donc aucun bandeau, même si l'expéditeur en a mis un ;</li>" +
+          "<li><b>Réunion de lundi</b> : un fil dont les réponses déjà lues sont masquées ;</li>" +
+          "<li><b>Banque du Dragon</b> : le logo officiel de la marque à la place de l'initiale, comme dans Gmail.</li>" +
+          "</ul>" +
+          "<p>Bonne lecture,<br>L'équipe (une personne et beaucoup de café)</p>" },
+      { id: "gazette", from: "La Gazette du Disque", email: "edition@gazette-du-disque.example",
+        subject: "N° 42 : la réponse, enfin (la question suit la semaine prochaine)", date: "09:15", unread: true,
+        unsub: { kind: "newsletter", oneClick: true, host: "gazette-du-disque.example" },
+        body:
+          "<p><b>Au sommaire cette semaine</b></p>" +
+          "<ul><li>La Grande A'Tuin a ralenti de 0,3 % : faut-il s'inquiéter ?</li>" +
+          "<li>Recette : le pain de nain, ou comment construire un mur porteur avec son petit-déjeuner.</li>" +
+          "<li>Courrier des lecteurs : « Mon bibliothécaire est un orang-outan, est-ce normal ? » (oui).</li></ul>" +
+          "<p>Bonne lecture, et n'oubliez pas votre serviette.</p>" +
+          "<p class='footer'>Vous recevez cette infolettre parce que vous vous êtes inscrit un soir de pleine lune. <a href='#' tabindex='-1'>Se désinscrire</a></p>" },
+      { id: "astro", from: "Club d'astronomie", email: "club-astro@listes.exemple.fr",
+        subject: "[club-astro] Éclipse ce soir : qui ramène le télescope ?", date: "08:57", unread: true,
+        unsub: { kind: "list", listName: "club-astro", mailto: true },
+        body:
+          "<p>Salut tout le monde,</p>" +
+          "<p>D'après trois applis météo sur quatre, le ciel sera dégagé ce soir. La quatrième annonce de la grêle, on l'ignore.</p>" +
+          "<p>Il nous faut quelqu'un pour le télescope : la dernière fois, Jérôme l'a « oublié » chez lui et on a observé la Lune avec des jumelles d'opéra.</p>" +
+          "<p>Rendez-vous 21 h sur la colline. Pas de lampe blanche, sinon Martine vous confisque vos piles.</p>" +
+          "<p>Sophie</p>" },
+      { id: "code", from: "Skynet Cloud", email: "no-reply@skynet-cloud.example",
+        subject: "Votre code de vérification", date: "08:31", unread: false,
+        body:
+          "<p>Voici votre code pour vous connecter :</p><div class='code'>424242</div>" +
+          "<p>Il expire dans 10 minutes. Si ce n'est pas vous, pas de panique : nos machines ne sont pas (encore) conscientes.</p>" +
+          "<p class='hint'>Ce courriel contient un en-tête de désinscription ajouté par la plateforme d'envoi. L'extension reconnaît un code de connexion et n'affiche pas de bandeau.</p>" },
+      { id: "meeting", from: "Camille", email: "camille@exemple.fr",
+        subject: "Réunion de lundi (qui aurait pu être un mail)", date: "Hier", unread: false,
+        body: "<p>Bonjour à tous,</p><p>Je propose qu'on fasse un point pour préparer le point de la semaine prochaine. Créneau : lundi, 9 h. Viennoiseries offertes pour les ponctuels.</p><p>Camille</p>",
+        replies: [
+          { id: "m1", from: "Hugo", email: "hugo@exemple.fr", date: "Hier", unread: false,
+            text: "On ne pourrait pas faire ça par mail ?" },
+          { id: "m2", from: "Inès", email: "ines@exemple.fr", date: "Hier", unread: false,
+            text: "Je mets un sondage pour choisir la date du sondage." },
+          { id: "m3", from: "Thomas", email: "thomas@exemple.fr", date: "07:58", unread: true,
+            text: "Bon, j'ai lu tout le fil : ce mail aurait pu être une réunion." },
+          { id: "m4", from: "Camille", email: "camille@exemple.fr", date: "08:12", unread: true,
+            text: "Réunion maintenue. J'apporte les croissants, vous apportez les décisions." }
+        ] },
+      { id: "dragon", from: "Banque du Dragon", email: "releves@banque-du-dragon.example",
+        subject: "Votre relevé de novembre est disponible", date: "Hier", unread: false, logo: DRAGON_LOGO,
+        body:
+          "<p>Bonjour,</p><p>Votre relevé de novembre est disponible dans votre espace client.</p>" +
+          "<p>Solde : une montagne d'or, légèrement entamée par un hobbit.</p>" +
+          "<p class='hint'>Le logo à gauche de l'expéditeur vient de l'enregistrement BIMI du domaine, comme dans Gmail. Il n'est affiché que pour les domaines protégés contre l'usurpation (DMARC strict).</p>" },
+      { id: "marty", from: "Marty", email: "marty@hill-valley.example",
+        subject: "Re: On se voit le 21 octobre 2015 ?", date: "Lun.", unread: false,
+        body: "<p>Doc dit que la voiture est prête. Prévoir 1,21 gigawatt et éviter de croiser ton père.</p><p>Si tu reçois ce mail avant de l'avoir envoyé, ne réponds pas.</p><p>Marty</p>" },
+      { id: "rick", from: "Jamais Lâcher SARL", email: "news@jamais-lacher.example",
+        subject: "Nos engagements 2027 : ne jamais vous laisser tomber", date: "Lun.", unread: false,
+        unsub: { kind: "newsletter", oneClick: false, host: "jamais-lacher.example" },
+        body: "<p>Chère cliente, cher client,</p><p>Cette année encore, nous promettons de ne jamais vous laisser tomber, de ne jamais vous décevoir, et de ne jamais tourner autour du pot.</p><p>Nous ne vous dirons jamais au revoir. (Sauf si vous cliquez sur le bandeau.)</p>" },
+      { id: "forge", from: "Forge logicielle", email: "notifications@forge.example",
+        subject: "[Material-Thunderbird] Quelqu'un a mis une étoile au dépôt", date: "28 oct.", unread: false,
+        body: "<p>Une nouvelle personne a ajouté une étoile à <b>Material-Thunderbird</b>. Ça fait toujours plaisir.</p>" }
+    ];
 
-    function setViewMode(mode) {
-      const single = document.getElementById('singleMessageView');
-      const multi = document.getElementById('multiMessageView');
-      const btnSingle = document.getElementById('viewSingleBtn');
-      const btnMulti = document.getElementById('viewMultiBtn');
-      
-      if (mode === 'single') {
-        single.style.display = 'flex';
-        multi.style.display = 'none';
-        if (btnSingle) btnSingle.classList.add('primary');
-        if (btnMulti) btnMulti.classList.remove('primary');
-      } else {
-        single.style.display = 'none';
-        multi.style.display = 'flex';
-        if (btnSingle) btnSingle.classList.remove('primary');
-        if (btnMulti) btnMulti.classList.add('primary');
-      }
+    var FOLDERS = [
+      { name: "Boîte de réception", icon: "inbox", emoji: "📥", count: 0, active: true },
+      { name: "Brouillons", icon: "drafts", emoji: "📝" },
+      { name: "Envoyés", icon: "send", emoji: "📤" },
+      { name: "Archives", icon: "archive", emoji: "🗄️" },
+      { name: "Indésirables", icon: "junk", emoji: "🚫" },
+      { name: "Corbeille", icon: "delete", emoji: "🗑️" }
+    ];
+    var LOCAL = [
+      { name: "Thèse — version finale (v12)", icon: "folder", emoji: "📁" },
+      { name: "Recettes de grand-mère", icon: "folder", emoji: "📁" }
+    ];
 
-      // Si sur mobile, s'assurer que le lecteur est affiché pour voir le mode choisi
-      if (window.innerWidth <= 768) {
-        setMobilePane('lecture');
-      }
-    }
+    var state = { selected: "welcome", expanded: { meeting: true }, showRead: {}, ignored: {}, hidden: {}, banner: {} };
 
-    function toggleThreadReplies(btn) {
-      const isExpanded = btn.getAttribute('data-expanded') === 'true';
-      btn.setAttribute('data-expanded', !isExpanded);
-      btn.innerHTML = !isExpanded ? '<span>▲</span> Masquer les réponses' : '<span>▼</span> 2 réponses';
-      
-      // Also demonstrate opening the multi-message view when clicking replies
-      if (!isExpanded) {
-        setViewMode('multi');
-      }
-    }
-
-    function setPalette(name) {
-      document.documentElement.setAttribute('data-palette', name);
-      document.querySelectorAll('.color-chip').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-pal') === name);
+    function unreadCount() {
+      var n = 0;
+      MESSAGES.forEach(function (m) {
+        if (m.unread) n++;
+        (m.replies || []).forEach(function (r) { if (r.unread) n++; });
       });
+      return n;
     }
 
-    function toggleTheme() {
-      const html = document.documentElement;
-      const isDark = html.getAttribute('data-theme') === 'dark';
-      const newTheme = isDark ? 'light' : 'dark';
-      html.setAttribute('data-theme', newTheme);
-      
-      const icon = document.getElementById('themeIcon');
-      const label = document.getElementById('themeLabel');
-      if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-      if (label) label.textContent = isDark ? 'Mode Clair' : 'Mode Sombre';
-    }
-
-    // Gestion de la communication avec la page d'accueil (index.html)
-    window.addEventListener('message', (event) => {
-      const data = event.data;
-      if (!data) return;
-      if (data.action === 'setPalette' && data.palette) {
-        setPalette(data.palette);
-      } else if (data.action === 'setTheme' && data.theme) {
-        document.documentElement.setAttribute('data-theme', data.theme);
-        const isDark = data.theme === 'dark';
-        const icon = document.getElementById('themeIcon');
-        const label = document.getElementById('themeLabel');
-        if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-        if (label) label.textContent = isDark ? 'Mode Clair' : 'Mode Sombre';
-      } else if ((data.action === 'setView' || data.action === 'setViewMode') && data.mode) {
-        setViewMode(data.mode);
+    function renderFolders() {
+      FOLDERS[0].count = unreadCount();
+      function row(f) {
+        return '<button class="folder' + (f.active ? " active" : "") + '">' +
+          '<span class="ico" data-emoji="' + f.emoji + '">' + icon(f.icon) + "</span>" +
+          '<span class="name">' + esc(f.name) + "</span>" +
+          (f.count ? '<span class="count">' + f.count + "</span>" : "") + "</button>";
       }
+      document.getElementById("folderList").innerHTML = FOLDERS.map(row).join("");
+      document.getElementById("localFolders").innerHTML = LOCAL.map(row).join("");
+      document.getElementById("countLabel").textContent = "· " + unreadCount() + " non lus";
+    }
+
+    function findMessage(id) {
+      for (var i = 0; i < MESSAGES.length; i++) {
+        if (MESSAGES[i].id === id) return { msg: MESSAGES[i], parent: null };
+        var replies = MESSAGES[i].replies || [];
+        for (var j = 0; j < replies.length; j++) {
+          if (replies[j].id === id) return { msg: replies[j], parent: MESSAGES[i] };
+        }
+      }
+      return null;
+    }
+
+    function renderList() {
+      var html = "";
+      MESSAGES.forEach(function (m) {
+        var replies = m.replies || [];
+        var unreadReplies = replies.filter(function (r) { return r.unread; }).length;
+        html += '<button class="card' + (m.unread ? " unread" : "") + (state.selected === m.id ? " selected" : "") +
+          '" data-id="' + m.id + '" role="option" aria-selected="' + (state.selected === m.id) + '">' +
+          avatar(m) + '<span class="main"><span class="line"><span class="from">' + esc(m.from) +
+          '</span><span class="date">' + esc(m.date) + '</span></span><span class="subject">' + esc(m.subject) + "</span>";
+        if (replies.length) {
+          var open = !!state.expanded[m.id];
+          html += '<span class="meta"><span class="twisty" data-toggle="' + m.id + '" aria-expanded="' + open + '">' +
+            icon("expand") + replies.length + " réponses" + (unreadReplies ? '<span class="dot" title="Réponses non lues"></span>' : "") +
+            "</span></span>";
+        }
+        html += "</span></button>";
+        if (replies.length && state.expanded[m.id]) {
+          var hideRead = settings.hideRead && unreadReplies > 0 && !state.showRead[m.id];
+          var hiddenCount = 0;
+          replies.forEach(function (r) {
+            if (hideRead && !r.unread) { hiddenCount++; return; }
+            html += '<button class="card child' + (r.unread ? " unread" : " read") + (state.selected === r.id ? " selected" : "") +
+              '" data-id="' + r.id + '" role="option" aria-selected="' + (state.selected === r.id) + '">' +
+              avatar(r, true) + '<span class="main"><span class="line"><span class="from">' + esc(r.from) +
+              '</span><span class="date">' + esc(r.date) + '</span></span><span class="subject">' + esc(r.text) + "</span></span></button>";
+          });
+          if (hiddenCount) {
+            html += '<button class="reveal" data-reveal="' + m.id + '">Afficher ' + hiddenCount +
+              (hiddenCount > 1 ? " réponses déjà lues" : " réponse déjà lue") + "</button>";
+          }
+        }
+      });
+      document.getElementById("list").innerHTML = html;
+    }
+
+    // ---- Bandeau de désinscription (simulé : rien ne part d'ici) ---------
+    function bannerHtml(m) {
+      var u = m.unsub;
+      if (!u || !settings.unsub || state.ignored[m.id] || state.hidden[m.id]) return "";
+      var step = state.banner[m.id] || "initial";
+      var isList = u.kind === "list";
+      var who = isList ? "la liste " + u.listName : m.from;
+      var title, desc = "", btns = "", ico = isList ? "group" : "mail";
+      var close = '<button class="close" data-unsub="dismiss" title="Masquer" aria-label="Masquer">' + icon("close") + "</button>";
+      if (step === "initial") {
+        if (isList) { title = "Liste de diffusion · " + u.listName; btns = '<button class="text-btn" data-unsub="go" title="Préparer le courriel de désinscription (rien n\'est envoyé sans vous)">Quitter la liste</button>' + close; }
+        else {
+          title = "Infolettre";
+          desc = m.from + (u.oneClick ? " permet la désinscription en un clic." : " propose un lien de désinscription.");
+          btns = '<button class="go" data-unsub="go" title="' + (u.oneClick ? "Désinscription immédiate, sans ouvrir de page" : "Ouvrir " + u.host) + '">' +
+            (u.oneClick ? "" : icon("open")) + "Se désinscrire</button>" + close;
+        }
+      } else if (step === "confirm") {
+        title = "Se désinscrire de " + m.from + " ?"; desc = "La demande part directement à " + u.host + ".";
+        btns = '<button class="text-btn" data-unsub="back">Annuler</button><button class="go" data-unsub="send">Confirmer</button>';
+      } else if (step === "opened") {
+        title = isList ? "Courriel de désinscription préparé" : "Page ouverte dans un nouvel onglet";
+        desc = isList ? "Relisez-le puis envoyez-le. Rien ne part sans vous." : "Une fois désinscrit, confirmez-le ici.";
+        btns = '<button class="text-btn" data-unsub="later">Plus tard</button><button class="go" data-unsub="done">' + icon("check") + "C'est fait</button>";
+      } else if (step === "sent" || step === "noted") {
+        ico = "check";
+        title = step === "sent" ? "Désinscription envoyée" : "Désinscription notée";
+        desc = step === "sent" ? u.host + " a accepté la demande. Les prochains envois peuvent mettre quelques jours à s'arrêter."
+                               : "Le bandeau ne sera plus proposé pour " + who + ".";
+        btns = '<button class="text-btn" data-unsub="close">Fermer</button>';
+      } else if (step === "dismiss") {
+        title = "Masquer ce bandeau ?";
+        btns = '<button class="text-btn muted" data-unsub="back">Annuler</button><button class="text-btn" data-unsub="hide">Pour ce message</button>' +
+          '<button class="text-btn" data-unsub="ignore">' + (isList ? "Pour cette liste" : "Pour cet expéditeur") + "</button>";
+      }
+      var done = step === "sent" || step === "noted";
+      return '<div class="unsub' + (isList ? " list" : "") + (done ? " done" : "") + '" role="status">' +
+        '<div class="left"><span class="icon">' + icon(ico) + '</span><span><span class="title">' + esc(title) + "</span>" +
+        (desc ? '<span class="desc">' + esc(desc) + "</span>" : "") + "</span></div>" +
+        '<div class="btns">' + btns + "</div></div>";
+    }
+
+    function onBanner(action, m) {
+      var u = m.unsub;
+      var next = {
+        go: u.kind === "newsletter" && u.oneClick ? "confirm" : "opened",
+        send: "sent", back: "initial", done: "noted", dismiss: "dismiss"
+      }[action];
+      if (action === "hide") { state.hidden[m.id] = true; }
+      else if (action === "ignore") { state.ignored[m.id] = true; }
+      else if (action === "later" || action === "close") { state.hidden[m.id] = true; }
+      else if (next) { state.banner[m.id] = next; }
+      renderReader();
+    }
+
+    function headerHtml(m, subject) {
+      return '<div class="header-card"><div class="header-top">' + avatar(m) +
+        '<div class="who"><b>' + esc(m.from) + "</b><span>" + esc(m.email) + "</span></div>" +
+        '<div class="when">' + esc(m.date) + "</div></div>" +
+        '<div class="subject-line">' + esc(subject) + "</div>" +
+        '<div class="actions"><button class="pill primary">' + icon("reply") + "Répondre</button>" +
+        '<button class="pill">' + icon("forward") + "Transférer</button>" +
+        '<button class="pill">' + icon("archive") + "Archiver</button>" +
+        '<button class="pill">' + icon("delete") + "Supprimer</button></div></div>";
+    }
+
+    function renderReader() {
+      var reader = document.getElementById("reader");
+      var found = findMessage(state.selected);
+      var back = '<button class="pill back" data-back="1">' + icon("back") + "Messages</button>";
+      if (!found) { reader.innerHTML = ""; return; }
+      var m = found.msg;
+      if (m.replies) {
+        // Le parent d'un fil ouvre la vue conversation.
+        var all = [m].concat(m.replies);
+        reader.innerHTML = back + '<div class="conv-head"><h2>' + esc(m.subject) + '</h2><div class="sub">' +
+          all.length + " messages dans la conversation</div>" +
+          '<div class="actions"><button class="pill primary">' + icon("archive") + "Archiver</button>" +
+          '<button class="pill">' + icon("delete") + "Supprimer</button></div></div>" +
+          all.map(function (r) {
+            return '<button class="conv-card' + (r.unread ? " unread" : "") + '" data-open="' + r.id + '">' + avatar(r) +
+              '<span class="main"><span class="line"><b>' + esc(r.from) + '</b><span class="date">' + esc(r.date) +
+              "</span></span><p>" + esc(r.text || "Je propose qu'on fasse un point pour préparer le point de la semaine prochaine.") + "</p></span></button>";
+          }).join("");
+        return;
+      }
+      if (found.parent) {
+        reader.innerHTML = back + headerHtml(m, "Re: " + found.parent.subject) +
+          '<div class="body-card"><p>' + esc(m.text) + "</p></div>";
+        return;
+      }
+      reader.innerHTML = back + headerHtml(m, m.subject) + bannerHtml(m) + '<div class="body-card">' + m.body + "</div>";
+    }
+
+    function select(id) {
+      state.selected = id;
+      var found = findMessage(id);
+      if (found) found.msg.unread = false;
+      document.getElementById("window").classList.add("reading");
+      renderFolders();
+      renderList();
+      renderReader();
+    }
+
+    // ---- Interactions --------------------------------------------------
+    document.getElementById("list").addEventListener("click", function (e) {
+      var toggle = e.target.closest("[data-toggle]");
+      if (toggle) {
+        e.stopPropagation();
+        var id = toggle.getAttribute("data-toggle");
+        state.expanded[id] = !state.expanded[id];
+        renderList();
+        return;
+      }
+      var reveal = e.target.closest("[data-reveal]");
+      if (reveal) { state.showRead[reveal.getAttribute("data-reveal")] = true; renderList(); return; }
+      var card = e.target.closest("[data-id]");
+      if (card) select(card.getAttribute("data-id"));
     });
 
-    // Détection de l'intégration dans une iframe pour éviter la duplication des contrôles
-    if (window.self !== window.top) {
-      document.body.classList.add('is-embedded');
+    document.getElementById("reader").addEventListener("click", function (e) {
+      if (e.target.closest("[data-back]")) { document.getElementById("window").classList.remove("reading"); return; }
+      var open = e.target.closest("[data-open]");
+      if (open) { select(open.getAttribute("data-open")); return; }
+      var action = e.target.closest("[data-unsub]");
+      if (action) {
+        var found = findMessage(state.selected);
+        if (found) onBanner(action.getAttribute("data-unsub"), found.msg);
+      }
+      if (e.target.closest("a[href='#']")) e.preventDefault();
+    });
+
+    // ---- Personnalisation ----------------------------------------------
+    var MODES = [["light", "Clair"], ["dark", "Sombre"], ["auto", "Système"]];
+    function renderCustomizer() {
+      document.getElementById("modeGroup").innerHTML = MODES.map(function (m) {
+        return '<button data-mode="' + m[0] + '" aria-pressed="' + (settings.mode === m[0]) + '">' + icon("check") + m[1] + "</button>";
+      }).join("");
+      document.getElementById("paletteGroup").innerHTML = Object.keys(S.PALETTES).map(function (key) {
+        var p = S.PALETTES[key];
+        return '<button class="swatch" data-pal="' + key + '" aria-pressed="' + (settings.palette === key) + '">' +
+          '<span class="dot" style="background:' + p.color + '">' + icon("check") + "</span>" + esc(p.name) + "</button>";
+      }).join("");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-setting]"), function (input) {
+        input.checked = !!settings[input.getAttribute("data-setting")];
+      });
     }
+
+    function update(next, fromParent) {
+      settings = S.sanitize(Object.assign({}, settings, next));
+      S.save(settings);
+      S.apply(document, settings);
+      renderCustomizer();
+      renderList();
+      renderReader();
+      if (embedded && !fromParent) {
+        try { window.parent.postMessage({ source: "mt-preview", action: "settings", settings: settings }, location.origin); } catch (e) {}
+      }
+    }
+
+    document.getElementById("modeGroup").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-mode]"); if (b) update({ mode: b.getAttribute("data-mode") });
+    });
+    document.getElementById("paletteGroup").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-pal]"); if (b) update({ palette: b.getAttribute("data-pal") });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-setting]"), function (input) {
+      input.addEventListener("change", function () {
+        var next = {}; next[input.getAttribute("data-setting")] = input.checked; update(next);
+      });
+    });
+
+    var backdrop = document.getElementById("backdrop");
+    var opener = document.getElementById("openCustomizer");
+    function openCustomizer() { renderCustomizer(); backdrop.classList.add("open"); document.getElementById("closeCustomizer").focus(); }
+    function closeCustomizer() { backdrop.classList.remove("open"); opener.focus(); }
+    opener.addEventListener("click", openCustomizer);
+    document.getElementById("openCustomizerPhone").addEventListener("click", openCustomizer);
+    document.getElementById("closeCustomizer").addEventListener("click", closeCustomizer);
+    document.getElementById("doneCustomizer").addEventListener("click", closeCustomizer);
+    backdrop.addEventListener("click", function (e) { if (e.target === backdrop) closeCustomizer(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && backdrop.classList.contains("open")) closeCustomizer();
+      if (e.altKey && (e.key === "m" || e.key === "M")) { e.preventDefault(); openCustomizer(); }
+    });
+
+    // Réglages venus de la page d'accueil (bouton palette du site).
+    window.addEventListener("message", function (e) {
+      if (e.origin !== location.origin || !e.data || e.data.source !== "mt-site") return;
+      if (e.data.action === "settings") update(e.data.settings, true);
+      if (e.data.action === "openCustomizer") openCustomizer();
+    });
+    S.watchSystem(function () { if (settings.mode === "auto") S.apply(document, settings); });
+
+    renderFolders();
+    renderList();
+    renderReader();
+    renderCustomizer();
+    if (embedded) {
+      try { window.parent.postMessage({ source: "mt-preview", action: "ready" }, location.origin); } catch (e) {}
+    }
+  })();
   </script>
 </body>
 </html>
