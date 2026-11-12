@@ -37,5 +37,6 @@
 @import "components/multimessage.css";
 @import "components/compose.css";
 @import "components/search.css";
+@import "components/chat.css";
 /* Charge en dernier : complete les composants ci-dessus. */
 @import "components/extras.css";

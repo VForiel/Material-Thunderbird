@@ -1,0 +1,213 @@
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Messagerie instantanee (onglet Chat)
+ * References:
+ *   - chrome://messenger/content/messenger.xhtml (#chatTabPanel)
+ *   - chrome/classic/skin/classic/messenger/shared/chat.css
+ */
+
+/* ==========================================================================
+   1. Fond et barre d outils
+   ========================================================================== */
+#chatTabPanel,
+#chatPanel,
+#chat-notification-top,
+#conversationsBox,
+#logDisplay {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#chat-view-toolbox,
+#chat-toolbar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#chat-view-toolbox,
+#chat-view-toolbox > toolbar,
+#chatPanel {
+  border-block: none !important;
+}
+
+/* Filet natif sous la barre (.mail-toolbox::after). */
+#chat-view-toolbox::after {
+  display: none !important;
+}
+
+#chat-toolbar {
+  padding: 6px 10px !important;
+  gap: 4px !important;
+}
+
+#chat-toolbar .toolbarbutton-1 {
+  appearance: none !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  padding: 4px 12px !important;
+  min-height: 30px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#chat-toolbar .toolbarbutton-1:not([disabled]):hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#chat-toolbar .toolbarbutton-1[disabled] {
+  opacity: 0.45 !important;
+}
+
+/* Message d etat : un champ en pilule, comme la recherche. */
+#chat-status-selector .status-container {
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  padding: 2px 12px !important;
+  min-height: 28px !important;
+}
+
+#chat-status-selector .status-container:hover {
+  border-color: var(--md-sys-color-outline-variant) !important;
+}
+
+#statusMessageInput {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* ==========================================================================
+   2. Liste des contacts et conversations
+   ========================================================================== */
+#listPaneBox {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+  border-inline-end: none !important;
+}
+
+#contactlistbox {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 6px 8px !important;
+}
+
+#contactlistbox richlistitem[is="chat-group-richlistitem"] {
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  padding: 10px 10px 4px !important;
+  border: none !important;
+}
+
+#contactlistbox richlistitem:not([is="chat-group-richlistitem"]) {
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  margin: 1px 0 !important;
+  padding-inline: 8px !important;
+  color: var(--md-sys-color-on-surface) !important;
+  background: transparent !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#contactlistbox richlistitem:not([is="chat-group-richlistitem"]):hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#contactlistbox richlistitem:not([is="chat-group-richlistitem"])[selected] {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* ==========================================================================
+   3. Ecrans d accueil (aucun compte, aucune conversation)
+   Une carte blanche centree sur le fond bleute, bouton en pilule pleine.
+   ========================================================================== */
+.im-placeholder-screen {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+  padding: 24px !important;
+}
+
+.im-placeholder-box {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  background-image: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  padding: 28px 32px !important;
+  max-inline-size: 560px !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* L icone d information devient une pastille tonale. */
+.im-placeholder-box::before {
+  content: "" !important;
+  flex: none !important;
+  inline-size: 40px !important;
+  block-size: 40px !important;
+  border-radius: 50% !important;
+  background-color: var(--md-sys-color-primary-container) !important;
+  background-image: url("chrome://global/skin/icons/info.svg") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 20px !important;
+  -moz-context-properties: fill !important;
+  fill: var(--md-sys-color-on-primary-container) !important;
+}
+
+.im-placeholder-innerbox {
+  opacity: 1 !important;
+}
+
+.im-placeholder-title {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  padding-block-end: 0 !important;
+  margin-block-end: 8px !important;
+}
+
+.im-placeholder-desc {
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+.im-placeholder-button-box {
+  margin-block-start: 16px !important;
+}
+
+.im-placeholder-button-box > button {
+  appearance: none !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 6px 20px !important;
+  min-height: 34px !important;
+  cursor: pointer !important;
+}
+
+.im-placeholder-button-box > button:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-primary) 10%, var(--md-sys-color-primary)) !important;
+}
+
+#listSplitter {
+  border: none !important;
+  background: transparent !important;
+}

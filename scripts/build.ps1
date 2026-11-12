@@ -52,6 +52,7 @@ $Sources = @(
     "components/multimessage.css",
     "components/compose.css",
     "components/search.css",
+    "components/chat.css",
     "components/extras.css"
 )
 

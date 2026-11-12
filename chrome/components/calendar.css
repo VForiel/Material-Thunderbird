@@ -693,68 +693,128 @@ calendar-minimonth {
 }
 
 /* ==========================================================================
-   6. Todo List & Task Management (Material 3 Todolist)
+   6. Taches
+   Barre de saisie et filtre en pilules, liste et details dans des cartes
+   blanches sur le fond bleute, comme les autres onglets.
    ========================================================================== */
-#todo-tab-panel,
-#calendar-task-tree {
+#calendar-task-box,
+#calendar-task-box > vbox {
   background-color: var(--md-sys-color-surface-container-low) !important;
   color: var(--md-sys-color-on-surface) !important;
-  border: none !important;
 }
 
-/* Quick Task Addition Field */
 #task-addition-box {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-radius: var(--md-shape-corner-medium) !important;
-  border: none !important;
-  margin: 6px 8px !important;
-  padding: 4px 10px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-}
-
-#task-addition-box input {
   background: transparent !important;
   border: none !important;
-  outline: none !important;
-  color: var(--md-sys-color-on-surface) !important;
+  box-shadow: none !important;
+  padding: 8px 12px !important;
+  gap: 10px !important;
 }
 
-/* Task Filter menulist and search input */
-#task-tree-filter-box {
-  background-color: var(--md-sys-color-surface-container-low) !important;
-  border-bottom: none !important;
-  padding: 6px 8px !important;
+#task-addition-box > box {
   gap: 6px !important;
 }
 
-#task-filter-menulist {
+/* Bouton "Nouvelle tache" */
+#calendar-add-task-button {
+  appearance: none !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  padding: 4px 14px !important;
+  min-height: 32px !important;
+  font-weight: 600 !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+#calendar-add-task-button:not([disabled]):hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-primary) 10%, var(--md-sys-color-primary)) !important;
+}
+
+#calendar-add-task-button[disabled] {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  opacity: 0.7 !important;
+}
+
+/* Saisie rapide et filtre */
+#task-addition-box .input-container,
+#task-text-filter-field {
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full) !important;
   background-color: var(--md-sys-color-surface-container-high) !important;
   color: var(--md-sys-color-on-surface) !important;
-  border-radius: var(--md-shape-corner-full) !important;
-  border: none !important;
-  padding: 4px 10px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
+  min-height: 32px !important;
+  box-shadow: none !important;
+}
+
+#task-addition-box .input-container {
+  padding: 0 12px !important;
 }
 
 #task-text-filter-field {
-  background-color: var(--md-sys-color-surface-container-high) !important;
-  border-radius: var(--md-shape-corner-full) !important;
-  border: 1px solid transparent !important;
-  padding: 3px 10px !important;
-  font-size: 12px !important;
+  padding: 0 12px !important;
 }
 
+#view-task-edit-field {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+  flex: 1 !important;
+}
+
+#task-addition-box .input-container:focus-within,
 #task-text-filter-field:focus {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-color: var(--md-sys-color-outline-variant) !important;
   outline: none !important;
 }
 
-/* Task items in tree */
-#calendar-task-tree treechildren::-moz-tree-row {
-  border-radius: var(--md-shape-corner-small) !important;
-  margin: 2px 4px !important;
+/* Liste des taches : carte blanche */
+#calendar-task-tree {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-on-surface) !important;
   border: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 0 8px !important;
+  overflow: hidden !important;
+}
+
+#calendar-task-tree treecols {
+  background: transparent !important;
+  border: none !important;
+  border-block-end: 1px solid var(--md-sys-color-outline-variant) !important;
+  padding-inline: 6px !important;
+}
+
+#calendar-task-tree treecol,
+#calendar-task-tree treecolpicker {
+  appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 8px 6px !important;
+}
+
+#calendar-task-tree treecol:hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#calendar-task-tree treechildren {
+  background: transparent !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-row {
+  min-height: 34px !important;
+  border: none !important;
+  background-color: transparent !important;
 }
 
 #calendar-task-tree treechildren::-moz-tree-row(hover) {
@@ -763,16 +823,78 @@ calendar-minimonth {
 
 #calendar-task-tree treechildren::-moz-tree-row(selected) {
   background-color: var(--md-sys-color-secondary-container) !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-cell-text {
+  color: var(--md-sys-color-on-surface) !important;
+  font-size: 13px !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-cell-text(selected) {
   color: var(--md-sys-color-on-secondary-container) !important;
 }
 
-/* Task Details Card */
-#calendar-task-details-container,
-#calendar-task-details {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-radius: var(--md-shape-corner-medium) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  margin: 6px !important;
-  padding: 8px !important;
+#calendar-task-tree treechildren::-moz-tree-cell-text(completed) {
+  color: var(--md-sys-color-outline) !important;
+  text-decoration: line-through !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-cell-text(overdue) {
+  color: var(--md-sys-color-error) !important;
+}
+
+/* Details de la tache selectionnee : seconde carte */
+#calendar-task-view-splitter {
   border: none !important;
+  background: transparent !important;
+  min-height: 8px !important;
+}
+
+#calendar-task-details-container {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 0 8px 8px !important;
+  padding: 12px 16px !important;
+  box-shadow: none !important;
+}
+
+#calendar-task-details {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#calendar-task-details-grid .task-details-name {
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+#calendar-task-details-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#task-actions-toolbar .toolbarbutton-1,
+#task-actions-toolbar toolbarbutton {
+  appearance: none !important;
+  border: 1px solid var(--md-sys-color-outline-variant) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface) !important;
+  padding: 3px 12px !important;
+  margin: 0 3px !important;
+  min-height: 30px !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+#task-actions-toolbar toolbarbutton:not([disabled]):hover {
+  background-color: var(--md-sys-state-hover) !important;
 }

@@ -3240,68 +3240,128 @@ calendar-minimonth {
 }
 
 /* ==========================================================================
-   6. Todo List & Task Management (Material 3 Todolist)
+   6. Taches
+   Barre de saisie et filtre en pilules, liste et details dans des cartes
+   blanches sur le fond bleute, comme les autres onglets.
    ========================================================================== */
-#todo-tab-panel,
-#calendar-task-tree {
+#calendar-task-box,
+#calendar-task-box > vbox {
   background-color: var(--md-sys-color-surface-container-low) !important;
   color: var(--md-sys-color-on-surface) !important;
-  border: none !important;
 }
 
-/* Quick Task Addition Field */
 #task-addition-box {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-radius: var(--md-shape-corner-medium) !important;
-  border: none !important;
-  margin: 6px 8px !important;
-  padding: 4px 10px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-}
-
-#task-addition-box input {
   background: transparent !important;
   border: none !important;
-  outline: none !important;
-  color: var(--md-sys-color-on-surface) !important;
+  box-shadow: none !important;
+  padding: 8px 12px !important;
+  gap: 10px !important;
 }
 
-/* Task Filter menulist and search input */
-#task-tree-filter-box {
-  background-color: var(--md-sys-color-surface-container-low) !important;
-  border-bottom: none !important;
-  padding: 6px 8px !important;
+#task-addition-box > box {
   gap: 6px !important;
 }
 
-#task-filter-menulist {
+/* Bouton "Nouvelle tache" */
+#calendar-add-task-button {
+  appearance: none !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  padding: 4px 14px !important;
+  min-height: 32px !important;
+  font-weight: 600 !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+#calendar-add-task-button:not([disabled]):hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-primary) 10%, var(--md-sys-color-primary)) !important;
+}
+
+#calendar-add-task-button[disabled] {
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  opacity: 0.7 !important;
+}
+
+/* Saisie rapide et filtre */
+#task-addition-box .input-container,
+#task-text-filter-field {
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full) !important;
   background-color: var(--md-sys-color-surface-container-high) !important;
   color: var(--md-sys-color-on-surface) !important;
-  border-radius: var(--md-shape-corner-full) !important;
-  border: none !important;
-  padding: 4px 10px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
+  min-height: 32px !important;
+  box-shadow: none !important;
+}
+
+#task-addition-box .input-container {
+  padding: 0 12px !important;
 }
 
 #task-text-filter-field {
-  background-color: var(--md-sys-color-surface-container-high) !important;
-  border-radius: var(--md-shape-corner-full) !important;
-  border: 1px solid transparent !important;
-  padding: 3px 10px !important;
-  font-size: 12px !important;
+  padding: 0 12px !important;
 }
 
+#view-task-edit-field {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+  flex: 1 !important;
+}
+
+#task-addition-box .input-container:focus-within,
 #task-text-filter-field:focus {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-color: var(--md-sys-color-outline-variant) !important;
   outline: none !important;
 }
 
-/* Task items in tree */
-#calendar-task-tree treechildren::-moz-tree-row {
-  border-radius: var(--md-shape-corner-small) !important;
-  margin: 2px 4px !important;
+/* Liste des taches : carte blanche */
+#calendar-task-tree {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-on-surface) !important;
   border: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 0 8px !important;
+  overflow: hidden !important;
+}
+
+#calendar-task-tree treecols {
+  background: transparent !important;
+  border: none !important;
+  border-block-end: 1px solid var(--md-sys-color-outline-variant) !important;
+  padding-inline: 6px !important;
+}
+
+#calendar-task-tree treecol,
+#calendar-task-tree treecolpicker {
+  appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 8px 6px !important;
+}
+
+#calendar-task-tree treecol:hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#calendar-task-tree treechildren {
+  background: transparent !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-row {
+  min-height: 34px !important;
+  border: none !important;
+  background-color: transparent !important;
 }
 
 #calendar-task-tree treechildren::-moz-tree-row(hover) {
@@ -3310,18 +3370,80 @@ calendar-minimonth {
 
 #calendar-task-tree treechildren::-moz-tree-row(selected) {
   background-color: var(--md-sys-color-secondary-container) !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-cell-text {
+  color: var(--md-sys-color-on-surface) !important;
+  font-size: 13px !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-cell-text(selected) {
   color: var(--md-sys-color-on-secondary-container) !important;
 }
 
-/* Task Details Card */
-#calendar-task-details-container,
-#calendar-task-details {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-radius: var(--md-shape-corner-medium) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  margin: 6px !important;
-  padding: 8px !important;
+#calendar-task-tree treechildren::-moz-tree-cell-text(completed) {
+  color: var(--md-sys-color-outline) !important;
+  text-decoration: line-through !important;
+}
+
+#calendar-task-tree treechildren::-moz-tree-cell-text(overdue) {
+  color: var(--md-sys-color-error) !important;
+}
+
+/* Details de la tache selectionnee : seconde carte */
+#calendar-task-view-splitter {
   border: none !important;
+  background: transparent !important;
+  min-height: 8px !important;
+}
+
+#calendar-task-details-container {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  margin: 0 8px 8px !important;
+  padding: 12px 16px !important;
+  box-shadow: none !important;
+}
+
+#calendar-task-details {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#calendar-task-details-grid .task-details-name {
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+#calendar-task-details-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#task-actions-toolbar .toolbarbutton-1,
+#task-actions-toolbar toolbarbutton {
+  appearance: none !important;
+  border: 1px solid var(--md-sys-color-outline-variant) !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface) !important;
+  padding: 3px 12px !important;
+  margin: 0 3px !important;
+  min-height: 30px !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+#task-actions-toolbar toolbarbutton:not([disabled]):hover {
+  background-color: var(--md-sys-state-hover) !important;
 }
 
 /* ===== components/addressbook.css ===== */
@@ -5527,6 +5649,221 @@ editor,
 .glodaTabToolbar input.remote-gloda-search:focus {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
   border-color: var(--md-sys-color-primary) !important;
+}
+
+/* ===== components/chat.css ===== */
+/**
+ * Material-Thunderbird - Material Design 3 (Material You)
+ * Component: Messagerie instantanee (onglet Chat)
+ * References:
+ *   - chrome://messenger/content/messenger.xhtml (#chatTabPanel)
+ *   - chrome/classic/skin/classic/messenger/shared/chat.css
+ */
+
+/* ==========================================================================
+   1. Fond et barre d outils
+   ========================================================================== */
+#chatTabPanel,
+#chatPanel,
+#chat-notification-top,
+#conversationsBox,
+#logDisplay {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#chat-view-toolbox,
+#chat-toolbar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#chat-view-toolbox,
+#chat-view-toolbox > toolbar,
+#chatPanel {
+  border-block: none !important;
+}
+
+/* Filet natif sous la barre (.mail-toolbox::after). */
+#chat-view-toolbox::after {
+  display: none !important;
+}
+
+#chat-toolbar {
+  padding: 6px 10px !important;
+  gap: 4px !important;
+}
+
+#chat-toolbar .toolbarbutton-1 {
+  appearance: none !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  padding: 4px 12px !important;
+  min-height: 30px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  -moz-context-properties: fill, stroke !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#chat-toolbar .toolbarbutton-1:not([disabled]):hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#chat-toolbar .toolbarbutton-1[disabled] {
+  opacity: 0.45 !important;
+}
+
+/* Message d etat : un champ en pilule, comme la recherche. */
+#chat-status-selector .status-container {
+  border: 1px solid transparent !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-surface-container-high) !important;
+  padding: 2px 12px !important;
+  min-height: 28px !important;
+}
+
+#chat-status-selector .status-container:hover {
+  border-color: var(--md-sys-color-outline-variant) !important;
+}
+
+#statusMessageInput {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* ==========================================================================
+   2. Liste des contacts et conversations
+   ========================================================================== */
+#listPaneBox {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  border: none !important;
+  border-inline-end: none !important;
+}
+
+#contactlistbox {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 6px 8px !important;
+}
+
+#contactlistbox richlistitem[is="chat-group-richlistitem"] {
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  padding: 10px 10px 4px !important;
+  border: none !important;
+}
+
+#contactlistbox richlistitem:not([is="chat-group-richlistitem"]) {
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  margin: 1px 0 !important;
+  padding-inline: 8px !important;
+  color: var(--md-sys-color-on-surface) !important;
+  background: transparent !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+#contactlistbox richlistitem:not([is="chat-group-richlistitem"]):hover {
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+#contactlistbox richlistitem:not([is="chat-group-richlistitem"])[selected] {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+/* ==========================================================================
+   3. Ecrans d accueil (aucun compte, aucune conversation)
+   Une carte blanche centree sur le fond bleute, bouton en pilule pleine.
+   ========================================================================== */
+.im-placeholder-screen {
+  background-color: var(--md-sys-color-surface-container-low) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  font-family: var(--md-sys-font-family) !important;
+  padding: 24px !important;
+}
+
+.im-placeholder-box {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  background-image: none !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  padding: 28px 32px !important;
+  max-inline-size: 560px !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* L icone d information devient une pastille tonale. */
+.im-placeholder-box::before {
+  content: "" !important;
+  flex: none !important;
+  inline-size: 40px !important;
+  block-size: 40px !important;
+  border-radius: 50% !important;
+  background-color: var(--md-sys-color-primary-container) !important;
+  background-image: url("chrome://global/skin/icons/info.svg") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 20px !important;
+  -moz-context-properties: fill !important;
+  fill: var(--md-sys-color-on-primary-container) !important;
+}
+
+.im-placeholder-innerbox {
+  opacity: 1 !important;
+}
+
+.im-placeholder-title {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  border: none !important;
+  padding-block-end: 0 !important;
+  margin-block-end: 8px !important;
+}
+
+.im-placeholder-desc {
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+.im-placeholder-button-box {
+  margin-block-start: 16px !important;
+}
+
+.im-placeholder-button-box > button {
+  appearance: none !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 6px 20px !important;
+  min-height: 34px !important;
+  cursor: pointer !important;
+}
+
+.im-placeholder-button-box > button:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-primary) 10%, var(--md-sys-color-primary)) !important;
+}
+
+#listSplitter {
+  border: none !important;
+  background: transparent !important;
 }
 
 /* ===== components/extras.css ===== */
