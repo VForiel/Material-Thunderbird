@@ -185,8 +185,48 @@
 
 /* L expediteur prend la place libre : les actions sont poussees a droite. */
 #expandedfromRow {
-  flex: 1 1 auto !important;
+  flex: 1 1 0 !important;
   min-width: 0 !important;
+}
+
+/* Une seule ligne tant qu il y a la place : avec une base « auto », une adresse
+   longue (ou un nom affiche en entier) renvoyait les actions au-dessus. Le
+   volet de lecture fait souvent moins de 768 px : la limite est plus basse,
+   en dessous les actions passent a la ligne. */
+@media (min-width: 481px) {
+  #headerSenderToolbarContainer {
+    flex-wrap: nowrap !important;
+  }
+
+  /* Faute de place, l adresse est coupee par des points de suspension plutot
+     qu au milieu d un mot ; elle reste entiere dans l infobulle et au survol. */
+  #expandedfromBox,
+  #expandedfromBox .recipients-list,
+  #expandedfromBox .header-recipient,
+  #expandedfromBox .recipient-single-line,
+  #expandedfromBox .recipient-multi-line {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  #expandedfromBox {
+    flex: 1 1 0 !important;
+  }
+
+  /* Pas de display sur .recipient-single-line : Thunderbird affiche l une
+     ou l autre variante, une ligne ou deux. */
+  #expandedfromBox .recipient-multi-line-name,
+  #expandedfromBox .recipient-multi-line-address {
+    display: block !important;
+  }
+
+  #expandedfromBox .recipient-multi-line-name,
+  #expandedfromBox .recipient-multi-line-address,
+  #expandedfromBox .recipient-single-line {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
 }
 
 #messageHeader .toolbarbutton-1.message-header-view-button .toolbarbutton-icon {
