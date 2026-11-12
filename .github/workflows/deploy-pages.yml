@@ -55,12 +55,15 @@ jobs:
           HASH=$(sha256sum "docs/dist/material-thunderbird-$VERSION.xpi" | cut -d' ' -f1)
           node -e "
             const m = require('./extension/manifest.json');
-            const id = m.applications.gecko.id;
+            // Le manifeste dit browser_specific_settings ; updates.json garde
+            // la cle applications, celle de son propre format.
+            const gecko = (m.browser_specific_settings || m.applications).gecko;
+            const id = gecko.id;
             const out = { addons: { [id]: { updates: [{
               version: m.version,
               update_link: 'https://vforiel.github.io/Material-Thunderbird/dist/material-thunderbird-' + m.version + '.xpi',
               update_hash: 'sha256:$HASH',
-              applications: { gecko: { strict_min_version: m.applications.gecko.strict_min_version } }
+              applications: { gecko: { strict_min_version: gecko.strict_min_version } }
             }] } } };
             require('fs').writeFileSync('docs/updates.json', JSON.stringify(out, null, 2) + '\n');
           "

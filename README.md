@@ -47,6 +47,11 @@ Détails, et passage depuis une ancienne installation par script : **[`docs/INST
 `dist/material-thunderbird.xpi` (dossier non versionné). `npm test` vérifie que les fichiers générés
 sont à jour.
 
+Il produit aussi `dist/material-thunderbird-atn.xpi`, la variante pour addons.thunderbird.net :
+sans `update_url` (la boutique gère les mises à jour) et avec une version maximale de Thunderbird
+(`$AtnMaxVersion` en tête du script), qu'il faut relever après avoir testé chaque version majeure.
+Les licences des icônes intégrées sont dans `extension/THIRD-PARTY-NOTICES.txt`.
+
 ---
 
 ## 🖥️ Aperçu

@@ -29,6 +29,11 @@ $ChromeDir = Join-Path $ProjectRoot "chrome"
 $ExtensionDir = Join-Path $ProjectRoot "extension"
 $DistDir = Join-Path $ProjectRoot "dist"
 $OutputFile = Join-Path $DistDir "material-thunderbird.xpi"
+# Variante pour addons.thunderbird.net : la boutique gere les mises a jour
+# (pas d update_url) et exige une version maximale pour une extension a
+# Experiment. A relever apres avoir teste chaque nouvelle version majeure.
+$AtnOutputFile = Join-Path $DistDir "material-thunderbird-atn.xpi"
+$AtnMaxVersion = "159.*"
 $GeneratedCss = Join-Path $ExtensionDir "material-theme.css"
 $MessageCss = Join-Path $ExtensionDir "message-content.css"
 
@@ -105,24 +110,41 @@ Write-Host "[*] Packaging Material-Thunderbird Extension (.xpi)..." -ForegroundC
 if (-not (Test-Path $DistDir)) {
     New-Item -ItemType Directory -Path $DistDir | Out-Null
 }
-if (Test-Path $OutputFile) {
-    Remove-Item $OutputFile -Force
-}
-
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$zipArchive = [System.IO.Compression.ZipFile]::Open($OutputFile, [System.IO.Compression.ZipArchiveMode]::Create)
-try {
-    foreach ($file in (Get-ChildItem -Path $ExtensionDir -Recurse -File)) {
-        $relativePath = $file.FullName.Substring($ExtensionDir.Length + 1).Replace("\", "/")
-        [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
-            $zipArchive, $file.FullName, $relativePath, [System.IO.Compression.CompressionLevel]::Optimal)
+# Empaquette extension/ ; $ManifestText remplace manifest.json s il est donne.
+function New-Xpi([string]$Path, [string]$ManifestText) {
+    if (Test-Path $Path) { Remove-Item $Path -Force }
+    $zip = [System.IO.Compression.ZipFile]::Open($Path, [System.IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($file in (Get-ChildItem -Path $ExtensionDir -Recurse -File)) {
+            $relativePath = $file.FullName.Substring($ExtensionDir.Length + 1).Replace("\", "/")
+            if ($ManifestText -and $relativePath -eq "manifest.json") {
+                $entry = $zip.CreateEntry($relativePath, [System.IO.Compression.CompressionLevel]::Optimal)
+                $writer = New-Object System.IO.StreamWriter($entry.Open(), (New-Object System.Text.UTF8Encoding($false)))
+                try { $writer.Write($ManifestText) } finally { $writer.Dispose() }
+            }
+            else {
+                [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                    $zip, $file.FullName, $relativePath, [System.IO.Compression.CompressionLevel]::Optimal)
+            }
+        }
+    }
+    finally {
+        $zip.Dispose()
     }
 }
-finally {
-    $zipArchive.Dispose()
-}
+
+New-Xpi $OutputFile $null
+
+$manifest = [System.IO.File]::ReadAllText((Join-Path $ExtensionDir "manifest.json")) | ConvertFrom-Json
+$gecko = $manifest.browser_specific_settings.gecko
+$gecko.PSObject.Properties.Remove("update_url")
+$gecko | Add-Member -NotePropertyName "strict_max_version" -NotePropertyValue $AtnMaxVersion -Force
+New-Xpi $AtnOutputFile ($manifest | ConvertTo-Json -Depth 10)
+Write-Host "[+] Variante addons.thunderbird.net :" -ForegroundColor Green
+Write-Host "    $AtnOutputFile (sans update_url, Thunderbird <= $AtnMaxVersion)" -ForegroundColor Yellow
 
 Write-Host "[+] Extension (.xpi) creee avec succes :" -ForegroundColor Green
 Write-Host "    $OutputFile" -ForegroundColor Yellow
