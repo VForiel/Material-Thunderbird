@@ -1,0 +1,8 @@
+# Fins de ligne LF partout (depots, archives, paquets) : un relecteur qui
+# reconstruit le .xpi depuis les sources doit obtenir des fichiers identiques.
+* text=auto eol=lf
+*.png binary
+*.xpi binary
+*.ico binary
+*.webp binary
+*.jpg binary
