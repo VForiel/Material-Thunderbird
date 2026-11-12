@@ -1578,136 +1578,188 @@ body:has(#messagepanebox) {
   line-height: 1.3 !important;
 }
 
-/* Responsive Action Buttons Toolbar (Wide layout: 1 line; Narrow layout: wraps gracefully) */
-#header-view-toolbox {
+/* ==========================================================================
+   Disposition a la Gmail
+   1. le sujet en titre, en haut de la carte ;
+   2. l expediteur, et a sa droite les actions ;
+   3. les destinataires et la date.
+   Thunderbird met les boutons au-dessus de l expediteur et le sujet en bas :
+   l en-tete devient une colonne flex, le sujet passe en premier par `order`.
+   ========================================================================== */
+#messageHeader {
   display: flex !important;
   flex-direction: column !important;
-  align-items: flex-end !important;
-  justify-content: flex-start !important;
-  max-width: calc(100% - 300px) !important;
+  gap: 2px !important;
+}
+
+#headerSubjectSecurityContainer {
+  order: -1 !important;
+  margin-block-end: 10px !important;
+  align-items: flex-start !important;
+}
+
+#msgHeaderView #expandedsubjectBox {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+}
+
+#headerSenderToolbarContainer {
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* Actions : une seule rangee. Repondre (et ses variantes) garde son libelle,
+   en pilule tonale ; les autres deviennent des boutons ronds a icone seule,
+   leur nom reste dans l infobulle. */
+#header-view-toolbox {
+  display: flex !important;
+  align-items: center !important;
+  flex: none !important;
+  max-width: none !important;
   min-width: 0 !important;
-  flex-shrink: 1 !important;
+  margin: 0 !important;
 }
 
 #header-view-toolbar {
   display: flex !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
   justify-content: flex-end !important;
   align-items: center !important;
-  gap: 4px 6px !important;
-  max-width: 100% !important;
+  gap: 2px !important;
+  max-width: none !important;
 }
 
 #header-view-toolbar .message-header-view-button,
 #header-view-toolbar .toolbarbutton-1 {
   flex-shrink: 0 !important;
-  margin: 1px 2px !important;
 }
 
-@media (max-width: 850px) {
-  #header-view-toolbox {
-    max-width: calc(100% - 220px) !important;
-  }
-}
-
-@media (max-width: 650px) {
-  #header-view-toolbox {
-    max-width: 100% !important;
-    align-self: flex-start !important;
-    margin-top: 8px !important;
-  }
-  #header-view-toolbar {
-    max-width: 100% !important;
-    justify-content: flex-start !important;
-  }
-}
-
-/* Header Action Buttons (Material 3 Seamless Tonal Pills - Soft blue-tinted base) */
 .message-header-view-button,
 #messageHeader .toolbarbutton-1.message-header-view-button,
 #headingWrapper .toolbarbutton-1.message-header-view-button {
+  appearance: none !important;
   border-radius: var(--md-shape-corner-full) !important;
-  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
-  color: var(--md-sys-color-on-surface) !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 5px 12px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  margin: 0 3px !important;
+  margin: 0 !important;
   cursor: pointer !important;
-  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-/* Header Action Split Buttons with Dropdowns ("Répondre à tous", "Répondre à la liste") */
-.message-header-view-button[is="toolbarbutton-menu-button"],
-toolbarbutton.message-header-view-button[is="toolbarbutton-menu-button"],
-#messageHeader .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"] {
-  border-radius: var(--md-shape-corner-full) !important;
-  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
+/* Boutons a icone seule : 36 px, ronds. */
+#messageHeader .toolbarbutton-1.message-header-view-button:not(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton) {
+  min-width: 36px !important;
+  min-height: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button:not(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton) .toolbarbutton-text,
+#messageHeader .toolbarbutton-1.message-header-view-button:not(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton) > .toolbarbutton-menu-dropmarker {
+  display: none !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button:not(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton) .toolbarbutton-icon {
+  margin: 0 !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button:hover {
+  background-color: var(--md-sys-state-hover) !important;
   color: var(--md-sys-color-on-surface) !important;
-  border: none !important;
-  box-shadow: none !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button:active,
+#messageHeader .toolbarbutton-1.message-header-view-button[open] {
+  background-color: var(--md-sys-state-pressed) !important;
+}
+
+/* Repondre : pilule tonale avec libelle, separee des icones par un peu d air. */
+#messageHeader .toolbarbutton-1.message-header-view-button:is(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton):not([hidden]):not([collapsed="true"]) {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  min-height: 34px !important;
+  padding: 0 16px 0 12px !important;
+  margin-inline-end: 6px !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button:is(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton):not([hidden]):not([collapsed="true"]):hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-secondary-container) 8%, var(--md-sys-color-secondary-container)) !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button:is(.hdrReplyButton, .hdrReplyToSenderButton, .hdrFollowupButton) .toolbarbutton-icon {
+  margin-inline-end: 6px !important;
+}
+
+/* Boutons a menu (Repondre a tous, a la liste) : une seule pilule, le bouton et
+   la fleche a l interieur restent transparents. */
+.message-header-view-button[is="toolbarbutton-menu-button"] {
   padding: 0 !important;
   overflow: hidden !important;
 }
 
-/* Eliminate native interior borders and make only inner buttons transparent */
+#messageHeader .toolbarbutton-1.message-header-view-button[is="toolbarbutton-menu-button"]:is(.hdrReplyButton, .hdrFollowupButton):not([hidden]):not([collapsed="true"]) {
+  padding: 0 !important;
+}
+
 .message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button,
-.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker,
-#messageHeader .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-button,
-#messageHeader .toolbarbutton-1.message-header-view-button > .toolbarbutton-menubutton-dropmarker {
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker {
   border: none !important;
-  border-color: transparent !important;
   background: transparent !important;
-  background-color: transparent !important;
   box-shadow: none !important;
+  color: inherit !important;
+  min-height: 34px !important;
 }
 
 .message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button {
-  padding-block: 5px !important;
-  padding-inline-start: 12px !important;
-  padding-inline-end: 4px !important;
-  color: inherit !important;
+  padding-inline: 12px 4px !important;
 }
 
 .message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker {
-  padding-block: 5px !important;
-  padding-inline-start: 2px !important;
-  padding-inline-end: 8px !important;
+  padding-inline: 2px 10px !important;
   min-inline-size: 18px !important;
-  color: inherit !important;
 }
 
-.message-header-view-button:hover,
-.message-header-view-button[is="toolbarbutton-menu-button"]:hover,
-#messageHeader .toolbarbutton-1.message-header-view-button:hover,
-#headingWrapper .toolbarbutton-1.message-header-view-button:hover {
-  background-color: #dfe7f2 !important;
-  color: var(--md-sys-color-on-surface) !important;
+.message-header-view-button[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-dropmarker:hover {
+  background-color: var(--md-sys-state-hover) !important;
 }
 
-/* Primary Actions: Reply, Reply All & Forward Buttons (Distinct Light Blue Tonal Pill) */
-.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]),
-#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]),
-#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]) {
-  background-color: var(--md-sys-color-secondary-container) !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
+/* L expediteur prend la place libre : les actions sont poussees a droite. */
+#expandedfromRow {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+#messageHeader .toolbarbutton-1.message-header-view-button .toolbarbutton-icon {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Etoile : meme gabarit que les boutons ronds, juste apres eux. */
+#starMessageButton {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  inline-size: 36px !important;
+  block-size: 36px !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border: none !important;
-  font-weight: 600 !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  background-position: center !important;
 }
 
-.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover,
-#messageHeader .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover,
-#headingWrapper .toolbarbutton-1.message-header-view-button:is(#hdrReplyButton, #hdrReplyToSenderButton, #hdrReplyAllButton, #hdrReplyListButton, #hdrFollowupButton, #hdrForwardButton, .hdrReplyButton, .hdrReplyToSenderButton, .hdrReplyAllButton, .hdrReplyListButton, .hdrForwardButton):not([hidden]):not([collapsed="true"]):hover {
-  background-color: #b9dcf7 !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
-}
-
-/* Action Icons: Keep native Thunderbird icon colors and styling without forcing black stroke */
-.message-header-view-button image,
-.message-header-view-button .button-icon {
-  margin-inline-end: 4px !important;
+#starMessageButton:hover {
+  background-color: var(--md-sys-state-hover) !important;
 }
 
 /* ==========================================================================
@@ -4813,19 +4865,21 @@ body:has(#messageList),
     color: var(--md-sys-color-on-surface-variant, #c4c7c5) !important;
   }
 
-  #header-view-toolbar .toolbarbutton-1,
-  #header-view-toolbar button,
-  #header-view-toolbar toolbarbutton,
-  #starMessageButton,
+  /* Resume de fil seulement : l en-tete d un message seul a ses propres
+     boutons transparents (message-header.css). */
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton,
   button.email-action-flagged {
     background-color: rgba(255, 255, 255, 0.08) !important;
     color: var(--md-sys-color-on-surface, #e2e2e5) !important;
   }
 
-  #header-view-toolbar .toolbarbutton-1:hover,
-  #header-view-toolbar button:hover,
-  #header-view-toolbar toolbarbutton:hover,
-  #starMessageButton:hover {
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:hover,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button:hover,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton:hover,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton:hover {
     background-color: rgba(255, 255, 255, 0.14) !important;
   }
 
@@ -6369,27 +6423,6 @@ splitter,
 ):not([aria-expanded="true"]) .card-container,
 #threadTree tr.card-layout[data-properties~="unread"] .card-container {
   border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
-}
-
-@media (max-width: 950px) {
-  #header-view-toolbox {
-    max-width: 340px !important;
-  }
-  #header-view-toolbar {
-    max-width: 320px !important;
-  }
-}
-
-@media (max-width: 750px) {
-  #header-view-toolbox {
-    max-width: 100% !important;
-    align-self: flex-start !important;
-    margin-top: 8px !important;
-  }
-  #header-view-toolbar {
-    max-width: 100% !important;
-    justify-content: flex-start !important;
-  }
 }
 
 /* ==========================================================================
