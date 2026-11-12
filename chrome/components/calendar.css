@@ -16,7 +16,7 @@ calendar-month-view,
 calendar-multiweek-view,
 calendar-week-view,
 calendar-day-view {
-  background-color: var(--md-sys-color-surface) !important;
+  background-color: var(--md-sys-color-surface-container-low) !important;
   color: var(--md-sys-color-on-surface) !important;
   font-family: var(--md-sys-font-family) !important;
 }
@@ -259,75 +259,261 @@ button.calview-toggle-item {
 }
 
 /* ==========================================================================
-   3. Calendar Events (Material 3 Cards & Pills)
+   3. Evenements : pilules pleines, a la maniere de Google Agenda
+   La couleur vient de l agenda (--item-backcolor / --item-forecolor, poses
+   par Thunderbird). Pas d ombre : la couleur suffit a detacher la pilule.
    ========================================================================== */
 calendar-event-box,
-calendar-month-day-box-item,
 calendar-editable-item,
-.calendar-color-box,
-.calendar-item-container {
-  border-radius: var(--md-shape-corner-small) !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+calendar-month-day-box-item {
   font-family: var(--md-sys-font-family) !important;
+}
+
+.calendar-color-box {
   border: none !important;
-  min-block-size: 24px !important;
-  margin-block: 2px !important;
-  transition: box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard),
-              transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  transition: filter var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-calendar-event-box:hover,
-calendar-month-day-box-item:hover {
-  box-shadow: var(--md-sys-elevation-2) !important;
-  filter: brightness(0.97);
+.calendar-color-box:hover {
+  filter: brightness(0.94) !important;
 }
 
-/* Selected Event (Material Focused State) */
-calendar-event-box[selected="true"],
-calendar-month-day-box-item[selected="true"],
-calendar-editable-item[selected="true"] {
-  box-shadow: 0 0 0 2px var(--md-sys-color-primary), var(--md-sys-elevation-2) !important;
+/* Vue mois / multisemaine : une pilule par ligne, hauteur fixe. */
+.calendar-month-day-box-list-item {
+  margin: 0 4px 2px !important;
 }
 
-.calendar-item-flex {
-  padding: 4px 6px !important;
+calendar-month-day-box-item.calendar-color-box {
+  display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  font-family: var(--md-sys-font-family) !important;
-}
-
-/* Event Time: Fine, light typography */
-.item-time-label,
-.agenda-listitem-time,
-.calendar-item-time {
-  font-weight: 400 !important;
-  font-size: 11px !important;
-  opacity: 0.85 !important;
-  font-family: var(--md-sys-font-family) !important;
-}
-
-/* Event Title / Motif: Light-bold (semi-bold 600) */
-.event-name-label,
-.agenda-listitem-title,
-.calendar-item-summary {
-  font-weight: 600 !important;
+  gap: 4px !important;
+  min-block-size: 18px !important;
+  block-size: 18px !important;
+  padding: 0 6px !important;
   font-size: 12px !important;
-  font-family: var(--md-sys-font-family) !important;
+  line-height: 18px !important;
 }
 
-/* All Day Events */
-calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box,
-.allday-event-listitem calendar-event-box {
-  border-radius: var(--md-shape-corner-small) !important;
+/* Le filet interieur natif des evenements a la journee n a plus lieu d etre :
+   journee ou non, tout est en pilule. */
+calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color-box {
+  box-shadow: none !important;
+}
+
+calendar-month-day-box-item .event-name-label {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
+}
+
+calendar-month-day-box-item .item-time-label {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
+  opacity: 0.9 !important;
+}
+
+/* Alarme, confidentialite, recurrence, categories : rien sur la pilule, comme
+   Google Agenda. L infobulle et la fenetre de l evenement les montrent. */
+calendar-month-day-box-item :is(.alarm-icons-box, .item-classification-icon, .item-recurrence-icon, .calendar-category-box) {
+  display: none !important;
+}
+
+calendar-month-day-box-item .item-type-icon {
+  inline-size: 11px !important;
+  block-size: 11px !important;
+}
+
+/* Bouton "+ N autres" sous les pilules */
+.calendar-item-list-more-button {
+  border: none !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  margin: 0 4px 2px !important;
+  padding: 1px 6px !important;
+  text-align: start !important;
+}
+
+.calendar-item-list-more-button:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Vues jour / semaine : blocs arrondis, texte sur la couleur de l agenda. */
+calendar-event-box.calendar-color-box,
+calendar-editable-item.calendar-color-box {
+  border-radius: 8px !important;
+}
+
+calendar-event-box .calendar-item-flex,
+calendar-editable-item .calendar-item-flex {
+  padding: 3px 6px !important;
+  gap: 4px !important;
+}
+
+calendar-event-box .event-name-label,
+calendar-editable-item .event-name-label {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+calendar-event-box .item-time-label,
+calendar-editable-item .item-time-label {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  opacity: 0.9 !important;
+}
+
+/* Evenements a la journee en vue semaine : pilules alignees. */
+.allday-event-listitem {
+  margin: 1px 3px !important;
+}
+
+/* Selection : un anneau de la couleur d accent autour de la pilule, qui garde
+   sa couleur d agenda (Thunderbird la repeignait en bleu). */
+calendar-month-day-box-item[selected].calendar-color-box,
+calendar-event-box[selected].calendar-color-box,
+calendar-editable-item[selected].calendar-color-box {
+  background-color: var(--item-backcolor) !important;
+  color: var(--item-forecolor) !important;
+  box-shadow: 0 0 0 2px var(--md-sys-color-surface-container-lowest), 0 0 0 4px var(--md-sys-color-primary) !important;
+}
+
+/* Invitation sans reponse : les pointilles noirs natifs deviennent un contour
+   de la couleur du texte de la pilule. */
+:is(calendar-event-box, calendar-editable-item, calendar-month-day-box-item)[invitation-status="NEEDS-ACTION"] {
+  outline: 1.5px dashed currentColor !important;
+  outline-offset: -3px !important;
 }
 
 /* ==========================================================================
-   4. Day Cells & Today Highlight
+   4. Grille : jours, en-tetes et aujourd hui
    ========================================================================== */
-/* Day Column Heading (Mon, Tue, etc.) */
+calendar-month-view,
+calendar-multiweek-view {
+  padding: 0 8px 8px !important;
+}
+
+.monthtable {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  overflow: hidden !important;
+  border-inline-end: none !important;
+  border-block-end: none !important;
+}
+
+.monthtable :is(td, th) > * {
+  border-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent) !important;
+}
+
+/* Ni trait de depart sur la premiere colonne, ni sur la ligne des en-tetes :
+   le contour arrondi de la grille suffit. */
+.monthtable tr > :is(td, th):first-child > * {
+  border-inline-start-color: transparent !important;
+}
+
+.monthtable thead :is(td, th) > * {
+  border-block-start-color: transparent !important;
+}
+
+/* En-tetes des jours ("lundi", "mardi"...) */
+calendar-day-label {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
+calendar-day-label[relation="today"] {
+  color: var(--md-sys-color-primary) !important;
+}
+
+.calendar-day-label-name {
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding-block: 8px 4px !important;
+}
+
+/* Cases des jours : toutes blanches, comme Google Agenda. Les jours des autres
+   mois se reconnaissent a leur numero attenue, pas a un fond grise. */
+.calendar-month-day-box-current-month,
+.calendar-month-day-box-day-off,
+.calendar-month-day-box-other-month,
+.calendar-month-day-box-other-month.calendar-month-day-box-day-off,
+:is(.calendar-month-day-box-current-month, .calendar-month-day-box-day-off, .calendar-month-day-box-other-month)[relation="today"] {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+}
+
+:is(.calendar-month-day-box-current-month, .calendar-month-day-box-day-off, .calendar-month-day-box-other-month)[selected] {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 7%, var(--md-sys-color-surface-container-lowest)) !important;
+  border-color: color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent) !important;
+}
+
+/* Numero du jour : centre en haut de la case. */
+.calendar-month-day-box-dates {
+  position: relative !important;
+  justify-content: center !important;
+  padding: 3px 4px 2px !important;
+  min-block-size: 27px !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-month-day-box-date-label {
+  font-family: var(--md-sys-font-family) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface) !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 0 6px !important;
+  min-inline-size: 22px !important;
+  block-size: 22px !important;
+  line-height: 22px !important;
+  border-radius: var(--md-shape-corner-full) !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-month-day-box-date-label[data-label="day"] {
+  margin-inline-start: 0 !important;
+}
+
+.calendar-month-day-box-other-month .calendar-month-day-box-date-label {
+  color: var(--md-sys-color-outline) !important;
+}
+
+.calendar-month-day-box-date-label[selected] {
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+/* Aujourd hui : numero dans un disque plein. */
+.calendar-month-day-box-date-label[relation="today"],
+.calendar-month-day-box-date-label[relation="today"][selected] {
+  background-color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-primary) !important;
+  font-weight: 700 !important;
+  padding-block: 0 !important;
+}
+
+/* Numero de semaine : discret, ancre a gauche pour laisser le centre au jour. */
+.calendar-month-day-box-week-label {
+  position: absolute !important;
+  inset-inline-start: 6px !important;
+  inset-block-start: 8px !important;
+  background-color: transparent !important;
+  color: var(--md-sys-color-outline) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+}
+
+/* Vues jour / semaine */
 .day-column-heading {
   font-family: var(--md-sys-font-family) !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 500 !important;
   color: var(--md-sys-color-on-surface-variant) !important;
   padding: 6px 4px !important;
@@ -338,30 +524,18 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"].calendar-color
   font-weight: 700 !important;
 }
 
-/* Today Pill in Month / Multiweek View */
-.calendar-month-day-box-date-label[relation="today"] {
-  background-color: var(--md-sys-color-primary) !important;
-  color: var(--md-sys-color-on-primary) !important;
-  border-radius: var(--md-shape-corner-full) !important;
-  padding: 2px 8px !important;
-  font-weight: 700 !important;
-  font-size: 12px !important;
-  display: inline-block !important;
-}
-
-/* Weekend / Off-day Background */
-.day-column-weekend :is(calendar-header-container, .multiday-hour-box),
-.calendar-month-day-box-day-off {
-  background-color: var(--md-sys-color-surface-container-low) !important;
-}
-
-/* Today Column / Box Background */
-.day-column-today :is(calendar-header-container, .multiday-hour-box),
-.calendar-month-day-box-current-month[relation="today"] {
+/* Toutes les colonnes en blanc, week-end compris : seule la colonne du jour
+   se distingue. */
+.multiday-grid :is(calendar-header-container, .multiday-hour-box),
+.day-column-weekend :is(calendar-header-container, .multiday-hour-box) {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
 }
 
-/* Current Time Indicator Bar */
+.day-column-today :is(calendar-header-container, .multiday-hour-box) {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 4%, var(--md-sys-color-surface-container-lowest)) !important;
+}
+
+/* Trait de l heure courante */
 .multiday-grid:not(.multiday-grid-rotated) .timeIndicator,
 .multiday-grid.multiday-grid-rotated .timeIndicator {
   border-color: var(--md-sys-color-error) !important;

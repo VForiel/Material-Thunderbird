@@ -44,6 +44,9 @@
   box-shadow: var(--md-sys-elevation-1) !important;
   cursor: pointer !important;
   white-space: nowrap !important;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  overflow: visible !important;
   transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
@@ -77,6 +80,14 @@
 }
 
 /* Address Books List Rows (Material 3 Pill Selection) */
+#books li {
+  list-style: none !important;
+}
+
+#books li::marker {
+  content: none !important;
+}
+
 #books {
   background-color: var(--md-sys-color-surface-container-low) !important;
   border: none !important;
@@ -113,33 +124,40 @@
 }
 
 /* ==========================================================================
-   2. Middle Column: Cards Pane (Contacts Cards List)
+   2. Colonne du milieu : liste des contacts
+   Une liste a plat dans une seule carte blanche, comme Google Contacts : une
+   carte par contact chargeait l oeil sur 400 lignes. Survol et selection en
+   pastilles tonales, avatars en couleur d accent attenuee.
    ========================================================================== */
-#cardsPane {
+#cardsPane,
+#cardsPaneHeader,
+#cards,
+#cards table[is="tree-view-table"],
+#cards table[is="tree-view-table"] tbody {
   background-color: var(--md-sys-color-surface-container-low) !important;
   border: none !important;
 }
 
 #cardsPaneHeader {
-  background-color: var(--md-sys-color-surface-container-low) !important;
-  border-bottom: none !important;
-  padding: 8px 12px !important;
-  gap: 8px !important;
+  padding: 8px 12px 6px !important;
+  margin: 0 !important;
+  gap: 6px !important;
 }
 
-/* Search Bar Pill Container */
+/* Barre de recherche */
 #cardsPaneHeader #searchInput {
   background-color: var(--md-sys-color-surface-container-high) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: 1px solid transparent !important;
   border-radius: var(--md-shape-corner-full) !important;
   padding: 3px 12px !important;
+  margin: 0 !important;
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
 #cardsPaneHeader #searchInput:focus-within {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-color: transparent !important;
+  border-color: var(--md-sys-color-outline-variant) !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -157,14 +175,9 @@
   border: none !important;
   background-color: transparent !important;
   color: var(--md-sys-color-on-surface-variant) !important;
+  min-width: 32px !important;
   width: 32px !important;
   height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-size: 16px 16px !important;
   -moz-context-properties: stroke, fill, fill-opacity, stroke-opacity !important;
   stroke: currentColor !important;
   fill: currentColor !important;
@@ -174,111 +187,140 @@
 
 #displayButton:hover {
   background-color: var(--md-sys-state-hover) !important;
-  color: var(--md-sys-color-primary) !important;
+  color: var(--md-sys-color-on-surface) !important;
 }
 
-/* Cards View in Tree List */
-#cards,
-#cardsPane,
-#cardsPaneHeader,
+/* La liste : une carte blanche arrondie qui occupe la colonne. */
+#cards {
+  margin: 0 8px 8px !important;
+  padding: 4px !important;
+  border-radius: var(--md-shape-corner-large) !important;
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+}
+
 #cards table[is="tree-view-table"],
 #cards table[is="tree-view-table"] tbody {
-  background-color: var(--md-sys-color-surface-container-low) !important;
+  background-color: transparent !important;
 }
 
-#cards {
-  border: none !important;
-  border-block-start: none !important;
-  padding: 4px 6px !important;
-}
-
-#cards table[is="tree-view-table"] {
-  border-collapse: separate !important;
-  border-spacing: 0 4px !important;
-  padding: 4px 6px !important;
-}
-
-tr[is="ab-card-row"] {
+tr[is="ab-card-row"],
+tr[is="ab-card-row"] td {
   background-color: transparent !important;
   border: none !important;
 }
 
 tr[is="ab-card-row"] td {
+  padding: 0 !important;
+}
+
+tr[is="ab-card-row"] td > .card-container {
   background-color: transparent !important;
-  padding: 0 4px !important;
   border: none !important;
-}
-
-/* Individual Contact Card (Material 3 Elevated Card on Soft Blue Canvas) */
-tr[is="ab-card-row"] td > .card-container,
-#cards .card-container {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
   border-radius: var(--md-shape-corner-medium) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  padding: 10px 14px !important;
-  margin-block: 2px !important;
-  border: none !important;
-  transition: box-shadow var(--md-motion-duration-short) var(--md-motion-easing-standard),
-              background-color var(--md-motion-duration-short) var(--md-motion-easing-standard),
-              transform var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  gap: 4px !important;
+  transform: none !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-tr[is="ab-card-row"]:hover:not(.selected) td > .card-container,
-#cards tr:hover:not(.selected) .card-container,
-#cards .card-container:hover:not(.selected) {
-  background-color: #f5f8fc !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
+  background-color: var(--md-sys-state-hover) !important;
+  box-shadow: none !important;
 }
 
-tr[is="ab-card-row"].selected td > .card-container,
-#cards tr.selected .card-container {
+tr[is="ab-card-row"].selected td > .card-container {
   background-color: var(--md-sys-color-secondary-container) !important;
   color: var(--md-sys-color-on-secondary-container) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
+}
+
+tr[is="ab-card-row"] .name {
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+tr[is="ab-card-row"] :is(.address, .ab-card-second-line) {
+  font-size: 12px !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
 }
 
 tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
   color: var(--md-sys-color-on-secondary-container) !important;
 }
 
+/* Avatars sans photo : initiale sur fond tonal, sans le cerclage gris natif.
+   Les regles exterieures l emportent sur celles de :host dans l ombre. */
+contact-avatar {
+  background-color: var(--md-sys-color-primary-container) !important;
+  color: var(--md-sys-color-on-primary-container) !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+contact-avatar.is-mail-list {
+  background-color: var(--md-sys-color-secondary-container) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
+}
+
+tr[is="ab-card-row"].selected contact-avatar:not(.is-mail-list) {
+  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  color: var(--md-sys-color-primary) !important;
+}
+
+/* Liste vide, recherche sans resultat */
+#placeholderEmptyBook,
+#placeholderSearchOnly,
+#placeholderSearching,
+#placeholderNoSearchResults {
+  color: var(--md-sys-color-on-surface-variant) !important;
+}
+
 /* ==========================================================================
-   3. Right Column: Details Pane (Contact Details)
+   3. Colonne de droite : fiche du contact
+   Des cartes blanches sur le fond bleute, comme les messages : en-tete avec
+   photo, nom et actions, puis une carte par section.
    ========================================================================== */
 #detailsPane,
 .contact-details-scroll {
   background-color: var(--md-sys-color-surface-container-low) !important;
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
-  padding: 14px 18px !important;
 }
 
-/* Contact Details Header Area (Elevated White Card) */
+.contact-details-scroll {
+  padding: 12px 16px 16px !important;
+}
+
+/* En-tete : photo, nom, adresse */
 #detailsPane header,
 #viewContact header {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-radius: var(--md-shape-corner-large) !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+  border-radius: var(--md-shape-corner-large) var(--md-shape-corner-large) 0 0 !important;
+  box-shadow: none !important;
   border: none !important;
-  padding: 20px 24px !important;
-  margin-block-end: 14px !important;
+  padding: 24px 24px 12px !important;
+  margin: 0 !important;
 }
 
 .contact-header {
-  gap: 1.5em !important;
+  gap: 20px !important;
 }
 
 .contact-photo,
 #viewContactPhoto {
-  border-radius: 100% !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-  border: 3px solid var(--md-sys-color-surface-container-lowest) !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .contact-heading-name {
   font-size: 22px !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   color: var(--md-sys-color-on-surface) !important;
-  letter-spacing: -0.2px !important;
+  letter-spacing: 0 !important;
 }
 
 .contact-heading-nickname {
@@ -288,23 +330,24 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
 
 .contact-heading-email {
   font-size: 13.5px !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
   color: var(--md-sys-color-on-surface-variant) !important;
 }
 
-/* Action Buttons Bar in Contact Details (Elevated White Card) */
+/* Actions : sous l en-tete, dans la meme carte, separees par un filet. */
 #detailsActions {
   grid-column: 1 / -1 !important;
   background-color: var(--md-sys-color-surface-container-lowest) !important;
-  border-radius: var(--md-shape-corner-large) !important;
-  box-shadow: var(--md-sys-elevation-1) !important;
+  border-radius: 0 0 var(--md-shape-corner-large) var(--md-shape-corner-large) !important;
+  box-shadow: none !important;
   border: none !important;
-  padding: 12px 20px !important;
-  margin-block-end: 14px !important;
+  border-block-start: 1px solid var(--md-sys-color-outline-variant) !important;
+  padding: 12px 24px 16px !important;
+  margin: 0 0 12px !important;
 }
 
 #detailsActions .button-block {
-  gap: 10px !important;
+  gap: 8px !important;
   border: none !important;
   background: transparent !important;
 }
@@ -312,14 +355,15 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
 #detailsActions button,
 #editButton {
   border-radius: var(--md-shape-corner-full) !important;
-  border: none !important;
-  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
+  border: 1px solid var(--md-sys-color-outline-variant) !important;
+  background-color: transparent !important;
   color: var(--md-sys-color-on-surface) !important;
   font-family: var(--md-sys-font-family) !important;
   font-size: 12.5px !important;
   font-weight: 500 !important;
-  padding-block: 7px !important;
-  padding-inline: 16px !important;
+  padding-block: 6px !important;
+  padding-inline: 14px !important;
+  min-height: 32px !important;
   cursor: pointer !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -332,7 +376,15 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-/* Add padding for native icons */
+#detailsActions button:hover,
+#editButton:hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Place pour l icone native, posee en image de fond. */
 #detailsActions button.icon-button {
   padding-inline-start: 34px !important;
   background-position: 12px center !important;
@@ -340,74 +392,44 @@ tr[is="ab-card-row"].selected :is(.name, .address, .ab-card-second-line) {
   background-size: 16px 16px !important;
 }
 
-#detailsActions button:hover,
-#editButton:hover {
-  background-color: #dfe7f2 !important;
-  color: var(--md-sys-color-on-surface) !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
-/* Primary Action: Écrire (Pencil) in light-blue tonal pill */
+/* Action principale : Ecrire, en pilule pleine. */
 #detailsWriteButton {
-  background-color: var(--md-sys-color-secondary-container) !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
+  background-color: var(--md-sys-color-primary) !important;
+  border-color: transparent !important;
+  color: var(--md-sys-color-on-primary) !important;
   font-weight: 600 !important;
 }
 
 #detailsWriteButton:hover {
-  background-color: #b9dcf7 !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
-  box-shadow: none !important;
-  transform: none !important;
+  background-color: color-mix(in srgb, var(--md-sys-color-on-primary) 10%, var(--md-sys-color-primary)) !important;
+  color: var(--md-sys-color-on-primary) !important;
 }
 
-/* Edit Button (Modifier) */
-#editButton {
-  background-color: var(--md-sys-color-surface-container-low, #EDF2FA) !important;
-  color: var(--md-sys-color-on-surface) !important;
-  font-weight: 600 !important;
-  padding-inline: 20px !important;
-}
-
-#editButton:hover {
-  background-color: #dfe7f2 !important;
-  color: var(--md-sys-color-on-surface) !important;
-}
-
-/* Contact Info Sections (Pure White Cards, No Border, No Shadow on Soft Blue) */
+/* Sections : une carte blanche chacune. */
 #detailsBody section:not(#detailsActions) {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
   border-radius: var(--md-shape-corner-large) !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 18px 24px !important;
-  margin-block-end: 14px !important;
-  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+  padding: 16px 24px !important;
+  margin: 0 0 12px !important;
 }
 
-#detailsBody section:not(#detailsActions):hover {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
-  box-shadow: none !important;
-}
-
-/* Section Titles: Neutral Dark/Black, Not Blue */
 #detailsBody section:not(#detailsActions) h2 {
-  font-size: 14px !important;
-  font-weight: 700 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
   color: var(--md-sys-color-on-surface) !important;
-  letter-spacing: 0.1px !important;
-  margin-block: 0 12px !important;
+  letter-spacing: 0 !important;
+  margin-block: 0 10px !important;
 }
 
-/* Entry Types & Values */
+/* Libelles et valeurs */
 .entry-type {
   font-size: 11px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
   color: var(--md-sys-color-on-surface-variant) !important;
   text-transform: uppercase !important;
-  opacity: 0.8 !important;
 }
 
 .entry-value {
