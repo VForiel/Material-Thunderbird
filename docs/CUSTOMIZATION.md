@@ -7,9 +7,10 @@ ou utilisez **`Alt+M`**, ou **Outils > Personnaliser le thème Material (M3)...*
 
 - **Apparence** : clair, sombre, ou le mode de Windows / macOS (*Système*) ;
 - **Couleur d'accent** : quatre palettes Material You, détaillées plus bas ;
-- **Icônes** : celles de Thunderbird (*Défaut*), des émojis, ou *Moderne* : icônes Material Symbols
-  arrondies, teintées de la couleur d'accent (adoucie, pour ne pas trancher sur les fonds) ; les deux derniers remplacent les icônes des dossiers, de la barre des espaces,
-  des onglets et des boutons du message ;
+- **Icônes** : *Moderne* par défaut, icônes Material Symbols arrondies comme dans Gmail (en contour,
+  pleines pour le dossier, l'espace et l'onglet choisis), teintées de la couleur d'accent adoucie ; ou des
+  émojis ; ou celles de Thunderbird. Les deux premiers remplacent les icônes des dossiers, de la barre des
+  espaces, des onglets et des boutons du message ;
 - **Avatars** : logos des marques et Gravatar (voir plus bas) ;
 - **Fils de discussion** : masquer les réponses déjà lues ;
 - **Désinscription** : activer ou couper le bandeau, et retrouver les expéditeurs pour lesquels

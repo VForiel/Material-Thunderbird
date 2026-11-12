@@ -166,7 +166,9 @@ function getCustomizerSettings() {
   try { palette = Services.prefs.getStringPref(PREF_PALETTE, "blue"); } catch (e) {}
   try { emojis = Services.prefs.getBoolPref(PREF_EMOJIS, false); } catch (e) {}
   try { iconTheme = Services.prefs.getStringPref(PREF_ICON_THEME, ""); } catch (e) {}
-  if (!ICON_THEMES.includes(iconTheme)) iconTheme = emojis ? "emoji" : "default";
+  // Sans choix enregistre : Moderne, ou Emojis pour qui les avait actives avant
+  // les themes d icones.
+  if (!ICON_THEMES.includes(iconTheme)) iconTheme = emojis ? "emoji" : "modern";
   if (!PALETTES_CONFIG[palette]) palette = "blue";
   return { palette, themeMode: getThemeMode(), iconTheme };
 }
@@ -237,10 +239,38 @@ const EMOJI_ICONS = {
   reply: "↩️", replyAll: "↩️", forward: "➡️", extension: "🧩", sync: "🔄"
 };
 
-// Role -> trace Material Symbols Rounded, version pleine, graisse 400
-// (Apache 2.0, google/material-design-icons, paquet @material-symbols/svg-400).
-// Coins arrondis : les Material Icons d origine faisaient trop anguleux.
+// Role -> trace Material Symbols Rounded, graisse 400 (Apache 2.0,
+// google/material-design-icons, paquet @material-symbols/svg-400). Comme Gmail :
+// icones en contour, version pleine pour l element choisi (dossier ouvert,
+// espace courant, onglet actif). Les versions pleines seules faisaient paves.
 const MATERIAL_ICONS = {
+  folder: "M140-160q-24 0-42-18.5T80-220v-520q0-23 18-41.5t42-18.5h256q12.44 0 23.72 5t19.37 13.09L481-740h339q23 0 41.5 18.5T880-680v460q0 23-18.5 41.5T820-160H140Zm0-60h680v-460H456l-60-60H140v520Zm0 0v-520 520Z",
+  account: "M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm680-525L496-473q-4 2-7.5 3.5T480-468q-5 0-8.5-1.5T464-473L140-685v465h680v-465ZM480-522l336-218H145l335 218ZM140-685v7-39.32.73V-740v23-.91V-678v-7 465-465Z",
+  inbox: "M180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-136H634q-26 40-67.5 61.5T480-233q-45 0-86.5-21.5T326-316H180v136Zm300.02-113q34.98 0 64.48-17.5Q574-328 591-359q7-10 18.5-13.5T633-376h147v-404H180v404h147q12 0 23.5 3.5T369-359q17 31 46.52 48.5 29.51 17.5 64.5 17.5ZM180-180h600-600Z",
+  sent: "M814-452 162-178q-15 6-28.5-2.5T120-205v-550q0-16 13.5-24.5T162-782l652 274q18 8 18 28t-18 28ZM180-253l544-227-544-230v168l242 62-242 60v167Zm0 0v-457 457Z",
+  drafts: "M180-180h44l472-471-44-44-472 471v44Zm-30 60q-13 0-21.5-8.5T120-150v-73q0-12 5-23.5t13-19.5l557-556q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L266-138q-8 8-19.5 13t-23.5 5h-73Zm629-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z",
+  templates: "M349-250h262q12.75 0 21.38-8.68 8.62-8.67 8.62-21.5 0-12.82-8.62-21.32-8.63-8.5-21.38-8.5H349q-12.75 0-21.37 8.68-8.63 8.67-8.63 21.5 0 12.82 8.63 21.32 8.62 8.5 21.37 8.5Zm0-170h262q12.75 0 21.38-8.68 8.62-8.67 8.62-21.5 0-12.82-8.62-21.32-8.63-8.5-21.38-8.5H349q-12.75 0-21.37 8.68-8.63 8.67-8.63 21.5 0 12.82 8.63 21.32 8.62 8.5 21.37 8.5ZM220-80q-24 0-42-18t-18-42v-680q0-24 18-42t42-18h336q12.44 0 23.72 5T599-862l183 183q8 8 13 19.28 5 11.28 5 23.72v496q0 24-18 42t-42 18H220Zm331-584v-156H220v680h520v-494H581q-12.75 0-21.37-8.63Q551-651.25 551-664ZM220-820v186-186 680-680Z",
+  archive: "M479.82-581q-12.82 0-21.32 8.62-8.5 8.63-8.5 21.38v171l-66-66q-7.82-8-19.91-8T344-446.14q-8 7.85-8 20 0 12.14 8 20.14l115 115q9 9 21 9t21-9l115-115q8-7.82 8-19.91T616.14-446q-7.85-8-20-8-12.14 0-20.14 8l-66 66v-171q0-12.75-8.68-21.38-8.67-8.62-21.5-8.62ZM180-674v494h600v-494H180Zm0 554q-24.75 0-42.37-17.63Q120-155.25 120-180v-529q0-9.88 3-19.06 3-9.18 9-16.94l52-71q8-11 20.94-17.5Q217.88-840 232-840h495q14.12 0 27.06 6.5T775-816l53 71q6 7.76 9 16.94 3 9.18 3 19.06v529q0 24.75-17.62 42.37Q804.75-120 780-120H180Zm17-614h565l-36.41-46H233l-36 46Zm283 307Z",
+  junk: "M480-281q14 0 24.5-10.5T515-316q0-14-10.5-24.5T480-351q-14 0-24.5 10.5T445-316q0 14 10.5 24.5T480-281Zm0-144q13 0 21.5-8.5T510-455v-203q0-13-8.5-21.5T480-688q-13 0-21.5 8.5T450-658v203q0 13 8.5 21.5T480-425ZM355-120q-12 0-23.5-5T312-138L138-312q-8-8-13-19.5t-5-23.5v-250q0-12 5-23.5t13-19.5l174-174q8-8 19.5-13t23.5-5h250q12 0 23.5 5t19.5 13l174 174q8 8 13 19.5t5 23.5v250q0 12-5 23.5T822-312L648-138q-8 8-19.5 13t-23.5 5H355Zm0-60h250l175-175v-250L605-780H355L180-605v250l175 175Zm125-300Z",
+  trash: "M261-120q-24.75 0-42.37-17.63Q201-155.25 201-180v-570h-11q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h158q0-13 8.63-21.5 8.62-8.5 21.37-8.5h204q12.75 0 21.38 8.62Q612-822.75 612-810h158q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5h-11v570q0 24.75-17.62 42.37Q723.75-120 699-120H261Zm438-630H261v570h438v-570ZM397.18-266q12.82 0 21.32-8.63 8.5-8.62 8.5-21.37v-339q0-12.75-8.68-21.38-8.67-8.62-21.5-8.62-12.82 0-21.32 8.62-8.5 8.63-8.5 21.38v339q0 12.75 8.68 21.37 8.67 8.63 21.5 8.63Zm166 0q12.82 0 21.32-8.63 8.5-8.62 8.5-21.37v-339q0-12.75-8.68-21.38-8.67-8.62-21.5-8.62-12.82 0-21.32 8.62-8.5 8.63-8.5 21.38v339q0 12.75 8.68 21.37 8.67 8.63 21.5 8.63ZM261-750v570-570Z",
+  outbox: "m453-611-58 58q-9 9-21 9t-21.39-9q-8.61-9-8.61-21.5t9-21.5l109-110q5-5 10.13-7 5.14-2 11-2 5.87 0 10.87 2 5 2 10 7l110 110q9 9 9 21t-8.61 21q-9.39 9-21.89 9t-21.5-9l-58-57v159q0 12.75-8.68 21.37-8.67 8.63-21.5 8.63-12.82 0-21.32-8.63-8.5-8.62-8.5-21.37v-159ZM180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-136H634q-26 40-67.5 61.5T480-233q-45 0-86.5-21.5T326-316H180v136Zm300.02-113q34.98 0 64.48-17.5Q574-328 591-359q7-10 18.5-13.5T633-376h147v-404H180v404h147q12 0 23.5 3.5T369-359q17 31 46.52 48.5 29.51 17.5 64.5 17.5ZM180-180h600-600Z",
+  virtual: "M378-329q-108.16 0-183.08-75Q120-479 120-585t75-181q75-75 181.5-75t181 75Q632-691 632-584.85 632-542 618-502q-14 40-42 75l242 240q9 8.56 9 21.78T818-143q-9 9-22.22 9-13.22 0-21.78-9L533-384q-30 26-69.96 40.5Q423.08-329 378-329Zm-1-60q81.25 0 138.13-57.5Q572-504 572-585t-56.87-138.5Q458.25-781 377-781q-82.08 0-139.54 57.5Q180-666 180-585t57.46 138.5Q294.92-389 377-389Z",
+  mail: "M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm680-525L496-473q-4 2-7.5 3.5T480-468q-5 0-8.5-1.5T464-473L140-685v465h680v-465ZM480-522l336-218H145l335 218ZM140-685v7-39.32.73V-740v23-.91V-678v-7 465-465Z",
+  contacts: "M174-40q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h612q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32Q798.75-40 786-40H174Zm0-820q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h612q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32-8.63 8.5-21.38 8.5H174Zm306 416q50 0 84-34t34-84q0-50-34-84t-84-34q-50 0-84 34t-34 84q0 50 34 84t84 34ZM132-160q-24 0-42-18t-18-42v-520q0-26 18-43t42-17h696q24 0 42 18t18 42v520q0 24-18 42t-42 18H132Zm88-60q51-63 121-94.5T479.5-346q68.5 0 140 31.5T740-220h88v-520H132v520h88Zm94 0h334q-31-30-72.5-48T480-286q-54 0-94.5 18T314-220Zm166.16-284q-24.16 0-40.66-17-16.5-17-16.5-41t16.34-41q16.34-17 40.5-17t40.66 17q16.5 17 16.5 41t-16.34 41q-16.34 17-40.5 17Zm-.16 24Z",
+  calendar: "M180-80q-24 0-42-18t-18-42v-620q0-24 18-42t42-18h65v-28q0-13.6 9.2-22.8 9.2-9.2 22.8-9.2 14.02 0 23.51 9.2Q310-861.6 310-848v28h340v-28q0-13.6 9.2-22.8 9.2-9.2 22.8-9.2 14.03 0 23.51 9.2Q715-861.6 715-848v28h65q24 0 42 18t18 42v620q0 24-18 42t-42 18H180Zm0-60h600v-430H180v430Zm0-490h600v-130H180v130Zm0 0v-130 130Zm300 230q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-160 0q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480q17 0 28.5 11.5T360-440q0 17-11.5 28.5T320-400Zm320 0q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-160 0q-17 0-28.5-11.5T280-280q0-17 11.5-28.5T320-320q17 0 28.5 11.5T360-280q0 17-11.5 28.5T320-240Zm320 0q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z",
+  tasks: "M480-80q-85 0-158-30.5T195-195q-54-54-84.5-127T80-480q0-84 30.5-157T195-764q54-54 127-85t158-31q60 0 117 17.5T704-811q11 7 13.5 19t-5.5 22q-8 10-20 11t-23-6q-42-27-90-41t-99-14q-145 0-242.5 97.5T140-480q0 145 97.5 242.5T480-140q145 0 242.5-97.5T820-480q0-19-1.5-37t-5.5-35q-2-13 4-24t18-13q13-3 24 4.5t13 20.5q4 20 6 41t2 43q0 85-31 158t-85 127q-54 54-127 84.5T480-80Zm-59-309 392-392q9-9 22-9t23 9q10 10 10 23t-10 23L442-319q-9 9-21 9t-21-9L278-442q-9-9-8.5-22.5T279-487q9-9 22.5-9t22.5 9l97 98Z",
+  chat: "M240-240 131-131q-14 14-32.5 6.34Q80-132.31 80-152v-668q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H240Zm-26-60h606v-520H140v600l74-80Zm-74 0v-520 520Zm130-99h253q12.75 0 21.38-8.68 8.62-8.67 8.62-21.5 0-12.82-8.62-21.32-8.63-8.5-21.38-8.5H270q-12.75 0-21.37 8.68-8.63 8.67-8.63 21.5 0 12.82 8.63 21.32 8.62 8.5 21.37 8.5Zm0-130h420q12.75 0 21.38-8.68 8.62-8.67 8.62-21.5 0-12.82-8.62-21.32-8.63-8.5-21.38-8.5H270q-12.75 0-21.37 8.68-8.63 8.67-8.63 21.5 0 12.82 8.63 21.32 8.62 8.5 21.37 8.5Zm0-130h420q12.75 0 21.38-8.68 8.62-8.67 8.62-21.5 0-12.82-8.62-21.32-8.63-8.5-21.38-8.5H270q-12.75 0-21.37 8.68-8.63 8.67-8.63 21.5 0 12.82 8.63 21.32 8.62 8.5 21.37 8.5Z",
+  settings: "M421-80q-14 0-25-9t-13-23l-15-94q-19-7-40-19t-37-25l-86 40q-14 6-28 1.5T155-226L97-330q-8-13-4.5-27t15.5-23l80-59q-2-9-2.5-20.5T185-480q0-9 .5-20.5T188-521l-80-59q-12-9-15.5-23t4.5-27l58-104q8-13 22-17.5t28 1.5l86 40q16-13 37-25t40-18l15-95q2-14 13-23t25-9h118q14 0 25 9t13 23l15 94q19 7 40.5 18.5T669-710l86-40q14-6 27.5-1.5T804-734l59 104q8 13 4.5 27.5T852-580l-80 57q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l80 58q12 8 15.5 22.5T863-330l-58 104q-8 13-22 17.5t-28-1.5l-86-40q-16 13-36.5 25.5T592-206l-15 94q-2 14-13 23t-25 9H421Zm15-60h88l14-112q33-8 62.5-25t53.5-41l106 46 40-72-94-69q4-17 6.5-33.5T715-480q0-17-2-33.5t-7-33.5l94-69-40-72-106 46q-23-26-52-43.5T538-708l-14-112h-88l-14 112q-34 7-63.5 24T306-642l-106-46-40 72 94 69q-4 17-6.5 33.5T245-480q0 17 2.5 33.5T254-413l-94 69 40 72 106-46q24 24 53.5 41t62.5 25l14 112Zm44-210q54 0 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Zm0-130Z",
+  reply: "m236-494 142 142q9 9 8.5 21t-9.5 21q-9 9-21.5 9t-21.5-9L141-503q-9-9-9-21t9-21l194-194q9-9 21.5-9t21.5 9q9 9 9 21.5t-9 21.5L236-554h406q85 0 141.5 56.5T840-356v126q0 13-8.5 21.5T810-200q-13 0-21.5-8.5T780-230v-126q0-60-39-99t-99-39H236Z",
+  replyAll: "m166-524 172 172q9 9 8.5 21t-9.5 21q-9 9-21.5 9t-21.5-9L101-503q-5-5-7-10t-2-11q0-6 2-11t7-10l194-194q9-9 21.5-9t21.5 9q9 9 9 21.5t-9 21.5L166-524Zm210 30 142 142q9 9 8.5 21t-9.5 21q-9 9-21.5 9t-21.5-9L281-503q-5-5-7-10t-2-11q0-6 2-11t7-10l194-194q9-9 21.5-9t21.5 9q9 9 9 21.5t-9 21.5L376-554h305q85 0 141.5 56.5T879-356v126q0 13-8.5 21.5T849-200q-13 0-21.5-8.5T819-230v-126q0-60-39-99t-99-39H376Z",
+  forward: "M794-524 623-696q-9-9-9-21.5t9-21.5q9-9 21-9t21 9l194 194q5 5 7 10t2 11q0 6-2 11t-7 10L666-310q-9 9-21.5 9t-21.5-9q-9-9-9.5-21t8.5-21l172-172Zm-210 30H279q-60 0-99 39t-39 99v126q0 13-8.5 21.5T111-200q-13 0-21.5-8.5T81-230v-126q0-85 56.5-141.5T279-554h305L443-696q-9-9-9-21.5t9-21.5q9-9 21-9t21 9l194 194q5 5 7 10t2 11q0 6-2 11t-7 10L486-310q-9 9-21.5 9t-21.5-9q-9-9-9.5-21t8.5-21l142-142Z",
+  extension: "M356-120H180q-24 0-42-18t-18-42v-176q44-5 75.5-34.5T227-463q0-43-31.5-72.5T120-570v-176q0-24 18-42t42-18h177q11-40 39.5-67t68.5-27q40 0 68.5 27t39.5 67h173q24 0 42 18t18 42v173q40 11 65.5 41.5T897-461q0 40-25.5 67T806-356v176q0 24-18 42t-42 18H570q-5-48-35.5-77.5T463-227q-41 0-71.5 29.5T356-120Zm-176-60h130q25-61 69.89-84t83-23Q501-287 546-264t70 84h130v-235h45q20 0 33-13t13-33q0-20-13-33t-33-13h-45v-239H511v-48q0-20-13-33t-33-13q-20 0-33 13t-13 33v48H180v130q48.15 17.82 77.58 59.69Q287-514.45 287-462.78 287-412 257.5-370T180-310v130Zm285-281Z",
+  sync: "M220-477q0 63 23.5 109.5T307-287l30 21v-94q0-13 8.5-21.5T367-390q13 0 21.5 8.5T397-360v170q0 13-8.5 21.5T367-160H197q-13 0-21.5-8.5T167-190q0-13 8.5-21.5T197-220h100l-15-12q-64-51-93-111t-29-134q0-94 49.5-171.5T342-766q11-5 21 0t14 16q5 11 0 22.5T361-710q-64 34-102.5 96.5T220-477Zm520-6q0-48-23.5-97.5T655-668l-29-26v94q0 13-8.5 21.5T596-570q-13 0-21.5-8.5T566-600v-170q0-13 8.5-21.5T596-800h170q13 0 21.5 8.5T796-770q0 13-8.5 21.5T766-740H665l15 14q60 56 90 120t30 123q0 93-48 169.5T623-195q-11 6-22.5 1.5T584-210q-5-11 0-22.5t16-17.5q65-33 102.5-96T740-483Z",
+  palette: "M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-85 32-158t87.5-127q55.5-54 130-84.5T489-880q79 0 150 26.5T763.5-780q53.5 47 85 111.5T880-527q0 108-63 170.5T650-294h-75q-18 0-31 14t-13 31q0 27 14.5 46t14.5 44q0 38-21 58.5T480-80Zm0-400Zm-233 26q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm126-170q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm214 0q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15Zm131 170q20 0 35-15t15-35q0-20-15-35t-35-15q-20 0-35 15t-15 35q0 20 15 35t35 15ZM480-140q11 0 15.5-4.5T500-159q0-14-14.5-26T471-238q0-46 30-81t76-35h73q76 0 123-44.5T820-527q0-132-100-212.5T489-820q-146 0-247.5 98.5T140-480q0 141 99.5 240.5T480-140Z",
+  heart: "M480-140q-10.7 0-21.78-3.87-11.08-3.87-19.49-12.38L386-205Q262-320 171-424.5T80-643q0-90.15 60.5-150.58Q201-854 290-854q51 0 101 24.5t89 80.5q44-56 91-80.5t99-24.5q89 0 149.5 60.42Q880-733.15 880-643q0 114-91 218.5T574-205l-53 49q-8.25 8.38-19.12 12.19Q491-140 480-140Zm-26-543q-27-49-71-80t-93-31q-66 0-108 42.5t-42 108.93q0 57.57 38.88 121.22 38.88 63.66 93 123.5Q326-338 384-286.5q58 51.5 96 86.5 38-34 96-86t112-112.5q54-60.5 93-124.19T820-643q0-66-42.5-108.5T670-794q-50 0-93.5 30.5T504-683q-5 8-11 11.5t-14 3.5q-8 0-14.5-3.5T454-683Zm26 186Z"
+};
+
+const MATERIAL_ICONS_FILLED = {
   folder: "M140-160q-24 0-42-18.5T80-220v-520q0-23 18-41.5t42-18.5h256q12 0 23.5 5t19.5 13l42 42h339q23 0 41.5 18.5T880-680v460q0 23-18.5 41.5T820-160H140Z",
   account: "M140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm340-308q5 0 8.5-1.5t7.5-3.5l314-205q5-3 7.5-8t2.5-11q0-13-11.5-20.5t-23.5.5L480-522 176-717q-12-8-24-1t-12 20q0 6 3 11.5t7 8.5l314 205q4 2 7.5 3.5t8.5 1.5Z",
   inbox: "M180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm300-173q35 0 64-18t47-48q6-11 18-14t24-3h147v-404H180v404h147q12 0 24 3t18 14q18 30 47 48t64 18Z",
@@ -298,32 +328,47 @@ const TAB_ICON_ROLES = [
  * Feuille d un theme d icones. imageFor(role) rend l url de l image ; prefix
  * precede chaque selecteur (theme sombre).
  */
-function iconRulesCss(imageFor, prefix = "") {
+function iconRulesCss(imageFor, prefix = "", selectedImageFor = null) {
   const sel = (s) => prefix + s;
-  const icon = (selector, role) =>
-    `${sel(selector)} {\n  content: ${imageFor(role)} !important;\n  -moz-context-properties: none !important;\n}\n`;
-  let css = "";
-  css += icon("#folderTree li > .container > .icon", "folder");
-  css += icon("#folderTree li[data-server-type] > .container > .icon", "account");
+  const rule = (selector, role, prop, image) =>
+    `${sel(selector)} {
+  ${prop}: ${image(role)} !important;
+  -moz-context-properties: none !important;
+}
+`;
+  // [selecteur, selecteur de l element choisi ou null, role, propriete]
+  const slots = [
+    ["#folderTree li > .container > .icon", "#folderTree li.selected > .container > .icon", "folder", "content"],
+    ["#folderTree li[data-server-type] > .container > .icon", "#folderTree li.selected[data-server-type] > .container > .icon", "account", "content"]
+  ];
   for (const [type, role] of FOLDER_ICON_ROLES) {
-    css += icon(`#folderTree li[data-folder-type="${type}"] > .container > .icon`, role);
+    slots.push([`#folderTree li[data-folder-type="${type}"] > .container > .icon`,
+      `#folderTree li.selected[data-folder-type="${type}"] > .container > .icon`, role, "content"]);
   }
   for (const [id, role] of SPACES_ICON_ROLES) {
-    css += icon(`#${id} > img`, role);
+    slots.push([`#${id} > img`, `#${id}.current > img`, role, "content"]);
   }
   // Boutons de l en-tete du message : toolbarbutton XUL, dont l icone est une
   // <image> dessinee par list-style-image. Repondre et Repondre a tous sont des
   // boutons a menu : leur icone est dans un bouton imbrique, pas un enfant direct.
   for (const [id, role] of HEADER_ICON_ROLES) {
-    css += `${sel(`#${id} .toolbarbutton-icon`)} {\n  list-style-image: ${imageFor(role)} !important;\n  -moz-context-properties: none !important;\n}\n`;
+    slots.push([`#${id} .toolbarbutton-icon`, null, role, "list-style-image"]);
   }
   // Icones des onglets : <img> dont l image vient de l attribut src, reconnu
   // par le nom du fichier d icone de Thunderbird.
   for (const [file, role] of TAB_ICON_ROLES) {
-    css += icon(`#tabmail-tabs .tab-icon-image[src*="${file}"]`, role);
+    slots.push([`#tabmail-tabs .tab-icon-image[src*="${file}"]`,
+      `#tabmail-tabs .tabmail-tab[selected] .tab-icon-image[src*="${file}"]`, role, "content"]);
   }
   // Relever le courrier : image de fond du bouton.
-  css += `${sel("#folderPaneGetMessages")} {\n  background-image: ${imageFor("sync")} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  slots.push(["#folderPaneGetMessages", null, "sync", "background-image"]);
+  let css = "";
+  for (const [selector, , role, prop] of slots) css += rule(selector, role, prop, imageFor);
+  if (selectedImageFor) {
+    for (const [, selected, role, prop] of slots) {
+      if (selected) css += rule(selected, role, prop, selectedImageFor);
+    }
+  }
   return css;
 }
 
@@ -385,6 +430,8 @@ function modernIconCss(pal) {
   const colors = iconColors(pal);
   const light = (role) => materialImage(MATERIAL_ICONS[role], colors.light);
   const dark = (role) => materialImage(MATERIAL_ICONS[role], colors.dark);
+  const lightFilled = (role) => materialImage(MATERIAL_ICONS_FILLED[role], colors.light);
+  const darkFilled = (role) => materialImage(MATERIAL_ICONS_FILLED[role], colors.dark);
   // Boutons ajoutes par l extension (palette, coeur) : leur SVG en ligne est
   // remplace par l icone du meme jeu, dessinee en fond d un ::before.
   const rail = `.material-rail-btn > svg {
@@ -396,21 +443,21 @@ function modernIconCss(pal) {
   block-size: 20px;
   background: var(--material-rail-icon) center / 20px no-repeat;
 }
-#material-theme-settings-btn { --material-rail-icon: ${light("palette")}; }
-.material-rail-sponsor { --material-rail-icon: ${light("heart")}; }
+#material-theme-settings-btn { --material-rail-icon: ${lightFilled("palette")}; }
+.material-rail-sponsor { --material-rail-icon: ${lightFilled("heart")}; }
 @media (prefers-color-scheme: dark) {
-  :root:not([lwt-theme-brighttext="false"]) #material-theme-settings-btn { --material-rail-icon: ${dark("palette")}; }
-  :root:not([lwt-theme-brighttext="false"]) .material-rail-sponsor { --material-rail-icon: ${dark("heart")}; }
+  :root:not([lwt-theme-brighttext="false"]) #material-theme-settings-btn { --material-rail-icon: ${darkFilled("palette")}; }
+  :root:not([lwt-theme-brighttext="false"]) .material-rail-sponsor { --material-rail-icon: ${darkFilled("heart")}; }
 }
-:root[lwt-theme-brighttext="true"] #material-theme-settings-btn { --material-rail-icon: ${dark("palette")}; }
-:root[lwt-theme-brighttext="true"] .material-rail-sponsor { --material-rail-icon: ${dark("heart")}; }
+:root[lwt-theme-brighttext="true"] #material-theme-settings-btn { --material-rail-icon: ${darkFilled("palette")}; }
+:root[lwt-theme-brighttext="true"] .material-rail-sponsor { --material-rail-icon: ${darkFilled("heart")}; }
 `;
   return "/* Icones modernes */\n" +
-    iconRulesCss(light) +
+    iconRulesCss(light, "", lightFilled) +
     "@media (prefers-color-scheme: dark) {\n" +
-    iconRulesCss(dark, ':root:not([lwt-theme-brighttext="false"]) ') +
+    iconRulesCss(dark, ':root:not([lwt-theme-brighttext="false"]) ', darkFilled) +
     "}\n" +
-    iconRulesCss(dark, ':root[lwt-theme-brighttext="true"] ') +
+    iconRulesCss(dark, ':root[lwt-theme-brighttext="true"] ', darkFilled) +
     rail;
 }
 
@@ -1786,9 +1833,9 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }).join("");
 
     const iconThemes = [
-      { id: "default", label: "Défaut" },
+      { id: "modern", label: "Moderne" },
       { id: "emoji", label: "Émojis" },
-      { id: "modern", label: "Moderne" }
+      { id: "default", label: "Thunderbird" }
     ];
     const iconButtons = iconThemes.map((t) => {
       const on = settings.iconTheme === t.id;
@@ -1826,7 +1873,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
       <section class="material-modal-section">
         <div class="material-modal-section-title">Icônes</div>
-        <div class="material-modal-section-desc">Moderne : icônes arrondies, teintées de la couleur d'accent.</div>
+        <div class="material-modal-section-desc">Moderne : icônes arrondies teintées de l'accent. Thunderbird : ses icônes d'origine.</div>
         <div class="material-segmented-group" id="material-icons-group">${iconButtons}</div>
       </section>
 

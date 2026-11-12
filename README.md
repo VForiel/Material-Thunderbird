@@ -122,7 +122,7 @@ Material-Thunderbird/
 
 Cliquez sur le bouton palette de la barre latérale gauche (au-dessus de la roue des paramètres), ou
 utilisez **`Alt+M`**, ou **Outils > Personnaliser le thème Material (M3)...** : mode clair / sombre /
-système, couleur d'accent et thème d'icônes (défaut, émojis ou moderne), appliqués immédiatement. Voir aussi
+système, couleur d'accent et thème d'icônes (moderne par défaut, émojis ou celles de Thunderbird), appliqués immédiatement. Voir aussi
 **[`docs/CUSTOMIZATION.md`](docs/CUSTOMIZATION.md)**.
 
 ---
