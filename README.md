@@ -33,8 +33,18 @@
 
 ## 🚀 Installation
 
-1. Téléchargez **`material-thunderbird.xpi`** depuis le [site du projet](https://vforiel.github.io/Material-Thunderbird/).
-2. Ouvrez-le avec Thunderbird (double-clic, ou glisser-déposer dans la fenêtre), puis confirmez avec **Ajouter**.
+Deux canaux, au choix :
+
+- **Stable** : depuis la [boutique officielle](https://addons.thunderbird.net/fr/thunderbird/addon/material-you-thunderbird/)
+  (addons.thunderbird.net), relue par Thunderbird et mise à jour par la boutique.
+- **Expérimentale** : `material-thunderbird.xpi` depuis le [site du projet](https://vforiel.github.io/Material-Thunderbird/),
+  reconstruite à chaque modification de `main` et mise à jour toute seule. Ouvrez le fichier avec Thunderbird
+  (double-clic, ou glisser-déposer dans la fenêtre), puis confirmez avec **Ajouter**.
+
+La version expérimentale porte le numéro de la stable suivi du numéro de build (`1.8.1.57`) et le nom
+« Material You Thunderbird (expérimental) ». Pour publier une stable : monter `version` dans
+`extension/manifest.json`, lancer `scripts/build.ps1`, puis déposer `dist/material-thunderbird-atn.xpi`
+et l'archive des sources ([BUILD.md](BUILD.md)) sur addons.thunderbird.net.
 
 Le thème s'applique aussitôt. Pour le retirer : **Désinstaller…** dans la fenêtre de personnalisation, ou
 **Supprimer** dans le gestionnaire de modules (`Ctrl + Maj + A`).

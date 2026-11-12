@@ -34,15 +34,27 @@ jobs:
       - name: Exécution des tests de validation
         run: npm test
 
-      - name: Préparation du .xpi téléchargeable pour le site
+      # Deux canaux, un seul identifiant d'extension :
+      # - stable : addons.thunderbird.net, publié à la main (dist/material-thunderbird-atn.xpi) ;
+      # - expérimental : ce site, reconstruit à chaque push sur main.
+      # La version expérimentale ajoute le numéro de build à celle du manifeste
+      # (1.8.1 -> 1.8.1.57) : elle reste au-dessus de la stable du même numéro, et
+      # la stable suivante (1.8.2) se retrouve aussitôt dépassée par 1.8.2.58.
+      - name: Préparation du .xpi expérimental pour le site
         run: |
-          mkdir -p docs/dist
-          # Empaquetage de l'extension WebExtension (.xpi)
-          cd extension
-          zip -r ../docs/dist/material-thunderbird.xpi . -x "*.DS_Store"
-          cd ..
-
-          echo "Paquets téléchargeables générés avec succès dans docs/dist/"
+          mkdir -p docs/dist build
+          cp -r extension build/extension
+          node -e "
+            const fs = require('fs');
+            const file = 'build/extension/manifest.json';
+            const m = JSON.parse(fs.readFileSync(file, 'utf8'));
+            m.version = m.version + '.' + process.env.GITHUB_RUN_NUMBER;
+            m.name = m.name + ' (expérimental)';
+            fs.writeFileSync(file, JSON.stringify(m, null, 2) + '\n');
+            console.log(m.name, m.version);
+          "
+          cd build/extension
+          zip -r ../../docs/dist/material-thunderbird.xpi . -x "*.DS_Store"
 
       # Thunderbird lit updates.json (update_url du manifeste) une fois par jour
       # et installe seul toute version plus récente. Le lien pointe vers une
@@ -50,11 +62,11 @@ jobs:
       # le fichier téléchargé.
       - name: Manifeste de mise à jour (updates.json)
         run: |
-          VERSION=$(node -p "require('./extension/manifest.json').version")
+          VERSION=$(node -p "require('./build/extension/manifest.json').version")
           cp docs/dist/material-thunderbird.xpi "docs/dist/material-thunderbird-$VERSION.xpi"
           HASH=$(sha256sum "docs/dist/material-thunderbird-$VERSION.xpi" | cut -d' ' -f1)
           node -e "
-            const m = require('./extension/manifest.json');
+            const m = require('./build/extension/manifest.json');
             // Le manifeste dit browser_specific_settings ; updates.json garde
             // la cle applications, celle de son propre format.
             const gecko = (m.browser_specific_settings || m.applications).gecko;

@@ -15,6 +15,12 @@ Aucun script, aucune préférence à modifier, aucun fichier à copier dans le p
 
 ## Installer
 
+**Version stable** : installez-la depuis la
+[boutique officielle](https://addons.thunderbird.net/fr/thunderbird/addon/material-you-thunderbird/)
+(bouton **Ajouter à Thunderbird**). Les mises à jour passent par la boutique.
+
+**Version expérimentale** : elle reçoit chaque nouveauté dès qu'elle est prête.
+
 1. Téléchargez **`material-thunderbird.xpi`** depuis le
    [site du projet](https://vforiel.github.io/Material-Thunderbird/).
 2. Ouvrez-le avec Thunderbird : double-clic sur le fichier, ou glisser-déposer dans la fenêtre
@@ -24,6 +30,8 @@ Aucun script, aucune préférence à modifier, aucun fichier à copier dans le p
 
 Le thème s'applique aussitôt, sans redémarrage. Les versions suivantes s'installent ensuite
 toutes seules : Thunderbird vérifie chaque jour le fichier `updates.json` publié sur le site.
+La version expérimentale s'appelle « Material You Thunderbird (expérimental) » dans le
+gestionnaire de modules. Pour revenir à la stable, supprimez-la puis installez celle de la boutique.
 
 > [!NOTE]
 > Thunderbird prévient que le module aura « un accès complet et illimité ». C'est le cas de toute
