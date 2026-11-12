@@ -1271,6 +1271,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           chip.remove();
         }
         this._restoreCardRowHeight(doc.defaultView);
+        this._restoreViewRefresh(doc.defaultView);
         for (const row of doc.querySelectorAll(".material-thread-read-hidden, .material-thread-read-dimmed")) {
           row.classList.remove("material-thread-read-hidden", "material-thread-read-dimmed");
         }
@@ -2202,6 +2203,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       // possede l arbre, pas de la fenetre chrome exterieure.
       this._setupThreadTree(win3, threadTree, state);
       this._adjustCardRowHeight(win3);
+      this._keepScrollOnViewRefresh(win3);
     }
 
     // La vue multi-messages se charge a la premiere selection multiple.
@@ -2863,6 +2865,47 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     try { pane.updateThreadItemSize(); } catch (e) {}
   }
 
+  /**
+   * Defilement garde quand Thunderbird actualise la meme vue.
+   *
+   * Avec le critere des reponses lues, la vue d un dossier devient une vue
+   * "avec criteres de recherche". Thunderbird traite alors chaque fin de
+   * chargement (dossier IMAP resynchronise, releve, fin de recherche) comme
+   * celle d un filtre rapide : il replie les fils, redessine la liste et
+   * restaure la selection, ce qui ramenait la liste sur le message ouvert
+   * pendant qu on defilait ailleurs. Une vue sans critere n y passe pas.
+   *
+   * Quand la vue n a pas change (simple actualisation), la position de
+   * defilement est donc remise telle qu elle etait. Un changement de dossier
+   * ou une vue reconstruite garde le comportement de Thunderbird.
+   */
+  _keepScrollOnViewRefresh(win3) {
+    const listener = win3.dbViewWrapperListener;
+    if (!listener || typeof listener.onMessagesLoaded !== "function" || listener.__materialOnMessagesLoaded) return;
+    const original = listener.onMessagesLoaded;
+    listener.__materialOnMessagesLoaded = original;
+    let lastView = null;
+    listener.onMessagesLoaded = function (...args) {
+      const tree = win3.document.getElementById("threadTree");
+      const view = win3.gDBView;
+      const keep = !!(tree && view && view === lastView && hasReadRepliesTerm(win3.gViewWrapper));
+      const top = keep ? tree.scrollTop : 0;
+      try {
+        return original.apply(this, args);
+      } finally {
+        lastView = win3.gDBView;
+        if (keep && tree.scrollTop !== top) tree.scrollTop = top;
+      }
+    };
+  }
+
+  _restoreViewRefresh(win3) {
+    const listener = win3 && win3.dbViewWrapperListener;
+    if (!listener || !listener.__materialOnMessagesLoaded) return;
+    listener.onMessagesLoaded = listener.__materialOnMessagesLoaded;
+    delete listener.__materialOnMessagesLoaded;
+  }
+
   _restoreCardRowHeight(win3) {
     const pane = win3 && win3.threadPane;
     if (!pane || !pane.__materialDensityChange) return;
@@ -2939,13 +2982,16 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           currentParent = row;
           parentExpanded = row.getAttribute("aria-expanded") === "true";
 
-          // Detect if this parent thread has unread replies
-          const hasUnread = (twisty && (twisty.classList.contains("has-unread") ||
-                            twisty.getAttribute("data-properties")?.includes("unread") ||
-                            twisty.getAttribute("aria-label")?.toLowerCase().includes("non lu") ||
-                            twisty.getAttribute("aria-label")?.toLowerCase().includes("unread"))) ||
-                            row.getAttribute("data-properties")?.includes("hasUnread") ||
-                            row.classList.contains("has-unread-replies");
+          // Fil avec des messages non lus. Lu dans les donnees de Thunderbird
+          // seulement : les classes posees ici suivaient la ligne recyclee et
+          // gardaient la bordure bleue sur des fils deja lus.
+          const props = (row.getAttribute("data-properties") || "").split(/\s+/);
+          let hasUnread = props.includes("hasUnread");
+          if (!hasUnread && win.gDBView) {
+            try {
+              hasUnread = win.gDBView.getThreadContainingIndex(row.index).numUnreadChildren > 0;
+            } catch (e) {}
+          }
 
           currentParentHasUnread = !!hasUnread;
           if (hasUnread) {
@@ -2955,6 +3001,11 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             row.classList.remove("has-unread-replies");
             if (twisty) twisty.classList.remove("has-unread");
           }
+        } else {
+          // Ligne recyclee : elle a pu porter un fil non lu juste avant, et la
+          // classe gardait la bordure bleue sur un message lu.
+          row.classList.remove("has-unread-replies");
+          if (twisty) twisty.classList.remove("has-unread");
         }
 
         // Restes de la version qui attenuait les reponses lues.

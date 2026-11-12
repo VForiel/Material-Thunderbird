@@ -234,52 +234,24 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-inline-start: 4px solid transparent !important;
 }
 
-/* UNREAD CARDS & COLLAPSED THREADS WITH UNREAD REPLIES:
-   Always gets the 4px Material Primary Blue Border on the left.
-   Excluded for thread-children so reply cards never get an erroneous blue border! */
+/* Carte non lue, ou fil replie qui contient des non-lus : bordure bleue.
+   Les jetons de data-properties viennent de Thunderbird ("unread", "hasUnread") ;
+   has-unread-replies est recalcule par l experiment a chaque rendu de ligne. */
 #threadTree tr.card-layout:not([data-properties~="thread-children"]):is(
-  [data-properties*="unread" i],
-  [data-properties*="hasUnread" i],
-  .unread,
-  .has-unread-replies,
-  :has(button.twisty.has-unread),
-  :has(button.twisty[class*="unread"]),
-  :has(button.twisty[data-properties*="unread" i]),
-  :has(button.twisty[aria-label*="unread" i]),
-  :has(button.twisty[aria-label*="non lu" i])
+  [data-properties~="unread"],
+  [data-properties~="hasUnread"],
+  .has-unread-replies
 ):not([aria-expanded="true"]) .card-container,
-#threadTree tr.card-layout.selected:not([data-properties~="thread-children"]):is(
-  [data-properties*="unread" i],
-  [data-properties*="hasUnread" i],
-  .unread,
-  .has-unread-replies,
-  :has(button.twisty.has-unread),
-  :has(button.twisty[class*="unread"]),
-  :has(button.twisty[data-properties*="unread" i]),
-  :has(button.twisty[aria-label*="unread" i]),
-  :has(button.twisty[aria-label*="non lu" i])
-):not([aria-expanded="true"]) .card-container,
-#threadTree tr.card-layout[aria-selected="true"]:not([data-properties~="thread-children"]):is(
-  [data-properties*="unread" i],
-  [data-properties*="hasUnread" i],
-  .unread,
-  .has-unread-replies,
-  :has(button.twisty.has-unread),
-  :has(button.twisty[class*="unread"]),
-  :has(button.twisty[data-properties*="unread" i]),
-  :has(button.twisty[aria-label*="unread" i]),
-  :has(button.twisty[aria-label*="non lu" i])
-):not([aria-expanded="true"]) .card-container,
-#threadTree tr.card-layout:not([data-properties~="thread-children"]):is([data-properties~="unread"], .unread) .card-container {
+#threadTree tr.card-layout:not([data-properties~="thread-children"])[data-properties~="unread"] .card-container {
   border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
 }
 
 /* Thread children (replies): unread replies get the 4px Material Blue Border, read replies stay transparent */
-#threadTree tr.card-layout[data-properties~="thread-children"]:is([data-properties*="unread" i], .unread) .card-container {
+#threadTree tr.card-layout[data-properties~="thread-children"][data-properties~="unread"] .card-container {
   border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
 }
 
-#threadTree tr.card-layout[data-properties~="thread-children"]:not([data-properties*="unread" i]):not(.unread) .card-container {
+#threadTree tr.card-layout[data-properties~="thread-children"]:not([data-properties~="unread"]) .card-container {
   border-inline-start: 4px solid transparent !important;
 }
 

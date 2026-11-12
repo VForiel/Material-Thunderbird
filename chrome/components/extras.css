@@ -226,65 +226,11 @@ search-bar:focus-within,
   color: var(--md-on-surface) !important;
 }
 
-#calendar-view-box,
-#view-box,
-calendar-month-view,
-calendar-week-view,
-calendar-day-view {
-  background-color: var(--md-surface) !important;
-  color: var(--md-on-surface) !important;
-}
-
 .calview-toggle-item[role="tab"][aria-selected="true"],
 .calview-toggle-item.selected {
   background-color: var(--md-secondary-container) !important;
   color: var(--md-on-secondary-container) !important;
   font-weight: 600 !important;
-}
-
-calendar-event-box,
-calendar-month-day-box-item,
-.calendar-color-box,
-.calendar-item-container {
-  border-radius: var(--md-shape-small) !important;
-  box-shadow: var(--md-elevation-1) !important;
-  font-family: var(--md-sys-font-family) !important;
-  border: none !important;
-  min-block-size: 24px !important;
-  margin-block: 2px !important;
-  transition: box-shadow var(--md-motion-short) !important;
-}
-
-#cardsPane,
-#cardsPaneHeader,
-#cards,
-#cards table[is="tree-view-table"],
-#cards table[is="tree-view-table"] tbody {
-  background-color: var(--md-surface-low) !important;
-  border: none !important;
-}
-
-tr[is="ab-card-row"]:hover td > .card-container,
-#cards .card-container:hover {
-  background-color: var(--md-surface-lowest) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-}
-
-#detailsPane {
-  background-color: var(--md-surface-lowest) !important;
-  color: var(--md-on-surface) !important;
-  border: none !important;
-}
-
-.contact-details-scroll {
-  background-color: var(--md-surface-lowest) !important;
-  padding: 24px 32px !important;
-}
-
-#detailsPane header {
-  border-bottom: 1px solid var(--md-surface-high) !important;
-  padding-block-end: 20px !important;
-  margin-block-end: 20px !important;
 }
 
 hr[is="pane-splitter"],
@@ -303,12 +249,6 @@ splitter,
   background: transparent !important;
   background-color: transparent !important;
   box-shadow: none !important;
-}
-
-#cards tr:hover:not(.selected) .card-container,
-tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
-  background-color: #f5f8fc !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
 }
 
 :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:hover,
@@ -333,8 +273,7 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
 #messageList .left-block::after,
 #messageList .unread-icon,
 #messageList [class*="unread-icon"],
-#messageList .unread-dot,
-#messageList .unread {
+#messageList .unread-dot {
   display: none !important;
   content: none !important;
   visibility: hidden !important;
@@ -468,41 +407,16 @@ tr[is="ab-card-row"]:hover:not(.selected) td > .card-container {
   overflow: hidden !important;
 }
 
-#threadTree tr.card-layout:is(
-  [data-properties*="unread" i],
-  [data-properties*="hasUnread" i],
-  .unread,
-  .has-unread-replies,
-  :has(button.twisty.has-unread),
-  :has(button.twisty[class*="unread"]),
-  :has(button.twisty[data-properties*="unread" i]),
-  :has(button.twisty[aria-label*="unread" i]),
-  :has(button.twisty[aria-label*="non lu" i])
+/* Bordure des non-lus : meme regle que thread-tree.css, chargee apres les
+   cartes ordinaires ci-dessus. Seulement les jetons de Thunderbird et la classe
+   recalculee par l experiment. */
+#threadTree tr.card-layout:not([data-properties~="thread-children"]):is(
+  [data-properties~="unread"],
+  [data-properties~="hasUnread"],
+  .has-unread-replies
 ):not([aria-expanded="true"]) .card-container,
-#threadTree tr.card-layout.selected:is(
-  [data-properties*="unread" i],
-  [data-properties*="hasUnread" i],
-  .unread,
-  .has-unread-replies,
-  :has(button.twisty.has-unread),
-  :has(button.twisty[class*="unread"]),
-  :has(button.twisty[data-properties*="unread" i]),
-  :has(button.twisty[aria-label*="unread" i]),
-  :has(button.twisty[aria-label*="non lu" i])
-):not([aria-expanded="true"]) .card-container,
-#threadTree tr.card-layout[aria-selected="true"]:is(
-  [data-properties*="unread" i],
-  [data-properties*="hasUnread" i],
-  .unread,
-  .has-unread-replies,
-  :has(button.twisty.has-unread),
-  :has(button.twisty[class*="unread"]),
-  :has(button.twisty[data-properties*="unread" i]),
-  :has(button.twisty[aria-label*="unread" i]),
-  :has(button.twisty[aria-label*="non lu" i])
-):not([aria-expanded="true"]) .card-container,
-#threadTree tr.card-layout:is([data-properties~="unread"], .unread) .card-container {
-  border-inline-start: 4px solid var(--md-primary, #0B57D0) !important;
+#threadTree tr.card-layout[data-properties~="unread"] .card-container {
+  border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
 }
 
 @media (max-width: 950px) {
