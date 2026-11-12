@@ -7,12 +7,12 @@
   <meta name="description" content="Aperçu interactif du thème Material-Thunderbird, avec les couleurs exactes de l'extension.">
   <link rel="icon" type="image/png" href="favicon-48.png">
   <!-- Les jetons de couleur de l'extension, copiés tels quels par scripts/build.ps1. -->
-  <link rel="stylesheet" href="theme/tokens/shapes.css">
-  <link rel="stylesheet" href="theme/tokens/colors-light.css">
-  <link rel="stylesheet" href="theme/tokens/colors-dark.css">
-  <link rel="stylesheet" href="theme/tokens/bridge.css">
-  <script src="theme/icons.js"></script>
-  <script src="theme/settings.js"></script>
+  <link rel="stylesheet" href="theme/tokens/shapes.css?v=1.7.1">
+  <link rel="stylesheet" href="theme/tokens/colors-light.css?v=1.7.1">
+  <link rel="stylesheet" href="theme/tokens/colors-dark.css?v=1.7.1">
+  <link rel="stylesheet" href="theme/tokens/bridge.css?v=1.7.1">
+  <script src="theme/icons.js?v=1.7.1"></script>
+  <script src="theme/settings.js?v=1.7.1"></script>
   <script>
     // Avant le premier rendu : pas de flash de la mauvaise palette.
     MaterialSettings.apply(document, MaterialSettings.load());
@@ -27,7 +27,7 @@
       font-family: var(--md-sys-font-family);
       font-size: 13px;
       color: var(--md-sys-color-on-surface);
-      background: var(--md-sys-color-surface-container);
+      background: var(--md-sys-color-surface-container-low);
       overflow: hidden;
     }
     button { font: inherit; color: inherit; }
@@ -50,7 +50,7 @@
     .tabs-bar {
       display: flex; align-items: center; gap: 4px;
       padding: 2px 10px 6px 64px;
-      background: var(--md-sys-color-surface-container);
+      background: var(--md-sys-color-surface-container-low);
     }
     .tab {
       display: flex; align-items: center; gap: 8px;
@@ -65,7 +65,7 @@
     .toolbar {
       display: flex; align-items: center; gap: 8px;
       padding: 6px 12px 4px 64px;
-      background: var(--md-sys-color-surface-container);
+      background: var(--md-sys-color-surface-container-low);
     }
     .search {
       flex: 1 1 auto; max-width: 560px; margin: 0 auto;
@@ -106,26 +106,31 @@
 
     /* Volet des dossiers */
     .folders {
-      width: 216px; flex: none; overflow-y: auto;
+      width: 252px; flex: none; overflow-y: auto;
       padding: 8px 8px 16px;
-      background: var(--md-sys-color-surface-container);
+      background: var(--md-sys-color-surface-container-low);
     }
     .folder-header { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; }
     .fab {
-      flex: 1; display: flex; align-items: center; gap: 10px;
-      height: 44px; padding: 0 16px; border: none; cursor: pointer;
-      border-radius: var(--md-shape-corner-large);
-      background: var(--md-sys-color-primary-container);
-      color: var(--md-sys-color-on-primary-container);
-      font-weight: 600; box-shadow: var(--md-sys-elevation-1); white-space: nowrap;
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+      height: 36px; padding: 0 18px; border: none; cursor: pointer;
+      border-radius: var(--md-shape-corner-full);
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-weight: 600; white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
-    .fab:hover { box-shadow: var(--md-sys-elevation-2); }
+    .fab:hover { background: color-mix(in srgb, var(--md-sys-color-on-primary) 10%, var(--md-sys-color-primary)); }
+    .fab svg.i { width: 18px; height: 18px; }
     .account {
       display: flex; align-items: center; gap: 8px;
-      padding: 10px 12px 4px; font-size: 11px; font-weight: 700;
-      letter-spacing: .04em; text-transform: uppercase;
-      color: var(--md-sys-color-on-surface-variant);
+      height: 36px; padding: 0 8px; margin-top: 6px;
+      font-weight: 700; color: var(--md-sys-color-on-surface);
     }
+    .account > svg.i { width: 16px; height: 16px; color: var(--md-sys-color-on-surface-variant); }
+    .account .ico svg.i { width: 18px; height: 18px; }
+    .account .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #folderList, #localFolders { padding-left: 14px; }
     .folder {
       display: flex; align-items: center; gap: 12px; width: 100%;
       height: 36px; padding: 0 12px; border: none; cursor: pointer; text-align: left;
@@ -251,9 +256,10 @@
     .header-top .who { flex: 1 1 140px; min-width: 0; }
     .header-top .who b, .header-top .who span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .header-top .who span { color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
-    .header-to { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-left: 52px; font-size: 12.5px; color: var(--md-sys-color-on-surface-variant); }
+    .header-to { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-left: 0; font-size: 12.5px; color: var(--md-sys-color-on-surface-variant); }
     .header-to b { color: var(--md-sys-color-on-surface); font-weight: 500; }
     .header-to .grow { flex: 1; }
+    .header-to .avatar { width: 22px; height: 22px; font-size: 11px; }
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; max-width: 100%; }
     .hbtn {
       display: inline-flex; align-items: center; justify-content: center;
@@ -484,12 +490,13 @@
 
       <aside class="folders" aria-label="Dossiers">
         <div class="folder-header">
-          <button class="fab"><svg class="i" viewBox="0 0 24 24"><use href="#ic-edit"/></svg>Nouveau message</button>
-          <button class="icon-btn" title="Relever les messages" aria-label="Relever les messages"><svg class="i" viewBox="0 0 24 24"><use href="#ic-refresh"/></svg></button>
+          <button class="icon-btn" title="Relever les messages" aria-label="Relever les messages"><span class="ico" data-emoji="🔄"><svg class="i" viewBox="0 0 24 24"><use href="#ic-refresh"/></svg></span></button>
+          <button class="fab"><svg class="i" viewBox="0 0 24 24"><use href="#ic-add"/></svg>Nouveau message</button>
+          <button class="icon-btn" title="Autres actions" aria-label="Autres actions"><svg class="i" viewBox="0 0 24 24"><use href="#ic-more-h"/></svg></button>
         </div>
-        <div class="account">camille@exemple.fr</div>
+        <div class="account"><svg class="i" viewBox="0 0 24 24"><use href="#ic-expand"/></svg><span class="ico" data-emoji="📧"><svg class="i" viewBox="0 0 24 24"><use href="#ic-mail"/></svg></span><span class="name">camille@exemple.fr</span></div>
         <div id="folderList"></div>
-        <div class="account">Dossiers locaux</div>
+        <div class="account"><svg class="i" viewBox="0 0 24 24"><use href="#ic-expand"/></svg><span class="ico" data-emoji="📁"><svg class="i" viewBox="0 0 24 24"><use href="#ic-folder"/></svg></span><span class="name">Dossiers locaux</span></div>
         <div id="localFolders"></div>
       </aside>
 
@@ -568,6 +575,8 @@
       <symbol id="ic-more" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></symbol>
       <symbol id="ic-star" viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></symbol>
       <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></symbol>
+      <symbol id="ic-add" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+      <symbol id="ic-more-h" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></symbol>
       <symbol id="ic-open" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></symbol>
     </defs>
   </svg>
@@ -832,7 +841,8 @@
         hbtn("junk", "🚫", "Indésirable") + hbtn("delete", "🗑️", "Supprimer") +
         '<button class="hbtn" title="Autres actions" aria-label="Autres actions">' + icon("more") + "</button>" +
         '<button class="hbtn" title="Suivi" aria-label="Suivi">' + icon("star") + "</button></div></div>" +
-        '<div class="header-to"><span>Pour</span><b>Moi</b><span class="grow"></span><span>' + esc(m.date) + "</span></div></div>";
+        '<div class="header-to"><span>Pour</span>' + avatar({ from: "Camille", email: "camille@exemple.fr" }, true) + "<b>Camille</b>" +
+        '<span class="grow"></span><span>' + esc(m.date) + "</span></div></div>";
     }
 
     function renderReader() {
