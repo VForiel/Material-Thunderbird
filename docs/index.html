@@ -1758,8 +1758,15 @@
               <div class="tp-swatches" id="tpPalette"></div>
             </div>
             <div>
+              <div class="tp-title">Icônes</div>
+              <div class="tp-segmented" id="tpIcons">
+                <button type="button" data-icons="modern">Moderne</button>
+                <button type="button" data-icons="emoji">Émojis</button>
+                <button type="button" data-icons="default">Thunderbird</button>
+              </div>
+            </div>
+            <div>
               <div class="tp-title">Aperçu</div>
-              <label class="tp-option"><span>Icônes émojis</span><input type="checkbox" data-setting="emojis"></label>
               <label class="tp-option"><span>Masquer les réponses déjà lues</span><input type="checkbox" data-setting="hideRead"></label>
               <label class="tp-option"><span>Proposer la désinscription</span><input type="checkbox" data-setting="unsub"></label>
             </div>
@@ -1978,17 +1985,17 @@
 
           <div class="feature-card">
             <div class="feature-icon-wrapper">✏️</div>
-            <h3 class="feature-title">Grand Bouton "Écrire" (FAB)</h3>
+            <h3 class="feature-title">Icônes Arrondies</h3>
             <p class="feature-desc">
-              Le bouton pour composer un message adopte le format Extended FAB de Google : large, agréable et toujours à portée de clic.
+              Des icônes douces en contour, pleines pour le dossier ouvert, teintées de votre couleur d'accent. Des émojis ou les icônes d'origine si vous préférez.
             </p>
           </div>
 
           <div class="feature-card">
             <div class="feature-icon-wrapper">🗂️</div>
-            <h3 class="feature-title">Vue Messages en Cartes</h3>
+            <h3 class="feature-title">Cartes et Lecture façon Gmail</h3>
             <p class="feature-desc">
-              Vos e-mails ne sont plus tassés les uns sur les autres. Les messages non lus sont signalés par une pastille claire et visible.
+              Vos e-mails ne sont plus tassés les uns sur les autres. À l'ouverture, le sujet en titre, l'expéditeur et les actions sur une seule ligne.
             </p>
           </div>
 
@@ -2012,7 +2019,7 @@
             <div class="feature-icon-wrapper">📅</div>
             <h3 class="feature-title">Agenda & Carnet Harmonieux</h3>
             <p class="feature-desc">
-              Votre calendrier, vos rendez-vous et votre carnet d'adresses bénéficient des mêmes finitions soignées en Material Design 3.
+              Un agenda inspiré de Google Agenda, avec des événements en pilules, et un carnet d'adresses en cartes claires.
             </p>
           </div>
         </div>
@@ -2184,7 +2191,7 @@
               <span class="faq-icon">▼</span>
             </button>
             <div class="faq-answer">
-              Cliquez sur le <strong>bouton palette</strong> dans la barre de gauche de Thunderbird (juste au-dessus de la roue des paramètres), ou appuyez sur <strong>Alt+M</strong>. Vous y choisissez la couleur, le mode clair ou sombre et le thème d'icônes (défaut, émojis ou moderne) ; le changement est immédiat.
+              Cliquez sur le <strong>bouton palette</strong> dans la barre de gauche de Thunderbird (juste au-dessus de la roue des paramètres), ou appuyez sur <strong>Alt+M</strong>. Vous y choisissez la couleur, le mode clair ou sombre et le thème d'icônes (Moderne par défaut, Émojis ou celles de Thunderbird) ; le changement est immédiat.
             </div>
           </div>
 
@@ -2281,6 +2288,9 @@
       document.querySelectorAll('#tpMode [data-mode]').forEach((b) => {
         b.setAttribute('aria-pressed', String(b.dataset.mode === settings.mode));
       });
+      document.querySelectorAll('#tpIcons [data-icons]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(b.dataset.icons === settings.icons));
+      });
       const palettes = document.getElementById('tpPalette');
       if (!palettes.childElementCount) {
         Object.keys(S.PALETTES).forEach((key) => {
@@ -2313,6 +2323,10 @@
     document.getElementById('tpMode').addEventListener('click', (e) => {
       const b = e.target.closest('[data-mode]');
       if (b) updateSettings({ mode: b.dataset.mode });
+    });
+    document.getElementById('tpIcons').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-icons]');
+      if (b) updateSettings({ icons: b.dataset.icons });
     });
     document.getElementById('tpPalette').addEventListener('click', (e) => {
       const b = e.target.closest('[data-pal]');

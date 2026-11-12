@@ -2,8 +2,8 @@
  * Material-Thunderbird - reglages partages par le site et l apercu.
  *
  * Les memes reglages que la fenetre de personnalisation de l extension :
- * apparence (clair, sombre, systeme), couleur d accent, icones emojis, reponses
- * lues masquees et bandeau de desinscription. La page d accueil et l apercu
+ * apparence (clair, sombre, systeme), couleur d accent, theme d icones (moderne,
+ * emojis ou Thunderbird), reponses lues masquees et bandeau de desinscription. La page d accueil et l apercu
  * (dans son cadre ou en plein ecran) les lisent et les ecrivent au meme endroit,
  * et se previennent l un l autre par postMessage.
  *
@@ -25,7 +25,8 @@
                light: ["#9c4125", "#ffdbd1", "#f5ddd6"], dark: ["#ffb59f", "#7d2b11", "#5c2a1a"] }
   };
 
-  var DEFAULTS = { mode: "auto", palette: "blue", emojis: false, hideRead: true, unsub: true };
+  var ICON_THEMES = ["modern", "emoji", "default"];
+  var DEFAULTS = { mode: "auto", palette: "blue", icons: "modern", hideRead: true, unsub: true };
   var STORAGE_KEY = "mt-settings";
 
   function sanitize(value) {
@@ -33,7 +34,11 @@
     if (!value || typeof value !== "object") return s;
     if (value.mode === "light" || value.mode === "dark" || value.mode === "auto") s.mode = value.mode;
     if (PALETTES[value.palette]) s.palette = value.palette;
-    ["emojis", "hideRead", "unsub"].forEach(function (key) {
+    // Comme l extension : sans theme d icones choisi, Moderne, sauf pour qui
+    // avait coche l ancienne option emojis.
+    if (ICON_THEMES.indexOf(value.icons) !== -1) s.icons = value.icons;
+    else if (value.emojis === true) s.icons = "emoji";
+    ["hideRead", "unsub"].forEach(function (key) {
       if (typeof value[key] === "boolean") s[key] = value[key];
     });
     return s;
@@ -98,7 +103,9 @@
     else root.setAttribute("lwt-theme-brighttext", settings.mode === "dark" ? "true" : "false");
     root.setAttribute("data-theme", resolvedMode(settings));
     root.setAttribute("data-palette", settings.palette);
-    root.classList.toggle("mt-emojis", !!settings.emojis);
+    root.classList.toggle("mt-emojis", settings.icons === "emoji");
+    root.classList.toggle("mt-icons-modern", settings.icons === "modern");
+    if (global.MaterialIcons) global.MaterialIcons.swap(doc, settings.icons === "modern");
     root.style.colorScheme = resolvedMode(settings);
 
     var style = doc.getElementById("mt-palette-override");
@@ -120,6 +127,7 @@
 
   global.MaterialSettings = {
     PALETTES: PALETTES,
+    ICON_THEMES: ICON_THEMES,
     DEFAULTS: DEFAULTS,
     sanitize: sanitize,
     load: load,

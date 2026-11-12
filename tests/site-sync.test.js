@@ -45,7 +45,37 @@ if (block) {
 console.log("--- settings sanitising ---");
 check("defaults", JSON.stringify(settings.sanitize(null)) === JSON.stringify(settings.DEFAULTS));
 check("unknown palette dropped", settings.sanitize({ palette: "neon" }).palette === "blue");
-check("valid values kept", settings.sanitize({ mode: "dark", palette: "coral", emojis: true }).palette === "coral");
+check("valid values kept", settings.sanitize({ mode: "dark", palette: "coral", icons: "emoji" }).palette === "coral");
+check("Modern icons by default", settings.sanitize({}).icons === "modern");
+check("unknown icon theme dropped", settings.sanitize({ icons: "neon" }).icons === "modern");
+check("old emojis option kept", settings.sanitize({ emojis: true }).icons === "emoji");
+check("explicit icon theme wins", settings.sanitize({ emojis: true, icons: "default" }).icons === "default");
+
+console.log("--- preview icons match the extension ---");
+const previewIcons = require(path.join(root, "docs", "theme", "icons.js")).ICONS ||
+  globalThis.MaterialIcons.ICONS;
+function iconTable(name) {
+  const body = new RegExp(`const ${name} = \\{([\\s\\S]*?)\\n\\};`).exec(experiment);
+  const table = {};
+  if (body) {
+    const re = /(\w+):\s*"([^"]+)"/g;
+    let e;
+    while ((e = re.exec(body[1]))) table[e[1]] = e[2];
+  }
+  return table;
+}
+const outline = iconTable("MATERIAL_ICONS");
+const filled = iconTable("MATERIAL_ICONS_FILLED");
+// Symbole de l apercu -> role dans l extension.
+const ROLE = { inbox: "inbox", drafts: "drafts", send: "sent", archive: "archive", junk: "junk",
+  delete: "trash", folder: "folder", mail: "mail", person: "contacts", calendar: "calendar",
+  task: "tasks", chat: "chat", palette: "palette", settings: "settings", refresh: "sync",
+  reply: "reply", forward: "forward", heart: "heart" };
+for (const [id, pair] of Object.entries(previewIcons)) {
+  const role = ROLE[id];
+  check(`${id} outline`, !!role && outline[role] === pair[0]);
+  check(`${id} filled`, !!role && filled[role] === pair[1]);
+}
 check("non-boolean ignored", settings.sanitize({ unsub: "no" }).unsub === true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
