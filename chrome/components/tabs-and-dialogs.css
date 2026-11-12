@@ -4,9 +4,12 @@
  */
 
 /* ==========================================================================
-   Tabs Styling
+   Onglets : pilules compactes
+   L onglet actif prend la teinte de selection du theme (dossier choisi,
+   bouton "Mois"...), les autres restent transparents. Pas de carte, pas
+   d ombre, pas de filet. La croix n apparait qu au survol ou sur l onglet
+   actif.
    ========================================================================== */
-/* Hide native top line that sits directly on top of tab text */
 .tab-line {
   display: none !important;
 }
@@ -17,19 +20,44 @@
   background-color: var(--md-sys-color-surface-container-low) !important;
   background-image: none !important;
   border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+#tabs-toolbar {
+  padding: 4px 8px 6px !important;
 }
 
 .tabmail-tab {
-  margin: 2px 2px 0 2px !important;
+  margin: 0 2px !important;
   padding: 0 !important;
   border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
   background: transparent !important;
-  background-color: transparent !important;
+  box-shadow: none !important;
+  /* Largeur du contenu, plafonnee : Thunderbird etire sinon chaque onglet
+     jusqu a sa largeur maximale, laissant de grands vides entre les titres. */
+  flex: 0 1 auto !important;
+  inline-size: auto !important;
+  min-inline-size: 0 !important;
+  max-inline-size: 240px !important;
   color: var(--md-sys-color-on-surface-variant) !important;
+  font-weight: 500 !important;
   transition: color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
-/* Ensure inner tab content and text labels have transparent background */
+.tabmail-tab[selected] {
+  box-shadow: none !important;
+}
+
+.tab-stack {
+  min-block-size: 32px !important;
+}
+
+.tab-content {
+  padding-inline: 12px 6px !important;
+  gap: 8px !important;
+}
+
 .tab-content,
 .tab-label-container,
 .tab-label {
@@ -37,12 +65,17 @@
   background-color: transparent !important;
 }
 
-/* Tab Background (Full Tab Surface) */
+.tab-label {
+  font-size: 12.5px !important;
+}
+
 .tab-background {
-  border-radius: var(--md-shape-corner-medium) var(--md-shape-corner-medium) 0 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: var(--md-shape-corner-full) !important;
   background-color: transparent !important;
   background-image: none !important;
-  border: none !important;
+  box-shadow: none !important;
   transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
@@ -54,19 +87,43 @@
   color: var(--md-sys-color-on-surface) !important;
 }
 
-/* Active Selected Tab: Elevated Material 3 Card without harsh blue lines or text */
 .tabmail-tab[selected] {
-  color: var(--md-sys-color-on-surface) !important;
+  color: var(--md-sys-color-on-secondary-container) !important;
   font-weight: 600 !important;
 }
 
 .tab-background[selected],
 .tabmail-tab[selected] .tab-background {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
+  background-color: var(--md-sys-color-secondary-container) !important;
   background-image: none !important;
   border: none !important;
-  border-bottom: none !important;
-  box-shadow: inset 0 -3px 3px -1px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: none !important;
+}
+
+/* Croix : ronde, discrete, visible au survol et sur l onglet actif. */
+button.tab-close-button {
+  border-radius: 50% !important;
+  padding: 3px !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  transition: opacity var(--md-motion-duration-short) var(--md-motion-easing-standard),
+              background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+}
+
+.tabmail-tab:hover button.tab-close-button,
+.tabmail-tab[selected] button.tab-close-button,
+button.tab-close-button:focus-visible {
+  opacity: 0.8 !important;
+}
+
+button.tab-close-button:hover {
+  opacity: 1 !important;
+  background-color: var(--md-sys-state-hover) !important;
+}
+
+.tab-close-icon {
+  inline-size: 14px !important;
+  block-size: 14px !important;
 }
 
 /* ==========================================================================
