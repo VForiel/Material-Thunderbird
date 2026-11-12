@@ -61,6 +61,9 @@ const M3_AVATAR_PALETTES = [
 // Configuration des palettes et options Material You
 const PREF_PALETTE = "extensions.material-thunderbird.palette";
 const PREF_EMOJIS = "extensions.material-thunderbird.emojis";
+// Theme d icones : "default", "emoji" ou "modern". Remplace PREF_EMOJIS, garde
+// a jour pour une version precedente qui reviendrait.
+const PREF_ICON_THEME = "extensions.material-thunderbird.icon-theme";
 const PREF_THEME_MODE = "extensions.material-thunderbird.theme-mode";
 // Bandeau de desinscription : interrupteur general, expediteurs et listes pour
 // lesquels il n est plus propose, messages ou il a ete masque.
@@ -159,17 +162,23 @@ function setThemeMode(mode) {
 function getCustomizerSettings() {
   let palette = "blue";
   let emojis = false;
+  let iconTheme = "";
   try { palette = Services.prefs.getStringPref(PREF_PALETTE, "blue"); } catch (e) {}
   try { emojis = Services.prefs.getBoolPref(PREF_EMOJIS, false); } catch (e) {}
+  try { iconTheme = Services.prefs.getStringPref(PREF_ICON_THEME, ""); } catch (e) {}
+  if (!ICON_THEMES.includes(iconTheme)) iconTheme = emojis ? "emoji" : "default";
   if (!PALETTES_CONFIG[palette]) palette = "blue";
-  return { palette, themeMode: getThemeMode(), emojis };
+  return { palette, themeMode: getThemeMode(), iconTheme };
 }
 
 function saveCustomizerSettings(settings) {
   try {
     if (settings.palette) Services.prefs.setStringPref(PREF_PALETTE, settings.palette);
     if (settings.themeMode) setThemeMode(settings.themeMode);
-    if (typeof settings.emojis === "boolean") Services.prefs.setBoolPref(PREF_EMOJIS, settings.emojis);
+    if (ICON_THEMES.includes(settings.iconTheme)) {
+      Services.prefs.setStringPref(PREF_ICON_THEME, settings.iconTheme);
+      Services.prefs.setBoolPref(PREF_EMOJIS, settings.iconTheme === "emoji");
+    }
   } catch (e) {
     console.error("[Material-Thunderbird] Error saving prefs:", e);
   }
@@ -192,11 +201,17 @@ const CHROME_DOCUMENTS = [
 ].join(", ");
 
 /**
- * Icone faite d un emoji. Les icones de dossiers et de la barre des espaces
- * sont des <img> dont l image vient de la propriete content : un <img> n a pas
- * de ::before, l emoji n apparaissait donc jamais, et couper les proprietes de
- * contexte laissait l icone d origine en silhouette noire. On remplace l image
- * elle-meme par un petit SVG contenant l emoji.
+ * Themes d icones. Trois choix : "default" (icones de Thunderbird), "emoji" et
+ * "modern" (icones Material pleines, teintees de la couleur d accent). Les deux
+ * derniers remplacent les memes icones, listees une fois ci-dessous par leur
+ * role ; chaque theme donne l image de chaque role.
+ */
+const ICON_THEMES = ["default", "emoji", "modern"];
+
+/**
+ * Les icones de dossiers et de la barre des espaces sont des <img> dont l image
+ * vient de la propriete content : un <img> n a pas de ::before. On remplace donc
+ * l image elle-meme par un petit SVG, contenant l emoji ou le trace de l icone.
  */
 function emojiImage(emoji) {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
@@ -206,85 +221,111 @@ function emojiImage(emoji) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
-const FOLDER_EMOJIS = [
-  ["inbox", "📥"],
-  ["sent", "📤"],
-  ["drafts", "📝"],
-  ["templates", "📋"],
-  ["archive", "🗃️"],
-  ["junk", "🚫"],
-  ["trash", "🗑️"],
-  ["outbox", "📮"],
-  ["virtual", "🔎"]
+// La couleur est ecrite dans le SVG : les proprietes de contexte (context-fill)
+// ne s appliquent pas a une image data:. D ou une regle par mode, clair et
+// sombre, avec la teinte de la palette choisie.
+function materialImage(path, color) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}"><path d="${path}"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+// Role -> emoji.
+const EMOJI_ICONS = {
+  folder: "📁", account: "📧", inbox: "📥", sent: "📤", drafts: "📝", templates: "📋",
+  archive: "🗃️", junk: "🚫", trash: "🗑️", outbox: "📮", virtual: "🔎",
+  mail: "📬", contacts: "📇", calendar: "📆", tasks: "✅", chat: "💬", settings: "⚙️",
+  reply: "↩️", replyAll: "↩️", forward: "➡️", extension: "🧩", sync: "🔄"
+};
+
+// Role -> trace Material Icons (Apache 2.0, google/material-design-icons),
+// version pleine en 24 x 24.
+const MATERIAL_ICONS = {
+  folder: "M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z",
+  account: "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z",
+  inbox: "M19 3H4.99c-1.11 0-1.98.89-1.98 2L3 19c0 1.1.88 2 1.99 2H19c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H4.99V5H19v10z",
+  sent: "M2.01 21L23 12 2.01 3 2 10l15 2-15 2z",
+  drafts: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z",
+  templates: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
+  archive: "M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z",
+  junk: "M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z",
+  trash: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
+  outbox: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H5V5h14v10zM8 11h2v3h4v-3h2l-4-4-4 4z",
+  virtual: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
+  mail: "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z",
+  contacts: "M20 0H4v2h16V0zM4 24h16v-2H4v2zM20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 2.75c1.24 0 2.25 1.01 2.25 2.25s-1.01 2.25-2.25 2.25S9.75 10.24 9.75 9 10.76 6.75 12 6.75zM17 17H7v-1.5c0-1.67 3.33-2.5 5-2.5s5 .83 5 2.5V17z",
+  calendar: "M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z",
+  tasks: "M22 5.18L10.59 16.6l-4.24-4.24 1.41-1.41 2.83 2.83 10-10L22 5.18zm-2.21 5.04c.13.57.21 1.17.21 1.78 0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8c1.58 0 3.04.46 4.28 1.25l1.44-1.44C16.1 2.67 14.13 2 12 2 6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-1.19-.22-2.33-.6-3.39l-1.61 1.61z",
+  chat: "M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z",
+  settings: "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z",
+  reply: "M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z",
+  replyAll: "M7 8V5l-7 7 7 7v-3l-4-4 4-4zm6 1V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z",
+  forward: "M12 8V4l8 8-8 8v-4H4V8z",
+  extension: "M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z",
+  sync: "M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+};
+
+// Emplacements remplaces, et le role de chacun.
+const FOLDER_ICON_ROLES = [
+  ["inbox", "inbox"], ["sent", "sent"], ["drafts", "drafts"], ["templates", "templates"],
+  ["archive", "archive"], ["junk", "junk"], ["trash", "trash"], ["outbox", "outbox"],
+  ["virtual", "virtual"]
 ];
 
-const SPACES_EMOJIS = [
-  ["mailButton", "📬"],
-  ["addressBookButton", "📇"],
-  ["calendarButton", "📆"],
-  ["tasksButton", "✅"],
-  ["chatButton", "💬"],
-  ["settingsButton", "⚙️"]
+const SPACES_ICON_ROLES = [
+  ["mailButton", "mail"], ["addressBookButton", "contacts"], ["calendarButton", "calendar"],
+  ["tasksButton", "tasks"], ["chatButton", "chat"], ["settingsButton", "settings"]
 ];
 
-const HEADER_EMOJIS = [
-  ["hdrReplyButton", "↩️"],
-  ["hdrReplyToSenderButton", "↩️"],
-  ["hdrReplyAllButton", "↩️"],
-  ["hdrReplyListButton", "↩️"],
-  ["hdrFollowupButton", "↩️"],
-  ["hdrForwardButton", "➡️"],
-  ["hdrArchiveButton", "🗃️"],
-  ["hdrJunkButton", "🚫"],
-  ["hdrTrashButton", "🗑️"]
+const HEADER_ICON_ROLES = [
+  ["hdrReplyButton", "reply"], ["hdrReplyToSenderButton", "reply"], ["hdrReplyAllButton", "replyAll"],
+  ["hdrReplyListButton", "replyAll"], ["hdrFollowupButton", "reply"], ["hdrForwardButton", "forward"],
+  ["hdrArchiveButton", "archive"], ["hdrJunkButton", "junk"], ["hdrTrashButton", "trash"]
 ];
 
-// Nom du fichier de l icone native -> emoji. Pas de fragment comme "message" :
-// tous les chemins commencent par chrome://messenger/.
-const TAB_EMOJIS = [
-  ["address-book", "📇"],
-  ["calendar", "📆"],
-  ["tasks", "✅"],
-  ["chat", "💬"],
-  ["settings", "⚙️"],
-  ["extension", "🧩"],
-  ["inbox", "📥"],
-  ["sent", "📤"],
-  ["draft", "📝"],
-  ["template", "📋"],
-  ["archive", "🗃️"],
-  ["junk", "🚫"],
-  ["spam", "🚫"],
-  ["trash", "🗑️"],
-  ["outbox", "📮"],
-  ["folder", "📁"]
+// Nom du fichier de l icone native de l onglet -> role. Pas de fragment comme
+// "message" : tous les chemins commencent par chrome://messenger/.
+const TAB_ICON_ROLES = [
+  ["address-book", "contacts"], ["calendar", "calendar"], ["tasks", "tasks"], ["chat", "chat"],
+  ["settings", "settings"], ["extension", "extension"], ["inbox", "inbox"], ["sent", "sent"],
+  ["draft", "drafts"], ["template", "templates"], ["archive", "archive"], ["junk", "junk"],
+  ["spam", "junk"], ["trash", "trash"], ["outbox", "outbox"], ["folder", "folder"]
 ];
 
-function emojiCss() {
-  const icon = (selector, emoji) =>
-    `${selector} {\n  content: ${emojiImage(emoji)} !important;\n  -moz-context-properties: none !important;\n}\n`;
-  let css = "/* Icones emojis */\n";
-  css += icon("#folderTree li > .container > .icon", "📁");
-  css += icon("#folderTree li[data-server-type] > .container > .icon", "📧");
-  for (const [type, emoji] of FOLDER_EMOJIS) {
-    css += icon(`#folderTree li[data-folder-type="${type}"] > .container > .icon`, emoji);
+/**
+ * Feuille d un theme d icones. imageFor(role) rend l url de l image ; prefix
+ * precede chaque selecteur (theme sombre).
+ */
+function iconRulesCss(imageFor, prefix = "") {
+  const sel = (s) => prefix + s;
+  const icon = (selector, role) =>
+    `${sel(selector)} {\n  content: ${imageFor(role)} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  let css = "";
+  css += icon("#folderTree li > .container > .icon", "folder");
+  css += icon("#folderTree li[data-server-type] > .container > .icon", "account");
+  for (const [type, role] of FOLDER_ICON_ROLES) {
+    css += icon(`#folderTree li[data-folder-type="${type}"] > .container > .icon`, role);
   }
-  for (const [id, emoji] of SPACES_EMOJIS) {
-    css += icon(`#${id} > img`, emoji);
+  for (const [id, role] of SPACES_ICON_ROLES) {
+    css += icon(`#${id} > img`, role);
   }
   // Boutons de l en-tete du message : toolbarbutton XUL, dont l icone est une
   // <image> dessinee par list-style-image. Repondre et Repondre a tous sont des
   // boutons a menu : leur icone est dans un bouton imbrique, pas un enfant direct.
-  for (const [id, emoji] of HEADER_EMOJIS) {
-    css += `#${id} .toolbarbutton-icon {\n  list-style-image: ${emojiImage(emoji)} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  for (const [id, role] of HEADER_ICON_ROLES) {
+    css += `${sel(`#${id} .toolbarbutton-icon`)} {\n  list-style-image: ${imageFor(role)} !important;\n  -moz-context-properties: none !important;\n}\n`;
   }
   // Icones des onglets : <img> dont l image vient de l attribut src, reconnu
   // par le nom du fichier d icone de Thunderbird.
-  for (const [file, emoji] of TAB_EMOJIS) {
-    css += icon(`#tabmail-tabs .tab-icon-image[src*="${file}"]`, emoji);
+  for (const [file, role] of TAB_ICON_ROLES) {
+    css += icon(`#tabmail-tabs .tab-icon-image[src*="${file}"]`, role);
   }
   // Relever le courrier : image de fond du bouton.
-  css += `#folderPaneGetMessages {\n  background-image: ${emojiImage("🔄")} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  css += `${sel("#folderPaneGetMessages")} {\n  background-image: ${imageFor("sync")} !important;\n  -moz-context-properties: none !important;\n}\n`;
+  return css;
+}
+
+function emojiCss() {
+  let css = "/* Icones emojis */\n" + iconRulesCss((role) => emojiImage(EMOJI_ICONS[role]));
   // Le "+" du bouton de redaction est une image de fond, pas un <img>.
   css += `#folderPaneWriteMessage {
   background-image: none !important;
@@ -298,6 +339,28 @@ function emojiCss() {
 }
 
 /**
+ * Icones "Moderne" : une seule couleur, celle de l accent (la teinte claire de
+ * la palette en mode sombre), au lieu du gris de Thunderbird. Les selecteurs
+ * clair / sombre reprennent ceux de paletteCss.
+ */
+function modernIconCss(pal) {
+  const light = (role) => materialImage(MATERIAL_ICONS[role], pal.light[0]);
+  const dark = (role) => materialImage(MATERIAL_ICONS[role], pal.dark[0]);
+  return "/* Icones modernes */\n" +
+    iconRulesCss(light) +
+    "@media (prefers-color-scheme: dark) {\n" +
+    iconRulesCss(dark, ':root:not([lwt-theme-brighttext="false"]) ') +
+    "}\n" +
+    iconRulesCss(dark, ':root[lwt-theme-brighttext="true"] ');
+}
+
+function iconThemeCss(settings, pal) {
+  if (settings.iconTheme === "emoji") return emojiCss();
+  if (settings.iconTheme === "modern") return modernIconCss(pal);
+  return "";
+}
+
+/**
  * :root:root ajoute une classe de specificite : a importance egale, ces regles
  * l emportent ainsi sur celles de chrome/tokens/ quel que soit l ordre des
  * feuilles.
@@ -305,7 +368,7 @@ function emojiCss() {
 function generateCustomizerCss(settings) {
   const pal = PALETTES_CONFIG[settings.palette] || PALETTES_CONFIG.blue;
   const body = paletteCss(pal).replace(/:root/g, ":root:root") + "\n" +
-    (settings.emojis ? emojiCss() : "");
+    iconThemeCss(settings, pal);
   return `@-moz-document ${CHROME_DOCUMENTS} {\n${body}\n}\n`;
 }
 
@@ -1662,6 +1725,16 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       return `<button type="button" class="material-segmented-btn${on ? " active" : ""}" data-mode="${m.id}" aria-pressed="${on}">${ICON_CHECK}<span>${xmlEscape(m.label)}</span></button>`;
     }).join("");
 
+    const iconThemes = [
+      { id: "default", label: "Défaut" },
+      { id: "emoji", label: "Émojis" },
+      { id: "modern", label: "Moderne" }
+    ];
+    const iconButtons = iconThemes.map((t) => {
+      const on = settings.iconTheme === t.id;
+      return `<button type="button" class="material-segmented-btn${on ? " active" : ""}" data-icons="${t.id}" aria-pressed="${on}">${ICON_CHECK}<span>${xmlEscape(t.label)}</span></button>`;
+    }).join("");
+
     const swatches = Object.keys(PALETTES_CONFIG).map((key) => {
       const pal = PALETTES_CONFIG[key];
       const on = settings.palette === key;
@@ -1693,16 +1766,8 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
 
       <section class="material-modal-section">
         <div class="material-modal-section-title">Icônes</div>
-        <label class="material-option-row" for="material-emoji-toggle">
-          <span class="material-option-info">
-            <span class="material-option-title">Icônes émojis</span>
-            <span class="material-option-desc">Remplace les icônes des dossiers et de la barre des espaces par des émojis.</span>
-          </span>
-          <span class="material-switch">
-            <input type="checkbox" id="material-emoji-toggle"${settings.emojis ? ' checked="checked"' : ""} />
-            <span class="material-switch-slider"></span>
-          </span>
-        </label>
+        <div class="material-modal-section-desc">Moderne : icônes pleines, de la couleur d'accent.</div>
+        <div class="material-segmented-group" id="material-icons-group">${iconButtons}</div>
       </section>
 
       <section class="material-modal-section">
@@ -1838,7 +1903,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       });
     });
 
-    // Emoji toggle
+    // Reponses lues masquees
     const hideReadToggle = dialog.querySelector("#material-hide-read-toggle");
     if (hideReadToggle) {
       hideReadToggle.addEventListener("change", () => {
@@ -1847,15 +1912,18 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
       });
     }
 
-    const emojiToggle = dialog.querySelector("#material-emoji-toggle");
-    if (emojiToggle) {
-      emojiToggle.addEventListener("change", () => {
+    const iconBtns = dialog.querySelectorAll("#material-icons-group .material-segmented-btn");
+    iconBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        iconBtns.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
         const cur = getCustomizerSettings();
-        cur.emojis = emojiToggle.checked;
+        cur.iconTheme = btn.getAttribute("data-icons");
         saveCustomizerSettings(cur);
         this._applyCustomizerSheet();
       });
-    }
+    });
 
     // Avatars : les nouvelles sources s appliquent aux prochains affichages.
     const brandToggle = dialog.querySelector("#material-brand-toggle");
@@ -1996,7 +2064,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
    */
   async _uninstallEverything(win) {
     const legacyRemoved = this._removeLegacyProfileInstall();
-    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_HIDE_READ_REPLIES,
+    for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_ICON_THEME, PREF_HIDE_READ_REPLIES,
                         PREF_UNSUB_ENABLED, PREF_UNSUB_IGNORED, PREF_UNSUB_HIDDEN,
                         PREF_BRAND_LOGOS, PREF_BRAND_CACHE, PREF_BRAND_CACHE_OLD, PREF_BRAND_CACHE_OLD2, GRAVATAR_PREF]) {
       try { Services.prefs.clearUserPref(pref); } catch (e) {}

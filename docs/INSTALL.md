@@ -37,7 +37,7 @@ toutes seules : Thunderbird vérifie chaque jour le fichier `updates.json` publi
 
 Bouton palette dans la barre de gauche (au-dessus de la roue des paramètres), raccourci **`Alt+M`**,
 ou **Outils > Personnaliser le thème Material (M3)...** : mode clair / sombre / système, couleur
-d'accent, icônes émojis, avatars, fils de discussion et bandeau de désinscription. Les changements
+d'accent, thème d'icônes (défaut, émojis ou moderne), avatars, fils de discussion et bandeau de désinscription. Les changements
 s'appliquent immédiatement à toutes les fenêtres.
 
 ---
