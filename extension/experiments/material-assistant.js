@@ -481,33 +481,6 @@ function generateCustomizerCss(settings) {
 }
 
 /**
- * Les anciennes versions ecrivaient la personnalisation dans
- * chrome/user-overrides.css, lu par userChrome.css au demarrage seulement : ce
- * fichier continuait d imposer d anciens reglages, que la fenetre de
- * personnalisation ne pouvait plus defaire. Un fichier qu elles ont genere est
- * vide ; un fichier ecrit a la main est laisse tel quel.
- */
-function neutralizeGeneratedOverrides() {
-  try {
-    const file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    file.append("chrome");
-    file.append("user-overrides.css");
-    if (!file.exists()) return;
-    const text = readExtensionFile(Services.io.newFileURI(file).spec);
-    if (!/^\s*\/\*\*\s*\n\s*\* Personnalisation Material-Thunderbird \(g[eé]n[eé]r[eé] automatiquement\)/i.test(text)) return;
-    const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
-    fos.init(file, 0x02 | 0x08 | 0x20, 0o644, 0);
-    const cos = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
-    cos.init(fos, "UTF-8", 0, 0);
-    cos.writeString("/* Personnalisation Material-Thunderbird : desormais geree depuis Thunderbird (Alt+M). */\n");
-    cos.close();
-    fos.close();
-  } catch (e) {
-    console.error("[Material-Thunderbird] user-overrides.css non nettoye :", e);
-  }
-}
-
-/**
  * Les versions 1.0.x posaient leur personnalisation dans un <style> de chaque
  * document, et leur theme comme feuille d auteur. Thunderbird garde ces ajouts
  * jusqu a son redemarrage, meme apres la mise a jour de l extension : une feuille
@@ -1335,7 +1308,6 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
    */
   onStartup() {
     loadUnsubscribeRules(this.extension);
-    neutralizeGeneratedOverrides();
     try {
       this._themeSheet = registerUserSheet(this.extension.rootURI.resolve("material-theme.css"));
     } catch (e) {
@@ -1380,6 +1352,9 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     // Thunderbird retrouve le mode clair / sombre de Windows. onStartup le
     // repose apres une mise a jour.
     releaseThemeModeOverride();
+    // Consigne d addons.thunderbird.net pour les Experiments : sans cela,
+    // Thunderbird peut garder en cache l ancien code apres une mise a jour.
+    Services.obs.notifyObservers(null, "startupcache-invalidate");
     unregisterUserSheet(this._themeSheet);
     unregisterUserSheet(this._customizerSheet);
     this._uninstallReadRepliesFilter();
@@ -2155,23 +2130,12 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     }, 220);
   }
 
-  _restartThunderbird() {
-    try {
-      const appStartup = Services.startup;
-      appStartup.quit(Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart);
-    } catch (e) {
-      console.error("[Material-Thunderbird] Restart failed:", e);
-    }
-  }
-
   /**
-   * Desinstalle l extension depuis la fenetre de personnalisation. Les anciennes
-   * versions s installaient par script dans le dossier chrome/ du profil : ces
-   * fichiers sont retires au passage, et comme userChrome.css n est relu qu au
-   * demarrage, un redemarrage est alors propose.
+   * Desinstalle l extension depuis la fenetre de personnalisation : ses
+   * preferences sont effacees, puis l extension se retire. Rien n est ecrit ni
+   * supprime dans le dossier du profil (userChrome.css, user.js...).
    */
   async _uninstallEverything(win) {
-    const legacyRemoved = this._removeLegacyProfileInstall();
     for (const pref of [PREF_PALETTE, PREF_THEME_MODE, PREF_EMOJIS, PREF_ICON_THEME, PREF_HIDE_READ_REPLIES,
                         PREF_UNSUB_ENABLED, PREF_UNSUB_IGNORED, PREF_UNSUB_HIDDEN,
                         PREF_BRAND_LOGOS, PREF_BRAND_CACHE, PREF_BRAND_CACHE_OLD, PREF_BRAND_CACHE_OLD2, GRAVATAR_PREF]) {
@@ -2180,142 +2144,12 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     releaseThemeModeOverride();
     this._closeCustomizerModal(win);
 
-    if (legacyRemoved) {
-      const restart = Services.prompt.confirm(
-        win,
-        "Material-Thunderbird",
-        "Les fichiers installés autrefois par script dans le profil ont été retirés. " +
-        "Thunderbird doit redémarrer pour les oublier. Redémarrer maintenant ?"
-      );
-      if (restart) win.setTimeout(() => this._restartThunderbird(), 500);
-    }
-
     try {
       const { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
       const addon = await AddonManager.getAddonByID(this.extension.id);
       if (addon) await addon.uninstall();
     } catch (e) {
       console.error("[Material-Thunderbird] Desinstallation de l extension impossible :", e);
-    }
-  }
-
-  /** @returns {boolean} vrai si une installation par script a ete trouvee et retiree. */
-  _removeLegacyProfileInstall() {
-    let found = false;
-    try {
-      const profDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      const chromeDir = profDir.clone();
-      chromeDir.append("chrome");
-
-      if (chromeDir.exists()) {
-        const manifestFile = chromeDir.clone();
-        manifestFile.append("material-thunderbird-install.json");
-        let manifest = null;
-        found = manifestFile.exists();
-        if (manifestFile.exists()) {
-          try {
-            const fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
-            fis.init(manifestFile, 0x01, 0o444, 0);
-            const cis = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(Ci.nsIConverterInputStream);
-            cis.init(fis, "UTF-8", 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-            let str = {};
-            let jsonText = "";
-            while (cis.readString(4096, str) != 0) { jsonText += str.value; }
-            cis.close();
-            fis.close();
-            manifest = JSON.parse(jsonText);
-          } catch (e) {}
-        }
-
-        const legacyFiles = [
-          "userChrome.css", "userContent.css", "user-overrides.css",
-          "tokens/shapes.css", "tokens/colors-light.css", "tokens/colors-dark.css", "tokens/bridge.css",
-          "components/spaces-toolbar.css", "components/unified-toolbar.css", "components/folder-pane.css",
-          "components/thread-tree.css", "components/message-header.css", "components/tabs-and-dialogs.css",
-          "components/calendar.css", "components/addressbook.css", "components/avatars.css",
-          "components/multimessage.css", "components/compose.css", "components/extras.css"
-        ];
-
-        // Sans manifeste, seuls les fichiers reconnaissables comme les notres sont
-        // retires : userChrome.css peut appartenir a quelqu un d autre.
-        const ours = chromeDir.clone();
-        ours.append("tokens");
-        if (!found && !ours.exists()) return false;
-        found = true;
-        const filesToDelete = (manifest && Array.isArray(manifest.files)) ? manifest.files : legacyFiles;
-        for (const rel of filesToDelete) {
-          try {
-            const f = chromeDir.clone();
-            const parts = rel.split("/");
-            for (const p of parts) f.append(p);
-            if (f.exists()) f.remove(false);
-          } catch (e) {}
-        }
-
-        if (manifest && manifest.backupDir) {
-          try {
-            const bDir = profDir.clone();
-            bDir.append(manifest.backupDir);
-            if (bDir.exists()) {
-              const entries = bDir.directoryEntries;
-              while (entries.hasMoreElements()) {
-                const entry = entries.getNext().QueryInterface(Ci.nsIFile);
-                entry.moveTo(chromeDir, entry.leafName);
-              }
-              bDir.remove(true);
-            }
-          } catch (e) {}
-        }
-
-        try {
-          if (manifestFile.exists()) manifestFile.remove(false);
-          const ov = chromeDir.clone();
-          ov.append("user-overrides.css");
-          if (ov.exists()) ov.remove(false);
-        } catch (e) {}
-      }
-
-      try {
-        const userJs = profDir.clone();
-        userJs.append("user.js");
-        if (userJs.exists()) {
-          const fis = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
-          fis.init(userJs, 0x01, 0o444, 0);
-          const cis = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(Ci.nsIConverterInputStream);
-          cis.init(fis, "UTF-8", 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-          let str = {};
-          let content = "";
-          while (cis.readString(4096, str) != 0) { content += str.value; }
-          cis.close();
-          fis.close();
-
-          const prefsToClean = [
-            "toolkit.legacyUserProfileCustomizations.stylesheets",
-            "svg.context-properties.content.enabled",
-            "extensions.experiments.enabled"
-          ];
-          const lines = content.split(/\r?\n/).filter(line => {
-            if (line.trim() === "// Material-Thunderbird") return false;
-            for (const p of prefsToClean) {
-              if (line.includes(`user_pref("${p}"`)) return false;
-            }
-            return true;
-          });
-
-          const fos = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
-          fos.init(userJs, 0x02 | 0x08 | 0x20, 0o644, 0);
-          const cos = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
-          cos.init(fos, "UTF-8", 0, 0);
-          cos.writeString(lines.join("\r\n") + "\r\n");
-          cos.close();
-          fos.close();
-        }
-      } catch (e) {}
-
-      return found;
-    } catch (err) {
-      console.error("[Material-Thunderbird] Nettoyage de l installation par script impossible :", err);
-      return found;
     }
   }
 
