@@ -631,33 +631,58 @@ calendar-minimonth {
   padding: 6px 8px !important;
 }
 
-/* Agenda Date Chip (Material 3 Tonal Pill Chip) */
+/* Dates de l agenda : un simple titre de section, pas une pastille par jour.
+   Thunderbird masque (hidden) l en-tete des evenements suivants du meme jour ;
+   un display impose le faisait reapparaitre, d ou des dates en double. */
 .agenda-date-header {
-  background-color: var(--md-sys-color-secondary-container) !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
-  border-radius: var(--md-shape-corner-full) !important;
-  padding: 4px 12px !important;
-  margin: 8px 4px 4px 4px !important;
-  font-size: 11.5px !important;
+  background: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  border-radius: 0 !important;
+  padding: 0 6px !important;
+  margin: 14px 0 4px !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
-  display: inline-block !important;
+  letter-spacing: 0.1px !important;
 }
 
-/* Agenda Event Item Card (Material 3 White Elevated Card) */
+.agenda-date-header[hidden] {
+  display: none !important;
+}
+
+.agenda-listitem:first-child .agenda-date-header {
+  margin-block-start: 4px !important;
+}
+
+.agenda-date-header[data-l10n-id="calendar-today"] {
+  color: var(--md-sys-color-primary) !important;
+}
+
+.agenda-date-header::first-letter {
+  text-transform: uppercase !important;
+}
+
+/* Evenements : cartes blanches discretes. */
 .agenda-listitem-details {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
   border-radius: var(--md-shape-corner-medium) !important;
-  margin: 4px 4px !important;
+  margin: 0 0 4px !important;
   padding: 8px 12px !important;
   border: none !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  transition: all var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
+  box-shadow: none !important;
+  transition: background-color var(--md-motion-duration-short) var(--md-motion-easing-standard) !important;
 }
 
 .agenda-listitem-details:hover {
-  background-color: var(--md-sys-color-surface-container-lowest) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-1px) !important;
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 5%, var(--md-sys-color-surface-container-lowest)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Journee entiere : pilule pleine de la couleur de l agenda, comme la vue mois. */
+.agenda-listitem-all-day .agenda-listitem-details {
+  background-color: var(--item-backcolor) !important;
+  color: var(--item-forecolor) !important;
+  padding: 4px 12px !important;
 }
 
 /* Now Relative Indicator Pill */
@@ -707,7 +732,8 @@ calendar-minimonth {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 8px 12px !important;
+  padding: 12px 12px !important;
+  margin-block: 4px 0 !important;
   gap: 10px !important;
 }
 
@@ -781,7 +807,7 @@ calendar-minimonth {
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   border-radius: var(--md-shape-corner-large) !important;
-  margin: 0 8px !important;
+  margin: 4px 12px 12px !important;
   overflow: hidden !important;
 }
 
@@ -855,7 +881,7 @@ calendar-minimonth {
   color: var(--md-sys-color-on-surface) !important;
   border: none !important;
   border-radius: var(--md-shape-corner-large) !important;
-  margin: 0 8px 8px !important;
+  margin: 0 12px 12px !important;
   padding: 12px 16px !important;
   box-shadow: none !important;
 }
