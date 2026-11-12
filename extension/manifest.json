@@ -2,10 +2,10 @@
   "manifest_version": 2,
   "name": "Material You Thunderbird",
   "description": "Thème moderne Material You (Material Design 3) pour Mozilla Thunderbird avec palettes tonales dynamiques, pilules et élévations soignées.",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "author": "Vincent Foriel",
   "homepage_url": "https://vforiel.github.io/Material-Thunderbird/",
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "material-you-thunderbird@vforiel",
       "strict_min_version": "115.0",
@@ -20,8 +20,7 @@
   "permissions": [
     "messagesRead",
     "messageDisplayScripts",
-    "scripting",
-    "tabs"
+    "scripting"
   ],
   "background": {
     "scripts": [
