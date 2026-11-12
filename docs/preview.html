@@ -7,12 +7,12 @@
   <meta name="description" content="Aperçu interactif du thème Material-Thunderbird, avec les couleurs exactes de l'extension.">
   <link rel="icon" type="image/png" href="favicon-48.png">
   <!-- Les jetons de couleur de l'extension, copiés tels quels par scripts/build.ps1. -->
-  <link rel="stylesheet" href="theme/tokens/shapes.css?v=1.7.1">
-  <link rel="stylesheet" href="theme/tokens/colors-light.css?v=1.7.1">
-  <link rel="stylesheet" href="theme/tokens/colors-dark.css?v=1.7.1">
-  <link rel="stylesheet" href="theme/tokens/bridge.css?v=1.7.1">
-  <script src="theme/icons.js?v=1.7.1"></script>
-  <script src="theme/settings.js?v=1.7.1"></script>
+  <link rel="stylesheet" href="theme/tokens/shapes.css?v=1.7.2">
+  <link rel="stylesheet" href="theme/tokens/colors-light.css?v=1.7.2">
+  <link rel="stylesheet" href="theme/tokens/colors-dark.css?v=1.7.2">
+  <link rel="stylesheet" href="theme/tokens/bridge.css?v=1.7.2">
+  <script src="theme/icons.js?v=1.7.2"></script>
+  <script src="theme/settings.js?v=1.7.2"></script>
   <script>
     // Avant le premier rendu : pas de flash de la mauvaise palette.
     MaterialSettings.apply(document, MaterialSettings.load());
@@ -44,12 +44,13 @@
     .mt-icons-modern .ico { color: color-mix(in srgb, var(--md-sys-color-primary) 55%, var(--md-sys-color-on-surface-variant)); }
     .active { --ico-o: none; --ico-f: inline; }
 
-    .window { display: flex; flex-direction: column; height: 100%; }
+    .window { display: flex; height: 100%; }
+    .main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 
     /* ---- Barre de recherche, puis onglets en pilules ---- */
     .tabs-bar {
       display: flex; align-items: center; gap: 4px;
-      padding: 2px 10px 6px 64px;
+      padding: 2px 10px 6px 10px;
       background: var(--md-sys-color-surface-container-low);
     }
     .tab {
@@ -64,7 +65,7 @@
 
     .toolbar {
       display: flex; align-items: center; gap: 8px;
-      padding: 6px 12px 4px 64px;
+      padding: 6px 12px 4px 10px;
       background: var(--md-sys-color-surface-container-low);
     }
     .search {
@@ -444,7 +445,6 @@
     /* Petits écrans : une colonne à la fois, comme sur un téléphone. */
     @media (max-width: 960px) {
       .folders { display: none; }
-      .tabs-bar, .toolbar { padding-left: 10px; }
     }
     @media (max-width: 760px) {
       .spaces { display: none; }
@@ -461,6 +461,18 @@
 </head>
 <body>
   <div class="window" id="window">
+    <nav class="spaces" aria-label="Espaces">
+      <button class="space-btn active" title="Courrier" aria-label="Courrier"><span class="ico" data-emoji="✉️"><svg class="i" viewBox="0 0 24 24"><use href="#ic-mail"/></svg></span></button>
+      <button class="space-btn" title="Carnet d'adresses" aria-label="Carnet d'adresses"><span class="ico" data-emoji="👥"><svg class="i" viewBox="0 0 24 24"><use href="#ic-person"/></svg></span></button>
+      <button class="space-btn" title="Agenda" aria-label="Agenda"><span class="ico" data-emoji="📅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span></button>
+      <button class="space-btn" title="Tâches" aria-label="Tâches"><span class="ico" data-emoji="✅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-task"/></svg></span></button>
+      <button class="space-btn" title="Messagerie instantanée" aria-label="Messagerie instantanée"><span class="ico" data-emoji="💬"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chat"/></svg></span></button>
+      <span class="spacer"></span>
+      <button class="space-btn" title="Soutenir Material-Thunderbird" aria-label="Soutenir Material-Thunderbird"><span class="ico" data-emoji="💖"><svg class="i" viewBox="0 0 24 24"><use href="#ic-heart"/></svg></span></button>
+      <button class="space-btn" id="openCustomizer" title="Personnaliser le thème (Alt+M)" aria-label="Personnaliser le thème"><span class="ico" data-emoji="🎨"><svg class="i" viewBox="0 0 24 24"><use href="#ic-palette"/></svg></span></button>
+      <button class="space-btn" title="Paramètres" aria-label="Paramètres"><span class="ico" data-emoji="⚙️"><svg class="i" viewBox="0 0 24 24"><use href="#ic-settings"/></svg></span></button>
+    </nav>
+    <div class="main">
     <div class="toolbar">
       <div class="search" role="search">
         <svg class="i" viewBox="0 0 24 24"><use href="#ic-search"/></svg>
@@ -476,17 +488,6 @@
     </div>
 
     <div class="body">
-      <nav class="spaces" aria-label="Espaces">
-        <button class="space-btn active" title="Courrier" aria-label="Courrier"><span class="ico" data-emoji="✉️"><svg class="i" viewBox="0 0 24 24"><use href="#ic-mail"/></svg></span></button>
-        <button class="space-btn" title="Carnet d'adresses" aria-label="Carnet d'adresses"><span class="ico" data-emoji="👥"><svg class="i" viewBox="0 0 24 24"><use href="#ic-person"/></svg></span></button>
-        <button class="space-btn" title="Agenda" aria-label="Agenda"><span class="ico" data-emoji="📅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span></button>
-        <button class="space-btn" title="Tâches" aria-label="Tâches"><span class="ico" data-emoji="✅"><svg class="i" viewBox="0 0 24 24"><use href="#ic-task"/></svg></span></button>
-        <button class="space-btn" title="Messagerie instantanée" aria-label="Messagerie instantanée"><span class="ico" data-emoji="💬"><svg class="i" viewBox="0 0 24 24"><use href="#ic-chat"/></svg></span></button>
-        <span class="spacer"></span>
-        <button class="space-btn" title="Soutenir Material-Thunderbird" aria-label="Soutenir Material-Thunderbird"><span class="ico" data-emoji="💖"><svg class="i" viewBox="0 0 24 24"><use href="#ic-heart"/></svg></span></button>
-        <button class="space-btn" id="openCustomizer" title="Personnaliser le thème (Alt+M)" aria-label="Personnaliser le thème"><span class="ico" data-emoji="🎨"><svg class="i" viewBox="0 0 24 24"><use href="#ic-palette"/></svg></span></button>
-        <button class="space-btn" title="Paramètres" aria-label="Paramètres"><span class="ico" data-emoji="⚙️"><svg class="i" viewBox="0 0 24 24"><use href="#ic-settings"/></svg></span></button>
-      </nav>
 
       <aside class="folders" aria-label="Dossiers">
         <div class="folder-header">
@@ -510,6 +511,7 @@
       </section>
 
       <section class="reader" id="reader" aria-live="polite"></section>
+    </div>
     </div>
   </div>
 
