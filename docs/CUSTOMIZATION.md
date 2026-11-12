@@ -7,8 +7,8 @@ ou utilisez **`Alt+M`**, ou **Outils > Personnaliser le thème Material (M3)...*
 
 - **Apparence** : clair, sombre, ou le mode de Windows / macOS (*Système*) ;
 - **Couleur d'accent** : quatre palettes Material You, détaillées plus bas ;
-- **Icônes** : *Moderne* par défaut, icônes Material Symbols arrondies comme dans Gmail (en contour,
-  pleines pour le dossier, l'espace et l'onglet choisis), teintées de la couleur d'accent adoucie ; ou des
+- **Icônes** : *Moderne* par défaut, icônes arrondies Fluent UI System Icons (Microsoft, licence MIT), en contour comme dans
+  Gmail (pleines pour le dossier, l'espace et l'onglet choisis), teintées de la couleur d'accent adoucie ; ou des
   émojis ; ou celles de Thunderbird. Les deux premiers remplacent les icônes des dossiers, de la barre des
   espaces, des onglets et des boutons du message ;
 - **Avatars** : logos des marques et Gravatar (voir plus bas) ;
