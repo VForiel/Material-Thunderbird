@@ -52,6 +52,12 @@ sans `update_url` (la boutique gère les mises à jour) et avec une version maxi
 (`$AtnMaxVersion` en tête du script), qu'il faut relever après avoir testé chaque version majeure.
 Les licences des icônes intégrées sont dans `extension/THIRD-PARTY-NOTICES.txt`.
 
+### Confidentialité
+
+Ce que l'extension envoie sur Internet (logos des marques, Gravatar, désinscription), à qui, et
+comment le désactiver : [politique de confidentialité](https://vforiel.github.io/Material-Thunderbird/privacy.html)
+(`docs/privacy.html`). À tenir à jour à chaque fonction qui contacte un serveur.
+
 ---
 
 ## 🖥️ Aperçu

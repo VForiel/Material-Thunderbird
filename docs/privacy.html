@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confidentialité — Material-Thunderbird</title>
+  <meta name="description" content="Ce que l'extension Material-Thunderbird envoie sur Internet, à qui, et comment le désactiver.">
+  <link rel="icon" type="image/png" href="favicon-48.png">
+  <script src="theme/settings.js?v=1.8.0"></script>
+  <script>MaterialSettings.apply(document, MaterialSettings.load());</script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #475569;
+      --line: #e2e8f0;
+      --accent: #0b57d0;
+      --chip: #e8f0fe;
+      --font: -apple-system, BlinkMacSystemFont, "Google Sans", "Roboto", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f1419; --card: #182028; --text: #e2e8f0; --muted: #a3b1c2;
+        --line: #2a3542; --accent: #a8c7fa; --chip: #1f2d3d;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0f1419; --card: #182028; --text: #e2e8f0; --muted: #a3b1c2;
+      --line: #2a3542; --accent: #a8c7fa; --chip: #1f2d3d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 16px; line-height: 1.65;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+    .top a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .lang { display: flex; gap: 6px; }
+    .lang a { padding: 4px 12px; border: 1px solid var(--line); border-radius: 9999px; font-size: 14px; }
+    h1 { font-size: 30px; line-height: 1.25; margin: 0 0 8px; }
+    .date { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+    h2 { font-size: 21px; margin: 40px 0 12px; }
+    h3 { font-size: 17px; margin: 0 0 6px; }
+    p, li { color: var(--text); }
+    ul { padding-left: 22px; }
+    li { margin: 4px 0; }
+    code { font-size: 14px; background: var(--chip); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+    a { color: var(--accent); }
+    .summary {
+      background: var(--chip); border-radius: 8px; padding: 16px 20px; margin: 0 0 8px;
+    }
+    .summary p { margin: 0; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+      padding: 18px 20px; margin: 12px 0;
+    }
+    .card p { margin: 8px 0 0; }
+    .tag { display: inline-block; font-size: 13px; font-weight: 600; padding: 1px 10px; border-radius: 9999px; border: 1px solid var(--line); color: var(--muted); margin-left: 6px; vertical-align: 2px; }
+    hr { border: none; border-top: 1px solid var(--line); margin: 56px 0 8px; }
+    footer { color: var(--muted); font-size: 14px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a href="./">← Material-Thunderbird</a>
+      <nav class="lang" aria-label="Langue"><a href="#fr">Français</a><a href="#en">English</a></nav>
+    </div>
+
+    <section id="fr" lang="fr">
+      <h1>Politique de confidentialité</h1>
+      <p class="date">Extension Material-Thunderbird (« Material You Thunderbird ») · version du 12 novembre 2026</p>
+
+      <div class="summary">
+        <p>L'extension ne collecte rien pour son auteur : pas de compte, pas de statistiques, pas de télémétrie, pas de publicité. Elle travaille dans votre Thunderbird. Trois fonctions contactent des serveurs tiers, et chacune peut être désactivée dans la fenêtre de personnalisation (bouton palette ou <strong>Alt+M</strong>).</p>
+      </div>
+
+      <h2>Ce qui part sur Internet</h2>
+
+      <div class="card">
+        <h3>Logos des marques <span class="tag">activé par défaut</span></h3>
+        <p>Pour afficher le logo officiel d'un expéditeur (Doctolib, une banque…) à la place de son initiale, comme le fait Gmail, l'extension lit deux enregistrements DNS publics du domaine de l'expéditeur : <code>default._bimi.&lt;domaine&gt;</code> et <code>_dmarc.&lt;domaine&gt;</code>.</p>
+        <ul>
+          <li>Ces requêtes passent par le résolveur DNS de votre système. S'il ne sait pas répondre à ce type de requête, elles passent par le service DNS chiffré de Cloudflare (<code>cloudflare-dns.com</code>), qui voit alors le nom de domaine demandé et votre adresse IP. Au premier usage, une requête de test porte sur <code>google.com</code>.</li>
+          <li>Si le domaine publie un logo et une politique anti-usurpation stricte, le logo (une image SVG de 64 Ko au plus) est téléchargé, sans cookie, depuis l'adresse que le domaine a publiée : souvent son propre serveur, parfois une autorité de certification comme DigiCert.</li>
+          <li>Ce qui est transmis : le nom de domaine des expéditeurs et votre adresse IP. Jamais l'adresse complète, l'objet ni le contenu d'un message.</li>
+          <li>Ce qui est conservé : dans les préférences de Thunderbird, l'adresse du logo de chaque domaine déjà consulté (7 jours si un logo existe, 1 jour sinon). L'image elle-même reste en mémoire le temps de la session.</li>
+        </ul>
+        <p>Pour désactiver : Alt+M › Avatars › <em>Logos des marques</em>.</p>
+      </div>
+
+      <div class="card">
+        <h3>Gravatar <span class="tag">désactivé par défaut</span></h3>
+        <p>Si vous l'activez, l'extension demande à <code>gravatar.com</code> (Automattic) la photo publique associée à l'adresse de l'expéditeur. L'adresse est envoyée sous forme d'empreinte SHA-256 : c'est une protection faible, car l'empreinte d'une adresse connue se retrouve facilement. Gravatar apprend aussi, par votre adresse IP, à quel moment vous lisez un message de cette personne.</p>
+        <p>Pour activer ou désactiver : Alt+M › Avatars › <em>Gravatar</em>.</p>
+      </div>
+
+      <div class="card">
+        <h3>Désinscription des infolettres <span class="tag">seulement quand vous cliquez</span></h3>
+        <p>Le repérage du lien de désinscription se fait dans Thunderbird, à partir des en-têtes et du contenu du message affiché : rien n'est envoyé pour cela. Quand vous cliquez sur « Se désinscrire » :</p>
+        <ul>
+          <li>si l'expéditeur accepte la désinscription en un clic, une requête POST contenant seulement <code>List-Unsubscribe=One-Click</code> est envoyée, sans cookie, à l'adresse indiquée par l'expéditeur dans le message ;</li>
+          <li>sinon, la page de l'expéditeur s'ouvre dans un onglet de Thunderbird, ou un brouillon d'e-mail est préparé, que vous relisez et envoyez vous-même.</li>
+        </ul>
+        <p>Pour désactiver le bandeau : Alt+M › <em>Proposer la désinscription</em>.</p>
+      </div>
+
+      <h2>Autres connexions</h2>
+      <ul>
+        <li><strong>Mises à jour.</strong> Version installée depuis ce site : Thunderbird consulte une fois par jour le fichier <code>updates.json</code> hébergé par GitHub Pages, qui voit votre adresse IP. Version installée depuis addons.thunderbird.net : les mises à jour passent par cette boutique.</li>
+        <li><strong>Bouton « Soutenir ».</strong> Il ouvre GitHub Sponsors, seulement quand vous cliquez dessus.</li>
+      </ul>
+
+      <h2>Ce qui reste sur votre ordinateur</h2>
+      <ul>
+        <li>Vos réglages (couleur, apparence, icônes, options) sont enregistrés dans les préférences de Thunderbird (<code>extensions.material-thunderbird.*</code>), avec la liste des expéditeurs ou des messages pour lesquels vous avez masqué le bandeau de désinscription.</li>
+        <li>Si vous choisissez le mode Clair ou Sombre, l'extension règle la préférence <code>ui.systemUsesDarkTheme</code> de Thunderbird, et la rend à Thunderbird quand l'extension est désactivée ou désinstallée.</li>
+        <li>Le bouton « Désinstaller » de la fenêtre Alt+M efface toutes ces préférences, puis retire l'extension. L'extension n'écrit aucun fichier dans votre profil.</li>
+      </ul>
+
+      <h2>Permissions demandées</h2>
+      <ul>
+        <li><strong>Lire vos messages</strong> (<code>messagesRead</code>) et <strong>scripts d'affichage des messages</strong> : pour repérer, dans le message affiché, le lien de désinscription. Rien n'est transmis.</li>
+        <li><strong>Accès complet à Thunderbird</strong> (API « Experiment ») : pour appliquer le thème à toute l'interface, ajouter la fenêtre de personnalisation, masquer les réponses déjà lues et afficher les avatars.</li>
+      </ul>
+
+      <h2>Ce site</h2>
+      <p>Ce site est hébergé par GitHub Pages, qui peut journaliser votre adresse IP. Il n'utilise ni cookie, ni outil de statistiques, ni ressource d'un autre site. L'apparence que vous choisissez avec le bouton palette est gardée dans le stockage local de votre navigateur.</p>
+
+      <h2>Contact</h2>
+      <p>Une question ou un doute : <a href="https://github.com/VForiel/Material-Thunderbird/issues">ouvrez un ticket sur GitHub</a>. Le code source de l'extension est public et peut être vérifié : <a href="https://github.com/VForiel/Material-Thunderbird">github.com/VForiel/Material-Thunderbird</a>.</p>
+    </section>
+
+    <hr>
+
+    <section id="en" lang="en">
+      <h1>Privacy policy</h1>
+      <p class="date">Material-Thunderbird extension ("Material You Thunderbird") · version of 12 November 2026</p>
+
+      <div class="summary">
+        <p>The extension collects nothing for its author: no account, no analytics, no telemetry, no ads. It runs inside your Thunderbird. Three features contact third-party servers, and each one can be turned off in the customization dialog (palette button or <strong>Alt+M</strong>).</p>
+      </div>
+
+      <h2>What goes over the network</h2>
+
+      <div class="card">
+        <h3>Brand logos <span class="tag">on by default</span></h3>
+        <p>To show a sender's official logo instead of their initial, as Gmail does, the extension reads two public DNS records of the sender's domain: <code>default._bimi.&lt;domain&gt;</code> and <code>_dmarc.&lt;domain&gt;</code>.</p>
+        <ul>
+          <li>These lookups go through your system's DNS resolver. When it cannot answer this kind of query, they go through Cloudflare's encrypted DNS service (<code>cloudflare-dns.com</code>), which then sees the domain name and your IP address. On first use, a test lookup is made for <code>google.com</code>.</li>
+          <li>If the domain publishes a logo and a strict anti-spoofing policy, the logo (an SVG image of at most 64 KB) is downloaded without cookies from the address the domain published: often its own server, sometimes a certificate authority such as DigiCert.</li>
+          <li>What is sent: the senders' domain names and your IP address. Never a full address, a subject or any message content.</li>
+          <li>What is kept: in Thunderbird's preferences, the logo address of each domain already looked up (7 days when a logo exists, 1 day otherwise). The image itself only stays in memory for the session.</li>
+        </ul>
+        <p>To turn it off: Alt+M › Avatars › <em>Logos des marques</em>.</p>
+      </div>
+
+      <div class="card">
+        <h3>Gravatar <span class="tag">off by default</span></h3>
+        <p>When enabled, the extension asks <code>gravatar.com</code> (Automattic) for the public picture tied to the sender's address. The address is sent as a SHA-256 hash, which is weak protection: the hash of a known address is easy to match. Gravatar also learns, from your IP address, when you read a message from that person.</p>
+        <p>To turn it on or off: Alt+M › Avatars › <em>Gravatar</em>.</p>
+      </div>
+
+      <div class="card">
+        <h3>Newsletter unsubscribe <span class="tag">only when you click</span></h3>
+        <p>Unsubscribe links are found inside Thunderbird, from the headers and content of the displayed message: nothing is sent for that. When you click "Se désinscrire":</p>
+        <ul>
+          <li>if the sender supports one-click unsubscribe, a POST request containing only <code>List-Unsubscribe=One-Click</code> is sent, without cookies, to the address given by the sender in the message;</li>
+          <li>otherwise, the sender's page opens in a Thunderbird tab, or an email draft is prepared, which you review and send yourself.</li>
+        </ul>
+        <p>To turn the banner off: Alt+M › <em>Proposer la désinscription</em>.</p>
+      </div>
+
+      <h2>Other connections</h2>
+      <ul>
+        <li><strong>Updates.</strong> Version installed from this site: once a day, Thunderbird checks the <code>updates.json</code> file hosted on GitHub Pages, which sees your IP address. Version installed from addons.thunderbird.net: updates come from that store.</li>
+        <li><strong>"Support" button.</strong> It opens GitHub Sponsors, only when you click it.</li>
+      </ul>
+
+      <h2>What stays on your computer</h2>
+      <ul>
+        <li>Your settings (color, appearance, icons, options) are stored in Thunderbird's preferences (<code>extensions.material-thunderbird.*</code>), together with the senders or messages for which you dismissed the unsubscribe banner.</li>
+        <li>If you pick Light or Dark mode, the extension sets Thunderbird's <code>ui.systemUsesDarkTheme</code> preference, and gives it back when the extension is disabled or removed.</li>
+        <li>The "Désinstaller" button in the Alt+M dialog clears all these preferences, then removes the extension. The extension writes no file to your profile.</li>
+      </ul>
+
+      <h2>Permissions</h2>
+      <ul>
+        <li><strong>Read your messages</strong> (<code>messagesRead</code>) and <strong>message display scripts</strong>: to find the unsubscribe link in the displayed message. Nothing is sent.</li>
+        <li><strong>Full access to Thunderbird</strong> ("Experiment" API): to style the whole interface, add the customization dialog, hide already-read replies and show avatars.</li>
+      </ul>
+
+      <h2>This website</h2>
+      <p>This site is hosted on GitHub Pages, which may log your IP address. It uses no cookies, no analytics and no resources from other sites. The appearance you pick with the palette button is kept in your browser's local storage.</p>
+
+      <h2>Contact</h2>
+      <p>Questions or concerns: <a href="https://github.com/VForiel/Material-Thunderbird/issues">open an issue on GitHub</a>. The extension's source code is public and can be checked: <a href="https://github.com/VForiel/Material-Thunderbird">github.com/VForiel/Material-Thunderbird</a>.</p>
+    </section>
+
+    <footer>Material-Thunderbird · licence MIT · non affilié à Mozilla ni à Google</footer>
+  </div>
+</body>
+</html>
