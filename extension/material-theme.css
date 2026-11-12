@@ -1732,55 +1732,91 @@ body:has(#messagepanebox) {
   background-color: var(--md-sys-state-hover) !important;
 }
 
-/* L expediteur prend la place libre : les actions sont poussees a droite. */
+/* L expediteur prend la place libre, sans descendre sous 200 px : les
+   actions sont poussees a droite tant qu elles tiennent sur la meme ligne.
+   Sinon elles passent dessous. La rangee est inversee (row-reverse, les
+   boutons viennent en premier dans le document) : wrap-reverse remet
+   l expediteur en haut, au lieu d y envoyer les boutons. */
+#headerSenderToolbarContainer {
+  flex-wrap: wrap-reverse !important;
+  row-gap: 4px !important;
+}
+
 #expandedfromRow {
-  flex: 1 1 0 !important;
+  flex: 1 1 200px !important;
   min-width: 0 !important;
 }
 
-/* Une seule ligne tant qu il y a la place : avec une base « auto », une adresse
-   longue (ou un nom affiche en entier) renvoyait les actions au-dessus. Le
-   volet de lecture fait souvent moins de 768 px : la limite est plus basse,
-   en dessous les actions passent a la ligne. */
-@media (min-width: 481px) {
-  #headerSenderToolbarContainer {
-    flex-wrap: nowrap !important;
-  }
+/* Faute de place, l adresse est coupee par des points de suspension plutot
+   qu au milieu d un mot ; elle reste entiere dans l infobulle et au survol. */
+#expandedfromBox,
+#expandedfromBox .recipients-list,
+#expandedfromBox .header-recipient,
+#expandedfromBox .recipient-single-line,
+#expandedfromBox .recipient-multi-line {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
 
-  /* Faute de place, l adresse est coupee par des points de suspension plutot
-     qu au milieu d un mot ; elle reste entiere dans l infobulle et au survol. */
-  #expandedfromBox,
-  #expandedfromBox .recipients-list,
-  #expandedfromBox .header-recipient,
-  #expandedfromBox .recipient-single-line,
-  #expandedfromBox .recipient-multi-line {
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
+#expandedfromBox {
+  flex: 1 1 0 !important;
+}
 
-  #expandedfromBox {
-    flex: 1 1 0 !important;
-  }
+/* Pas de display sur .recipient-single-line : Thunderbird affiche l une
+   ou l autre variante, une ligne ou deux. */
+#expandedfromBox .recipient-multi-line-name,
+#expandedfromBox .recipient-multi-line-address {
+  display: block !important;
+}
 
-  /* Pas de display sur .recipient-single-line : Thunderbird affiche l une
-     ou l autre variante, une ligne ou deux. */
-  #expandedfromBox .recipient-multi-line-name,
-  #expandedfromBox .recipient-multi-line-address {
-    display: block !important;
-  }
-
-  #expandedfromBox .recipient-multi-line-name,
-  #expandedfromBox .recipient-multi-line-address,
-  #expandedfromBox .recipient-single-line {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
+#expandedfromBox .recipient-multi-line-name,
+#expandedfromBox .recipient-multi-line-address,
+#expandedfromBox .recipient-single-line {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 #messageHeader .toolbarbutton-1.message-header-view-button .toolbarbutton-icon {
   width: 18px !important;
   height: 18px !important;
+}
+
+/* Repondre a tous / a la liste : Repondre garde seul son libelle, ces
+   variantes deviennent des boutons ronds comme les autres (nom dans
+   l infobulle). Deux pilules ecrasaient l expediteur jusqu a le faire
+   disparaitre. La fleche du menu part aussi : Repondre reste a cote. */
+#messageHeader #header-view-toolbar :is(#hdrReplyAllButton, #hdrReplyListButton).toolbarbutton-1:not([hidden]) {
+  background-color: transparent !important;
+  color: var(--md-sys-color-on-surface-variant) !important;
+  min-width: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  justify-content: center !important;
+}
+
+#messageHeader #header-view-toolbar :is(#hdrReplyAllButton, #hdrReplyListButton).toolbarbutton-1:not([hidden]):hover {
+  background-color: var(--md-sys-state-hover) !important;
+  color: var(--md-sys-color-on-surface) !important;
+}
+
+#messageHeader #header-view-toolbar :is(#hdrReplyAllButton, #hdrReplyListButton) > .toolbarbutton-menubutton-button {
+  padding: 0 !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  justify-content: center !important;
+}
+
+#messageHeader #header-view-toolbar :is(#hdrReplyAllButton, #hdrReplyListButton) :is(.toolbarbutton-text, .toolbarbutton-menubutton-dropmarker),
+#messageHeader #header-view-toolbar :is(#hdrReplyAllButton, #hdrReplyListButton) > .toolbarbutton-menubutton-dropmarker {
+  display: none !important;
+}
+
+#messageHeader #header-view-toolbar :is(#hdrReplyAllButton, #hdrReplyListButton) .toolbarbutton-icon {
+  margin: 0 !important;
 }
 
 /* Etoile : meme gabarit que les boutons ronds, juste apres eux. */
