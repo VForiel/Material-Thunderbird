@@ -86,7 +86,7 @@ $sb = New-Object System.Text.StringBuilder
 
 $missing = @()
 foreach ($rel in $Sources) {
-    $path = Join-Path $ChromeDir ($rel -replace "/", "\")
+    $path = Join-Path $ChromeDir $rel
     if (-not (Test-Path $path)) { $missing += $rel; continue }
     [void]$sb.AppendLine("/* ===== $rel ===== */")
     [void]$sb.AppendLine(([System.IO.File]::ReadAllText($path)).TrimEnd())
@@ -119,7 +119,7 @@ function New-Xpi([string]$Path, [string]$ManifestText) {
     $zip = [System.IO.Compression.ZipFile]::Open($Path, [System.IO.Compression.ZipArchiveMode]::Create)
     try {
         foreach ($file in (Get-ChildItem -Path $ExtensionDir -Recurse -File)) {
-            $relativePath = $file.FullName.Substring($ExtensionDir.Length + 1).Replace("\", "/")
+            $relativePath = $file.FullName.Substring($ExtensionDir.Length + 1).Replace([System.IO.Path]::DirectorySeparatorChar, "/")
             if ($ManifestText -and $relativePath -eq "manifest.json") {
                 $entry = $zip.CreateEntry($relativePath, [System.IO.Compression.CompressionLevel]::Optimal)
                 $writer = New-Object System.IO.StreamWriter($entry.Open(), (New-Object System.Text.UTF8Encoding($false)))
@@ -138,11 +138,14 @@ function New-Xpi([string]$Path, [string]$ManifestText) {
 
 New-Xpi $OutputFile $null
 
-$manifest = [System.IO.File]::ReadAllText((Join-Path $ExtensionDir "manifest.json")) | ConvertFrom-Json
-$gecko = $manifest.browser_specific_settings.gecko
-$gecko.PSObject.Properties.Remove("update_url")
-$gecko | Add-Member -NotePropertyName "strict_max_version" -NotePropertyValue $AtnMaxVersion -Force
-New-Xpi $AtnOutputFile ($manifest | ConvertTo-Json -Depth 10)
+$manifestText = [System.IO.File]::ReadAllText((Join-Path $ExtensionDir "manifest.json"))
+$updateUrl = '"update_url"\s*:\s*"[^"]*"'
+if ($manifestText -notmatch $updateUrl) {
+    Write-Error "manifest.json : update_url introuvable, variante addons.thunderbird.net non produite."
+    exit 1
+}
+$atnManifest = $manifestText -replace $updateUrl, ('"strict_max_version": "' + $AtnMaxVersion + '"')
+New-Xpi $AtnOutputFile $atnManifest
 Write-Host "[+] Variante addons.thunderbird.net :" -ForegroundColor Green
 Write-Host "    $AtnOutputFile (sans update_url, Thunderbird <= $AtnMaxVersion)" -ForegroundColor Yellow
 
@@ -150,14 +153,14 @@ Write-Host "[+] Extension (.xpi) creee avec succes :" -ForegroundColor Green
 Write-Host "    $OutputFile" -ForegroundColor Yellow
 
 # L apercu du site charge les memes jetons de couleur que l extension.
-$DocsTokens = Join-Path $ProjectRoot "docs\theme\tokens"
+$DocsTokens = Join-Path $ProjectRoot "docs/theme/tokens"
 if (-not (Test-Path $DocsTokens)) {
     New-Item -ItemType Directory -Path $DocsTokens | Out-Null
 }
-Copy-Item (Join-Path $ChromeDir "tokens\*.css") $DocsTokens -Force
+Copy-Item (Join-Path $ChromeDir "tokens/*.css") $DocsTokens -Force
 Write-Host "[+] Jetons copies dans docs/theme/tokens/ pour l apercu du site" -ForegroundColor Green
 
-$DocsDist = Join-Path $ProjectRoot "docs\dist"
+$DocsDist = Join-Path $ProjectRoot "docs/dist"
 if (-not (Test-Path $DocsDist)) {
     New-Item -ItemType Directory -Path $DocsDist | Out-Null
 }

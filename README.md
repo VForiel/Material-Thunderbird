@@ -51,6 +51,7 @@ Il produit aussi `dist/material-thunderbird-atn.xpi`, la variante pour addons.th
 sans `update_url` (la boutique gère les mises à jour) et avec une version maximale de Thunderbird
 (`$AtnMaxVersion` en tête du script), qu'il faut relever après avoir testé chaque version majeure.
 Les licences des icônes intégrées sont dans `extension/THIRD-PARTY-NOTICES.txt`.
+Instructions de construction détaillées (en anglais, pour les relecteurs de la boutique) : [BUILD.md](BUILD.md).
 
 ### Confidentialité
 
