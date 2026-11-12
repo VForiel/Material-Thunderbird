@@ -368,19 +368,21 @@ body:has(#messageList),
     color: var(--md-sys-color-on-surface-variant, #c4c7c5) !important;
   }
 
-  #header-view-toolbar .toolbarbutton-1,
-  #header-view-toolbar button,
-  #header-view-toolbar toolbarbutton,
-  #starMessageButton,
+  /* Resume de fil seulement : l en-tete d un message seul a ses propres
+     boutons transparents (message-header.css). */
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton,
   button.email-action-flagged {
     background-color: rgba(255, 255, 255, 0.08) !important;
     color: var(--md-sys-color-on-surface, #e2e2e5) !important;
   }
 
-  #header-view-toolbar .toolbarbutton-1:hover,
-  #header-view-toolbar button:hover,
-  #header-view-toolbar toolbarbutton:hover,
-  #starMessageButton:hover {
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar .toolbarbutton-1:hover,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar button:hover,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #header-view-toolbar toolbarbutton:hover,
+  :is(body:has(#messageList), #multimessage, [data-multimessage]) #starMessageButton:hover {
     background-color: rgba(255, 255, 255, 0.14) !important;
   }
 

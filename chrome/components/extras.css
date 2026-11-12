@@ -419,27 +419,6 @@ splitter,
   border-inline-start: 4px solid var(--md-sys-color-primary, #0B57D0) !important;
 }
 
-@media (max-width: 950px) {
-  #header-view-toolbox {
-    max-width: 340px !important;
-  }
-  #header-view-toolbar {
-    max-width: 320px !important;
-  }
-}
-
-@media (max-width: 750px) {
-  #header-view-toolbox {
-    max-width: 100% !important;
-    align-self: flex-start !important;
-    margin-top: 8px !important;
-  }
-  #header-view-toolbar {
-    max-width: 100% !important;
-    justify-content: flex-start !important;
-  }
-}
-
 /* ==========================================================================
    Boutons ajoutes a la barre des espaces (personnalisation et don)
    Meme gabarit que les boutons natifs ; l icone est un SVG en ligne, pas une
