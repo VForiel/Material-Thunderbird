@@ -81,28 +81,29 @@ Write-Host "[*] Generation de extension/material-theme.css..." -ForegroundColor 
 
 $sb = New-Object System.Text.StringBuilder
 [void]$sb.Append($Header)
-[void]$sb.AppendLine("@-moz-document $DocumentScope {")
-[void]$sb.AppendLine()
+# Fins de ligne LF quel que soit le systeme (AppendLine mettrait CRLF sous
+# Windows) : le fichier genere est le meme partout.
+[void]$sb.Append("@-moz-document $DocumentScope {`n`n")
 
 $missing = @()
 foreach ($rel in $Sources) {
     $path = Join-Path $ChromeDir $rel
     if (-not (Test-Path $path)) { $missing += $rel; continue }
-    [void]$sb.AppendLine("/* ===== $rel ===== */")
-    [void]$sb.AppendLine(([System.IO.File]::ReadAllText($path)).TrimEnd())
-    [void]$sb.AppendLine()
+    [void]$sb.Append("/* ===== $rel ===== */`n")
+    [void]$sb.Append(([System.IO.File]::ReadAllText($path)).Replace("`r`n", "`n").TrimEnd())
+    [void]$sb.Append("`n`n")
 }
 if ($missing.Count -gt 0) {
     throw "Sources CSS introuvables : $($missing -join ', ')"
 }
-[void]$sb.AppendLine("}")
+[void]$sb.Append("}`n")
 
 [System.IO.File]::WriteAllText($GeneratedCss, $sb.ToString(), $utf8NoBom)
 $lineCount = ([System.IO.File]::ReadAllLines($GeneratedCss)).Length
 Write-Host "    $($Sources.Count) sources -> $lineCount lignes" -ForegroundColor DarkGray
 
 Write-Host "[*] Generation de extension/message-content.css..." -ForegroundColor Cyan
-$messageSource = ([System.IO.File]::ReadAllText((Join-Path $ChromeDir "userContent.css"))).TrimEnd()
+$messageSource = ([System.IO.File]::ReadAllText((Join-Path $ChromeDir "userContent.css"))).Replace("`r`n", "`n").TrimEnd()
 [System.IO.File]::WriteAllText($MessageCss, $Header + $messageSource + "`n", $utf8NoBom)
 
 Write-Host "[*] Packaging Material-Thunderbird Extension (.xpi)..." -ForegroundColor Cyan
