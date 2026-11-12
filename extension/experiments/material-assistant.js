@@ -557,10 +557,10 @@ const READ_REPLIES_TERM_PREFIX = "material-you-thunderbird@vforiel#hideReadRepli
 const READ_REPLIES_TERM_ID = READ_REPLIES_TERM_PREFIX + ".2";
 
 // Surplus de hauteur des cartes du theme sur celles de Thunderbird, et part de
-// la ligne qui n est pas la carte : rembourrage de la cellule (2 + 2 px) et
-// marges de la carte (3 + 3 px). Doivent rester accordes a thread-tree.css.
+// la ligne qui n est pas la carte : rembourrage de la cellule (1 + 1 px) et
+// marges de la carte (2 + 2 px). Doivent rester accordes a thread-tree.css.
 const MATERIAL_CARD_EXTRA = 20;
-const MATERIAL_CARD_FRAME = 10;
+const MATERIAL_CARD_FRAME = 6;
 
 // Fils dont l utilisateur a demande toutes les reponses, le temps de la session.
 const threadsShowingAll = new Set();
