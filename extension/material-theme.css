@@ -1294,19 +1294,19 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
 
 /* Hauteur des cartes accordee a la liste virtualisee : l extension publie
    --material-card-height, deduite de ThreadCard.ROW_HEIGHT (voir
-   _adjustCardRowHeight dans l experiment). Rembourrage de cellule (2 + 2 px)
-   et marges de carte (3 + 3 px) font le complement : ces valeurs vont avec
+   _adjustCardRowHeight dans l experiment). Rembourrage de cellule (1 + 1 px)
+   et marges de carte (2 + 2 px) font le complement : ces valeurs vont avec
    MATERIAL_CARD_FRAME. Sans la variable (theme sans l extension), rien ne
    change. */
 #threadTree[style*="--material-card-height"] tr.card-layout > td {
-  padding-block: 2px !important;
+  padding-block: 1px !important;
 }
 
 #threadTree[style*="--material-card-height"] tr.card-layout .card-container {
   height: var(--material-card-height) !important;
   min-block-size: 0 !important;
   max-block-size: none !important;
-  margin-block: 3px !important;
+  margin-block: 2px !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
 }
@@ -1353,8 +1353,8 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-radius: var(--md-shape-corner-medium) !important;
   background-color: var(--md-sys-color-surface-container-lowest) !important;
   border: none !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
-  margin: 3px 6px !important;
+  box-shadow: none !important;
+  margin: 2px 6px !important;
   padding-block: 5px 6px !important;
   padding-inline-start: 10px !important;
   padding-inline-end: 8px !important;
@@ -1392,11 +1392,12 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-radius: var(--md-shape-corner-full) !important;
 }
 
-/* Card Hover State - Subtle Lift */
+/* Survol : un filet fin plutot qu une ombre (cartes plates, comme l apercu
+   du site). Ombre interieure : pas de decalage de la mise en page. */
 #threadTree tr.card-layout:hover:not(.selected) .card-container {
   background-color: var(--md-sys-color-surface-container-lowest) !important;
   border: none !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: inset 0 0 0 1px var(--md-sys-color-outline-variant) !important;
 }
 
 /* Selected Card (Material 3 Tonal Secondary Container) - Preserves left border */
@@ -1407,7 +1408,7 @@ tr.card-layout[aria-selected="true"].children:is([data-properties*="unread" i], 
   border-top: none !important;
   border-right: none !important;
   border-bottom: none !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
 }
 
 /* Card Typography & Text Colors */
@@ -6106,8 +6107,8 @@ window, #messengerWindow, body {
   border-radius: var(--md-shape-medium) !important;
   background-color: var(--md-surface-lowest) !important;
   border: none !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
-  margin: 3px 6px !important;
+  box-shadow: none !important;
+  margin: 2px 6px !important;
   transition: background-color var(--md-motion-short), box-shadow var(--md-motion-short) !important;
 }
 
@@ -6117,7 +6118,7 @@ window, #messengerWindow, body {
   border-top: none !important;
   border-right: none !important;
   border-bottom: none !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
 }
 
 #threadTree tr.card-layout.selected .card-container :is(.sender, .subject) {
@@ -6445,7 +6446,7 @@ splitter,
 #threadTree tr.card-layout:not(.children):is(:has(button.twisty), [aria-expanded]) .card-container {
   min-block-size: 54px !important;
   max-block-size: none !important;
-  margin: 3px 6px !important;
+  margin: 2px 6px !important;
   padding-block: 9px 7px !important;
   padding-inline-start: 10px !important;
   padding-inline-end: 8px !important;
