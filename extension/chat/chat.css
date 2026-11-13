@@ -20,7 +20,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
 body {
   background: var(--c-bg);
   color: var(--c-text);
@@ -29,10 +29,15 @@ body {
 button, input, select, textarea { font: inherit; color: inherit; }
 svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
 [hidden] { display: none !important; }
+/* Planche des icones : invisible, sans place dans la page. */
+svg.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 .app {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr auto;
+  /* Une seule ligne, a la hauteur de la fenetre : sans elle, la ligne prend la
+     hauteur du contenu et toute la page defile au lieu des seules listes. */
+  grid-template-rows: minmax(0, 1fr);
   height: 100%;
   gap: 8px;
   padding: 8px;
@@ -72,7 +77,7 @@ svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
 .chip:hover { background: var(--md-sys-state-hover); }
 .chip[aria-selected="true"] { background: var(--c-selected); color: var(--c-on-selected); border-color: transparent; }
 
-.conv-list { list-style: none; margin: 0; padding: 0 8px 8px; overflow-y: auto; flex: 1; }
+.conv-list { list-style: none; margin: 0; padding: 0 8px 8px; overflow-y: auto; flex: 1; min-height: 0; }
 .conv {
   display: grid; grid-template-columns: 44px 1fr auto; gap: 2px 12px; align-items: center;
   padding: 8px 10px; border-radius: var(--md-shape-corner-medium); cursor: pointer;
@@ -131,7 +136,7 @@ svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
 .thread-head .sub { font-size: 12px; color: var(--c-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .back-btn { display: none; }
 
-.messages { flex: 1; overflow-y: auto; padding: 12px 20px 16px; display: flex; flex-direction: column; }
+.messages { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 20px 16px; display: flex; flex-direction: column; }
 
 .day {
   align-self: center; margin: 16px 0 8px;
