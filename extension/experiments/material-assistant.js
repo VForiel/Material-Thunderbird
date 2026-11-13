@@ -3228,6 +3228,19 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           })));
           return out;
         },
+        // Vue messagerie : bouton Actualiser. Meme commande que le bouton
+        // Relever de Thunderbird, pour tous les comptes.
+        getNewMail: async () => {
+          const win = Services.wm.getMostRecentWindow("mail:3pane");
+          if (!win || typeof win.goDoCommand !== "function") return false;
+          try {
+            win.goDoCommand("cmd_getMsgsForAuthAccounts");
+            return true;
+          } catch (e) {
+            console.warn("[Material-Thunderbird] Releve du courrier impossible : " + e);
+            return false;
+          }
+        },
         // Vue messagerie : place le bouton de l espace sous Courrier, dans
         // toutes les fenetres (appele apres spaces.create).
         placeChatSpaceButton: async () => {

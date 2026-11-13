@@ -1049,6 +1049,33 @@
   function render() { renderList(); renderThread(); renderInfo(); }
 
   $("#sources-btn").addEventListener("click", openSources);
+
+  // Actualiser : releve le courrier de tous les comptes (comme le bouton
+  // Relever de Thunderbird), puis relit les dossiers affiches.
+  var refreshing = false;
+  $("#refresh-btn").addEventListener("click", async function () {
+    if (refreshing) return;
+    refreshing = true;
+    var btn = this;
+    btn.classList.add("spinning");
+    btn.disabled = true;
+    try {
+      if (DEMO) {
+        await new Promise(function (r) { setTimeout(r, 600); });
+      } else {
+        setStatus("Relève du courrier…");
+        await TB.getNewMail();
+        await loadFromThunderbird();
+      }
+    } catch (err) {
+      console.error("[Material-Thunderbird] Actualisation impossible :", err);
+      setStatus("Erreur : " + (err && err.message || err));
+    } finally {
+      refreshing = false;
+      btn.classList.remove("spinning");
+      btn.disabled = false;
+    }
+  });
   $("#search").addEventListener("input", function () { state.query = this.value; renderList(); });
   $("#filters").addEventListener("click", function (e) {
     var b = e.target.closest("[data-filter]");

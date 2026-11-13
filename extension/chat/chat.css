@@ -355,3 +355,8 @@ input[type="checkbox"] { accent-color: var(--c-accent); width: 16px; height: 16p
   background-color: #fff; background-size: cover; background-position: center;
   color: transparent; box-shadow: inset 0 0 0 1px var(--c-line);
 }
+
+/* Bouton Actualiser pendant la releve. */
+.icon-btn.spinning svg { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .icon-btn.spinning svg { animation: none; opacity: .5; } }

@@ -102,6 +102,13 @@
         ]
       },
       {
+        "name": "getNewMail",
+        "type": "function",
+        "async": true,
+        "description": "Vue messagerie : relève le courrier de tous les comptes, comme le bouton Relever.",
+        "parameters": []
+      },
+      {
         "name": "placeChatSpaceButton",
         "type": "function",
         "async": true,

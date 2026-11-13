@@ -315,6 +315,12 @@
     attachmentUrl: attachmentUrl,
     openMessage: openMessage,
     unsubscribe: unsubscribe,
+    getNewMail: async function () {
+      if (!api.materialAssistant || !api.materialAssistant.getNewMail) return;
+      await api.materialAssistant.getNewMail();
+      // Laisse aux serveurs le temps de repondre avant de relire les dossiers.
+      await new Promise(function (r) { setTimeout(r, 4000); });
+    },
     getAvatars: function (emails) {
       if (!api.materialAssistant || !api.materialAssistant.getAvatars) return Promise.resolve({});
       return api.materialAssistant.getAvatars(emails);
