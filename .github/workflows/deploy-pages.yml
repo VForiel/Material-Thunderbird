@@ -44,6 +44,12 @@ jobs:
         run: |
           mkdir -p docs/dist build
           cp -r extension build/extension
+          # Vue Discussions : memes jetons de couleur que le theme (copies par
+          # scripts/build.ps1 en local, ignores par git), et pas les fichiers
+          # de la maquette.
+          mkdir -p build/extension/chat/tokens
+          cp chrome/tokens/*.css build/extension/chat/tokens/
+          rm -f build/extension/chat/mock-data.js build/extension/chat/README.md
           node -e "
             const fs = require('fs');
             const file = 'build/extension/manifest.json';
