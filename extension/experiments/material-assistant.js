@@ -3186,6 +3186,48 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             return "failed";
           }
         },
+        // Vue messagerie : avatars, par la meme resolution que l interface
+        // (photo du carnet, logo BIMI, Gravatar si active). Renvoie
+        // { email: url | null } ; une photo du carnet (fichier local, que la
+        // page ne peut pas charger) est convertie en data:.
+        getAvatars: async (emails) => {
+          const win = Services.wm.getMostRecentWindow("mail:3pane");
+          const out = {};
+          if (!win) return out;
+          const toDataUrl = async (url) => {
+            if (!/^(file|chrome|resource|moz-)/i.test(url)) return url;
+            try {
+              const response = await win.fetch(url);
+              const bytes = new Uint8Array(await response.arrayBuffer());
+              let bin = "";
+              for (let i = 0; i < bytes.length; i += 0x8000) {
+                bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+              }
+              const type = response.headers.get("content-type") || "image/jpeg";
+              return `data:${type};base64,${win.btoa(bin)}`;
+            } catch (e) {
+              return null;
+            }
+          };
+          await Promise.all((emails || []).slice(0, 200).map((email) => new Promise((resolve) => {
+            let done = false;
+            const finish = async (url) => {
+              if (done) return;
+              done = true;
+              out[email] = url ? await toDataUrl(url) : null;
+              resolve();
+            };
+            try {
+              const info = resolveAvatarInfo(win, email, (url) => finish(url));
+              if (info && info.type === "img" && info.url) finish(info.url);
+              // Logo et Gravatar sont asynchrones ; sans reponse, pas d image.
+              else win.setTimeout(() => finish(null), 5000);
+            } catch (e) {
+              finish(null);
+            }
+          })));
+          return out;
+        },
         // Vue messagerie : place le bouton de l espace sous Courrier, dans
         // toutes les fenetres (appele apres spaces.create).
         placeChatSpaceButton: async () => {

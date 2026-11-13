@@ -93,6 +93,15 @@
         ]
       },
       {
+        "name": "getAvatars",
+        "type": "function",
+        "async": true,
+        "description": "Vue messagerie : avatars des adresses données (photo du carnet, logo BIMI, Gravatar si activé). Renvoie un objet adresse → URL ou null.",
+        "parameters": [
+          { "name": "emails", "type": "array", "items": { "type": "string" } }
+        ]
+      },
+      {
         "name": "placeChatSpaceButton",
         "type": "function",
         "async": true,

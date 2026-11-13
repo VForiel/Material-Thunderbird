@@ -64,9 +64,63 @@
       .filter(function (w, i, all) { return all.length < 3 || !/^(le|la|les|l|de|du|des|d)$/i.test(w); });
     return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
   }
+  // Avatars : initiales tout de suite, puis l image (photo du carnet, logo de
+  // marque, Gravatar) quand l experiment la donne. Une personne peut avoir
+  // plusieurs adresses : la premiere qui a une image l emporte.
+  var avatarCache = {};      // adresse -> url, null (rien) ; absente = pas encore demandee
+  var avatarQueue = [];
+  var avatarTimer = null;
+
+  function avatarUrl(p) {
+    for (var i = 0; i < p.emails.length; i++) if (avatarCache[p.emails[i]]) return avatarCache[p.emails[i]];
+    return null;
+  }
+
+  function wantAvatar(p) {
+    if (DEMO || !TB.getAvatars) return;
+    p.emails.forEach(function (e) {
+      if (!(e in avatarCache) && avatarQueue.indexOf(e) < 0) avatarQueue.push(e);
+    });
+    if (!avatarTimer && avatarQueue.length) avatarTimer = setTimeout(fetchAvatars, 50);
+  }
+
+  async function fetchAvatars() {
+    var batch = avatarQueue.splice(0, 40);
+    batch.forEach(function (e) { avatarCache[e] = null; });
+    try {
+      var found = await TB.getAvatars(batch);
+      Object.keys(found || {}).forEach(function (e) { avatarCache[e] = found[e]; });
+    } catch (e) { /* sans avatars */ }
+    avatarTimer = null;
+    paintAvatars();
+    if (avatarQueue.length) avatarTimer = setTimeout(fetchAvatars, 50);
+  }
+
+  function paintAvatars() {
+    document.querySelectorAll(".avatar[data-person]").forEach(function (node) {
+      var p = state.data && state.data.people.get(node.getAttribute("data-person"));
+      var url = p && avatarUrl(p);
+      if (url && node.getAttribute("data-img") !== url) {
+        node.setAttribute("data-img", url);
+        node.style.backgroundImage = "url(\"" + url.replace(/"/g, "%22") + "\")";
+        node.classList.add("img");
+      }
+    });
+  }
+
   function avatar(personKey, small) {
     var p = state.data.people.get(personKey);
-    return el("div", { class: "avatar" + (small ? " sm" : ""), style: "--h:" + hue(personKey), text: initials(p.name), title: p.name });
+    var node = el("div", { class: "avatar" + (small ? " sm" : ""), style: "--h:" + hue(personKey),
+      text: initials(p.name), title: p.name, "data-person": personKey });
+    var url = avatarUrl(p);
+    if (url) {
+      node.setAttribute("data-img", url);
+      node.style.backgroundImage = "url(\"" + url.replace(/"/g, "%22") + "\")";
+      node.classList.add("img");
+    } else {
+      wantAvatar(p);
+    }
+    return node;
   }
   function convAvatar(c) {
     if (c.kind === "self") return el("div", { class: "avatar icon", text: "✎" });

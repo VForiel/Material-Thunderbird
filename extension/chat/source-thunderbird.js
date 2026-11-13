@@ -315,6 +315,10 @@
     attachmentUrl: attachmentUrl,
     openMessage: openMessage,
     unsubscribe: unsubscribe,
+    getAvatars: function (emails) {
+      if (!api.materialAssistant || !api.materialAssistant.getAvatars) return Promise.resolve({});
+      return api.materialAssistant.getAvatars(emails);
+    },
     watch: watch,
     loadCache: loadCache,
     saveCache: saveCache,
