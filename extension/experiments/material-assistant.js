@@ -325,7 +325,10 @@ const TAB_ICON_ROLES = [
   ["address-book", "contacts"], ["calendar", "calendar"], ["tasks", "tasks"], ["chat", "chat"],
   ["settings", "settings"], ["extension", "extension"], ["inbox", "inbox"], ["sent", "sent"],
   ["draft", "drafts"], ["template", "templates"], ["archive", "archive"], ["junk", "junk"],
-  ["spam", "junk"], ["trash", "trash"], ["outbox", "outbox"], ["folder", "folder"]
+  ["spam", "junk"], ["trash", "trash"], ["outbox", "outbox"], ["folder", "folder"],
+  // Onglet de la vue Discussions (favicon chat/material-conversations.svg). En
+  // dernier : son chemin contient aussi « chat », la regle suivante l emporte.
+  ["material-conversations", "conversations"]
 ];
 
 /**
