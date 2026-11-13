@@ -499,8 +499,14 @@
     return "Messages envoyés à vous-même";
   }
 
+  var renderedKey = null;
   function renderThread() {
     var main = $("#thread");
+    // Redessiner la meme conversation (Afficher la suite, Repondre a, envoi)
+    // garde la position de lecture ; la zone neuve repartirait du haut.
+    var oldBox = $(".messages");
+    var keepScroll = oldBox && renderedKey === state.current ? oldBox.scrollTop : null;
+    renderedKey = state.current;
     main.replaceChildren();
     var c = state.current && find(state.current);
     if (!c) { main.append(el("div", { class: "empty", text: "Choisissez une conversation" })); return; }
@@ -585,6 +591,7 @@
     });
     main.append(box);
     main.append(renderComposer(c));
+    if (keepScroll !== null) box.scrollTop = keepScroll;
   }
 
   var SEND_LABELS = { sending: "envoi…", sent: "envoyé", failed: "échec : la fenêtre de rédaction est restée ouverte", demo: "envoi simulé" };
