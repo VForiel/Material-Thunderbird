@@ -6,6 +6,6 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "node tests/unsubscribe-rules.test.js && node tests/classify-message.test.js && node tests/generated-css.test.js && node tests/tokens-parity.test.js && node tests/site-sync.test.js"
+    "test": "node tests/conversations.test.js && node tests/unsubscribe-rules.test.js && node tests/classify-message.test.js && node tests/generated-css.test.js && node tests/tokens-parity.test.js && node tests/site-sync.test.js"
   }
 }

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discussions</title>
+  <!-- Prototype : jetons lus dans chrome/. Dans le .xpi, build.ps1 les copiera dans chat/tokens/. -->
+  <link rel="stylesheet" href="../../chrome/tokens/shapes.css">
+  <link rel="stylesheet" href="../../chrome/tokens/colors-light.css">
+  <link rel="stylesheet" href="../../chrome/tokens/colors-dark.css">
+  <link rel="stylesheet" href="chat.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="side" aria-label="Conversations">
+      <header class="side-head">
+        <h1>Discussions</h1>
+        <button class="icon-btn" id="theme-btn" title="Clair / sombre"><svg><use href="#i-theme"/></svg></button>
+        <button class="icon-btn" id="sources-btn" title="Comptes et dossiers affichés"><svg><use href="#i-settings"/></svg></button>
+      </header>
+      <label class="search">
+        <svg><use href="#i-search"/></svg>
+        <input id="search" type="search" placeholder="Rechercher une personne ou un message">
+      </label>
+      <div class="chips" id="filters" role="tablist">
+        <button class="chip" data-filter="all" aria-selected="true">Tout</button>
+        <button class="chip" data-filter="direct">Personnes</button>
+        <button class="chip" data-filter="group">Groupes</button>
+        <button class="chip" data-filter="list">Listes</button>
+        <button class="chip" data-filter="newsletter">Infolettres</button>
+      </div>
+      <ul class="conv-list" id="conv-list"></ul>
+      <p class="sources-line" id="sources-line"></p>
+    </aside>
+
+    <main class="thread" id="thread" aria-live="polite">
+      <div class="empty">Choisissez une conversation</div>
+    </main>
+
+    <aside class="info" id="info" hidden></aside>
+  </div>
+
+  <dialog id="sources-dialog">
+    <form method="dialog">
+      <h2>Ce que la vue affiche</h2>
+      <p class="hint">Les messages envoyés sont nécessaires pour voir vos propres bulles. Toutes les adresses des comptes cochés comptent comme « vous ».</p>
+      <div id="sources-form"></div>
+      <label class="row"><input type="checkbox" id="opt-news" checked> Montrer les infolettres (en lecture seule)</label>
+      <label class="row">Période
+        <select id="opt-period">
+          <option value="90">3 derniers mois</option>
+          <option value="180" selected>6 derniers mois</option>
+          <option value="365">1 an</option>
+          <option value="0">Tout</option>
+        </select>
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn text">Annuler</button>
+        <button value="ok" class="btn filled" id="sources-ok">Appliquer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M10 2.75a7.25 7.25 0 0 1 5.63 11.82l4.9 4.9a.75.75 0 0 1-.98 1.13l-.08-.07-4.9-4.9A7.25 7.25 0 1 1 10 2.75Zm0 1.5a5.75 5.75 0 1 0 0 11.5 5.75 5.75 0 0 0 0-11.5Z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M3 6.75c0-.41.34-.75.75-.75h9.4a2.75 2.75 0 0 1 5.2 0h1.9a.75.75 0 0 1 0 1.5h-1.9a2.75 2.75 0 0 1-5.2 0h-9.4A.75.75 0 0 1 3 6.75Zm12.75-1.25a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5ZM3 17.25c0-.41.34-.75.75-.75h1.9a2.75 2.75 0 0 1 5.2 0h9.4a.75.75 0 0 1 0 1.5h-9.4a2.75 2.75 0 0 1-5.2 0h-1.9a.75.75 0 0 1-.75-.75ZM8.25 16a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z"/></symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm0-1.5v-17a8.5 8.5 0 0 1 0 17Z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M5.7 12 2.3 3.27a.75.75 0 0 1 .94-.98l.1.04 18 9c.51.26.54.97.1 1.28l-.1.06-18 9a.75.75 0 0 1-1.07-.85l.03-.1L5.7 12 2.3 3.27 5.7 12ZM4.4 4.54l2.61 6.7 6.63.01c.38 0 .7.28.74.65v.1c0 .38-.27.7-.64.74l-.1.01H7l-2.6 6.7L19.31 12 4.4 4.54Z"/></symbol>
+    <symbol id="i-attach" viewBox="0 0 24 24"><path d="M11.77 3.74a5.25 5.25 0 0 1 7.42 7.43l-7.6 7.6a3.5 3.5 0 0 1-4.95-4.95l7.25-7.25a.75.75 0 1 1 1.06 1.06l-7.25 7.25a2 2 0 0 0 2.83 2.83l7.6-7.6a3.75 3.75 0 1 0-5.3-5.3l-7.6 7.6a5.5 5.5 0 1 0 7.78 7.78l6.5-6.5a.75.75 0 0 1 1.06 1.06l-6.5 6.5a7 7 0 1 1-9.9-9.9l7.6-7.6Z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Zm0 7c.41 0 .75.34.75.75v5.5a.75.75 0 0 1-1.5 0v-5.5c0-.41.34-.75.75-.75Zm0-3.25a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></symbol>
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M6.25 4.5c-.97 0-1.75.78-1.75 1.75v11.5c0 .97.78 1.75 1.75 1.75h11.5c.97 0 1.75-.78 1.75-1.75v-4a.75.75 0 0 1 1.5 0v4c0 1.8-1.46 3.25-3.25 3.25H6.25A3.25 3.25 0 0 1 3 17.75V6.25C3 4.45 4.46 3 6.25 3h4a.75.75 0 0 1 0 1.5h-4ZM13 3.75c0-.41.34-.75.75-.75h6.5c.41 0 .75.34.75.75v6.5a.75.75 0 0 1-1.5 0V5.56l-5.97 5.97a.75.75 0 0 1-1.06-1.06l5.97-5.97h-4.69a.75.75 0 0 1-.75-.75Z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m4.4 4.55.07-.08a.75.75 0 0 1 .98-.07l.08.07L12 10.94l6.47-6.47a.75.75 0 1 1 1.06 1.06L13.06 12l6.47 6.47c.27.27.3.68.07.98l-.07.08a.75.75 0 0 1-.98.07l-.08-.07L12 13.06l-6.47 6.47a.75.75 0 0 1-1.06-1.06L10.94 12 4.47 5.53a.75.75 0 0 1-.07-.98l.07-.08-.07.08Z"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M10.3 19.72a.75.75 0 0 0 1.05-1.07L5.11 12.5h15.14a.75.75 0 0 0 0-1.5H5.1l6.25-6.15a.75.75 0 0 0-1.05-1.07l-7.4 7.28a1 1 0 0 0 0 1.42l7.4 7.24Z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V9.41c0-.4-.16-.78-.44-1.06l-5.91-5.91A1.5 1.5 0 0 0 12.59 2H6Zm-.5 2c0-.28.22-.5.5-.5h6V8c0 1.1.9 2 2 2h4.5v10a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4Zm11.88 4.5H14a.5.5 0 0 1-.5-.5V4.62l3.88 3.88Z"/></symbol>
+  </svg>
+
+  <script src="../shared/conversations.js"></script>
+  <script src="mock-data.js"></script>
+  <script src="source-thunderbird.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
