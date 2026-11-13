@@ -74,6 +74,28 @@
         "async": true,
         "description": "Ouvre la fenêtre contextuelle de personnalisation du thème Material-Thunderbird.",
         "parameters": []
+      },
+      {
+        "name": "hideTabToolbar",
+        "type": "function",
+        "async": true,
+        "description": "Vue messagerie : masque la barre d'adresse de l'onglet qui affiche cette page de l'extension.",
+        "parameters": [
+          { "name": "urlPrefix", "type": "string" }
+        ]
+      },
+      {
+        "name": "getThreadInfo",
+        "type": "function",
+        "async": true,
+        "description": "Vue messagerie : renvoie les References de chaque message (lecture seule).",
+        "parameters": [
+          {
+            "name": "ids",
+            "type": "array",
+            "items": { "type": "integer" }
+          }
+        ]
       }
     ]
   }

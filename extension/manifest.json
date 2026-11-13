@@ -20,7 +20,13 @@
   "permissions": [
     "messagesRead",
     "messageDisplayScripts",
-    "scripting"
+    "scripting",
+    "accountsRead",
+    "addressBooks",
+    "compose",
+    "compose.send",
+    "messagesUpdate",
+    "storage"
   ],
   "background": {
     "scripts": [

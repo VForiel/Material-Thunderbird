@@ -224,3 +224,22 @@
     });
   }
 })();
+
+/**
+ * Vue messagerie : un espace « Discussions » dans la barre des espaces, qui
+ * ouvre chat/chat.html dans un onglet. Elle ne modifie que l etat « lu » des
+ * conversations ouvertes et n envoie que les reponses tapees par l utilisateur.
+ */
+(function () {
+  "use strict";
+  if (typeof browser === "undefined" || !browser.spaces) return;
+  browser.spaces.create("material_chat", browser.runtime.getURL("chat/chat.html"), {
+    title: "Discussions",
+    // dark : icone sombre pour les themes clairs ; light : l inverse.
+    defaultIcons: "chat/icon-dark.svg",
+    themeIcons: [{ dark: "chat/icon-dark.svg", light: "chat/icon-light.svg", size: 16 },
+                 { dark: "chat/icon-dark.svg", light: "chat/icon-light.svg", size: 32 }]
+  }).catch(function (err) {
+    console.warn("[Material-Thunderbird] Espace Discussions non créé :", err);
+  });
+})();

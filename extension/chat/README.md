@@ -1,6 +1,7 @@
 # Vue messagerie : proposition et prototype
 
-Branche locale `prototype/chat-view`, rien de branché dans le manifeste : la vue ne s'installe pas encore avec le `.xpi`.
+Branche locale `prototype/chat-view`, non poussée. La vue est branchée : le `.xpi` construit sur cette branche ajoute un
+espace « Discussions » dans la barre des espaces (testé dans Thunderbird 160).
 
 Essayer la maquette (données fictives) :
 
@@ -52,31 +53,39 @@ et des pastilles de couleur dans la liste.
 
 ## Répondre
 
+- Envoi direct depuis la vue (`compose.beginReply` puis `compose.sendMessage`) : la fenêtre de rédaction s'ouvre le
+  temps de l'envoi ; en cas d'échec elle reste ouverte avec le texte.
+- Pas de citation dans le courriel : la vue affiche « en réponse à » (bouton Répondre au survol d'une bulle), comme
+  WhatsApp et Google Messages. Cliquer sur la citation mène au message, même dans une autre conversation.
 - Adresse d'envoi : celle qui a reçu le dernier message (modifiable).
-- Groupe : « À tout le groupe » ou « À X seulement » ; une réponse privée bascule dans la conversation directe.
-- Sujet : celui du dernier message, en « Re: ».
-- Prototype : la réponse ouvre la fenêtre de rédaction de Thunderbird préremplie (`compose.beginReply`). Envoi direct
-  depuis la vue (`compose.sendMessage`) à décider.
+- Groupe : « À tout le groupe » écrit aux membres actuels (pas aux destinataires d'alors du message cité, qui peuvent
+  inclure un membre retiré), ou « À X seulement », qui bascule dans la conversation directe.
+
+## Autres choix
+
+- Ouvrir une conversation marque ses messages comme lus (réglable). C'est, avec l'envoi, la seule écriture de la vue.
+- Images jointes en vignettes ; les images de moins de 30 ko (logos de signature) sont ignorées.
+- Fusion à la main dans le panneau Détails : « Même personne que… » et « Fusionner avec le groupe… », annulables.
+- Deux groupes qui finissent avec les mêmes membres sont réunis automatiquement.
+- « Vous » : identités des comptes, expéditeurs des dossiers Envoyés, adresses portant le nom complet d'une identité,
+  et « Mes autres adresses » (réglages, ou bouton « C'est moi » sur un membre).
+- Doublons (même Message-ID dans deux dossiers, Gmail « Tous les messages ») affichés une fois.
 
 ## Technique
 
 - `shared/conversations.js` : moteur pur, testé (`tests/conversations.test.js`).
-- `chat/source-thunderbird.js` : lecture par l'API MailExtension, **pas encore exécutée dans Thunderbird**.
-  En-têtes seuls pour la liste (`messages.query` par dossier, TB 121+), corps et en-têtes de fil à l'ouverture
-  (`getFull`, `listInlineTextParts` TB 128+). Il faudrait donc **TB 128 minimum** pour cette vue (le thème reste 115+,
-  la vue se désactive en dessous).
-- Limite : `MessageHeader` ne donne ni References ni In-Reply-To. Sans eux la liste ne peut rattacher les fils de
-  groupe qu'à l'ouverture. Solution envisagée : les lire dans la base des messages par l'experiment
-  `materialAssistant` (nsIMsgDBHdr), sans ouvrir chaque courriel. Index mis en cache (`storage.local`) et tenu à jour
-  par `messages.onNewMailReceived`.
-- Permissions en plus : `accountsRead`, `addressBooks`, `compose` (+ `compose.send` si envoi direct).
-- Intégration : déclarer l'espace dans `background.js`, copier les jetons dans `chat/tokens/` au build,
-  exclure `mock-data.js` et ce README du `.xpi`.
+- `chat/source-thunderbird.js` : en-têtes par `messages.query` (TB 121+), References lues dans la base des messages par
+  l'experiment (`materialAssistant.getThreadInfo`), texte et List-Id à l'ouverture puis en tâche de fond pour les
+  400 messages les plus récents (`getFull` sans décodage, `listInlineTextParts` TB 128+).
+- Permissions ajoutées : `accountsRead`, `addressBooks` (lecture seule dans le code), `compose`, `compose.send`,
+  `messagesUpdate` (état lu), `storage` (réglages de la vue).
+- L'experiment masque la barre d'adresse de l'onglet (`hideTabToolbar`).
+- `build.ps1` copie les jetons dans `chat/tokens/` (ignoré par git) et laisse `mock-data.js` et ce README hors du `.xpi`.
 
-## Questions ouvertes
+## Reste à faire
 
-1. Envoi direct depuis la vue, ou toujours passer par la fenêtre de rédaction ?
-2. Ouvrir une conversation la marque-t-elle comme lue (comme une messagerie) ?
-3. Citation : la réponse envoyée doit-elle inclure le message cité (usage courriel) ou non (usage messagerie) ?
-4. Fusion manuelle de deux personnes ou de deux groupes, en plus du carnet d'adresses ?
-5. Pièces jointes : simples étiquettes, ou vignettes pour les images ?
+- Mise en cache de l'index (`storage.local`) et mise à jour par `messages.onNewMailReceived` : aujourd'hui tout est
+  relu à chaque ouverture de l'onglet (environ 10 s pour 9 000 courriels).
+- Envoi non testé sur de vrais courriels (volontairement), marquage lu non testé non plus.
+- Bouton « Se désinscrire » des infolettres pas encore relié au bandeau existant.
+- Repasser `strict_min_version` ou désactiver la vue sous TB 128.

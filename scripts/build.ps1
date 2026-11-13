@@ -106,6 +106,16 @@ Write-Host "[*] Generation de extension/message-content.css..." -ForegroundColor
 $messageSource = ([System.IO.File]::ReadAllText((Join-Path $ChromeDir "userContent.css"))).Replace("`r`n", "`n").TrimEnd()
 [System.IO.File]::WriteAllText($MessageCss, $Header + $messageSource + "`n", $utf8NoBom)
 
+# La vue messagerie (extension/chat/) charge les memes jetons de couleur.
+$ChatTokens = Join-Path $ExtensionDir "chat/tokens"
+if (-not (Test-Path $ChatTokens)) {
+    New-Item -ItemType Directory -Path $ChatTokens | Out-Null
+}
+Copy-Item (Join-Path $ChromeDir "tokens/*.css") $ChatTokens -Force
+
+# Fichiers de developpement de la vue messagerie, absents du .xpi.
+$ExcludedFromXpi = @("chat/mock-data.js", "chat/README.md")
+
 Write-Host "[*] Packaging Material-Thunderbird Extension (.xpi)..." -ForegroundColor Cyan
 
 if (-not (Test-Path $DistDir)) {
@@ -121,6 +131,7 @@ function New-Xpi([string]$Path, [string]$ManifestText) {
     try {
         foreach ($file in (Get-ChildItem -Path $ExtensionDir -Recurse -File)) {
             $relativePath = $file.FullName.Substring($ExtensionDir.Length + 1).Replace([System.IO.Path]::DirectorySeparatorChar, "/")
+            if ($ExcludedFromXpi -contains $relativePath) { continue }
             if ($ManifestText -and $relativePath -eq "manifest.json") {
                 $entry = $zip.CreateEntry($relativePath, [System.IO.Compression.CompressionLevel]::Optimal)
                 $writer = New-Object System.IO.StreamWriter($entry.Open(), (New-Object System.Text.UTF8Encoding($false)))

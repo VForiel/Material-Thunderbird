@@ -103,7 +103,7 @@
       var line = lines[i];
       var next = lines[i + 1] || "";
       if (/^-- ?$/.test(line)) break;
-      if (/^\s*-{2,}\s*(original message|message d'origine|message original|forwarded message|message transf[ée]r[ée])\s*-{2,}/i.test(line)) break;
+      if (/^\s*-{2,}\s*(original message|message d'origine|message original|mail original|forwarded message|message transf[ée]r[ée])\s*-{2,}/i.test(line)) break;
       if (/^\s*(de|from)\s*:\s*\S/i.test(line) && /^\s*(envoy[ée]|sent|date|[àa]|to)\s*:/i.test(next)) break;
       // Attribution sur une ou deux lignes (Gmail coupe souvent apres la date).
       var attribution = line + " " + next;
@@ -129,14 +129,49 @@
    *         { type: "members", by, added, removed, date }
    *         { type: "subject", subject, date }
    */
+  function foldName(s) {
+    return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
   function buildConversations(messages, options) {
     options = options || {};
+    var result = buildOnce(messages, options);
+    // Deux groupes qui finissent avec exactement les memes membres n en font
+    // qu un, comme dans une messagerie : on les reunit et on recommence.
+    if (options.autoMergeGroups === false) return result;
+    var bySet = {};
+    var merges = Object.assign({}, options.groupMerges || {});
+    var found = false;
+    result.conversations.forEach(function (c) {
+      if (c.kind !== "group") return;
+      var set = c.members.slice().sort().join("|");
+      if (bySet[set]) { merges[c.key] = bySet[set]; found = true; } else { bySet[set] = c.key; }
+    });
+    if (!found) return result;
+    return buildOnce(messages, Object.assign({}, options, { groupMerges: merges }));
+  }
+
+  function buildOnce(messages, options) {
     var me = (options.me || []).map(normalizeEmail);
+    // Noms complets de l utilisateur : une adresse qui les porte est a lui
+    // (ancienne adresse, redirection). Seulement des noms d au moins deux mots.
+    var meNames = (options.meNames || []).map(foldName).filter(function (n) { return n.indexOf(" ") > 0; });
     var people = makePeople(options.contacts);
-    var isMe = function (addr) { return me.indexOf(normalizeEmail(addr && addr.email)) >= 0; };
+    var isMe = function (addr) {
+      if (!addr) return false;
+      return me.indexOf(normalizeEmail(addr.email)) >= 0 || (!!addr.name && meNames.indexOf(foldName(addr.name)) >= 0);
+    };
     var threads = makeThreads();
 
-    var msgs = messages.slice().sort(function (a, b) { return +a.date - +b.date; });
+    // Un meme courriel peut etre dans plusieurs dossiers (Gmail : reception et
+    // « Tous les messages ») : on n en garde qu un, le premier recu.
+    var seen = {};
+    var msgs = messages.slice().sort(function (a, b) { return +a.date - +b.date; }).filter(function (m) {
+      if (!m.headerMessageId) return true;
+      if (seen[m.headerMessageId]) return false;
+      seen[m.headerMessageId] = true;
+      return true;
+    });
 
     // 1. Fils : chaque message est relie a ses parents connus ou non.
     msgs.forEach(function (m) {
@@ -185,6 +220,9 @@
         groupsByThread[root] = key;
         if (!groupsBySet[setKey]) groupsBySet[setKey] = key;
         kind = "group";
+        // Groupes reunis a la main par l utilisateur : { cleSource: cleCible }.
+        var merges = options.groupMerges || {};
+        for (var hops = 0; merges[key] && hops < 10; hops++) key = merges[key];
       }
       var c = conv(key, kind);
       c._msgs.push({ m: m, mine: mine, others: others });
@@ -262,6 +300,36 @@
       return c;
     });
 
+    // 4. « En reponse a » : le message parent (In-Reply-To, sinon la derniere
+    //    reference). Indique seulement quand il n est pas le message juste
+    //    au-dessus, ou quand il est dans une autre conversation (reponse privee
+    //    a un message de groupe, par exemple). Comme WhatsApp et Google Messages.
+    var where = {};
+    list.forEach(function (c) {
+      c.items.forEach(function (it) {
+        if (it.type === "message" && it.message.headerMessageId) where[it.message.headerMessageId] = { conv: c, item: it };
+      });
+    });
+    list.forEach(function (c) {
+      var prev = null;
+      c.items.forEach(function (it) {
+        if (it.type !== "message") return;
+        var refs = it.message.references || [];
+        var parentId = it.message.inReplyTo || refs[refs.length - 1];
+        var parent = parentId && where[parentId];
+        if (parent && parent.item !== prev) {
+          it.replyTo = {
+            headerMessageId: parentId,
+            sender: parent.item.sender,
+            text: (parent.item.body || parent.item.message.subject || "").replace(/\s+/g, " ").slice(0, 140),
+            conv: parent.conv === c ? null : parent.conv.key,
+            convTitle: parent.conv === c ? null : parent.conv.title
+          };
+        }
+        prev = it;
+      });
+    });
+
     list.sort(function (a, b) { return b.lastDate - a.lastDate; });
     return { conversations: list, people: people };
   }
@@ -276,7 +344,9 @@
     if (c.kind === "self") return "Notes à soi";
     if (c.kind === "list") {
       var first = c.items.filter(function (i) { return i.type === "message"; })[0];
-      return (first && first.message.listName) || c.key.slice(5);
+      if (first && first.message.listName) return first.message.listName;
+      // List-Id sans nom (Sympa) : la premiere etiquette, « ete » pour <ete.sympa-n.oca.eu>.
+      return c.key.slice(5).replace(/[<>]/g, "").split(".")[0];
     }
     if (c.kind === "direct" || c.kind === "newsletter") return people.get(c.members[0]).name;
     var names = c.members.map(function (k) { return firstName(people.get(k)); });

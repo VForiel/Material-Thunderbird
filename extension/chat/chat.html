@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Discussions</title>
-  <!-- Prototype : jetons lus dans chrome/. Dans le .xpi, build.ps1 les copiera dans chat/tokens/. -->
-  <link rel="stylesheet" href="../../chrome/tokens/shapes.css">
-  <link rel="stylesheet" href="../../chrome/tokens/colors-light.css">
-  <link rel="stylesheet" href="../../chrome/tokens/colors-dark.css">
+  <!-- Jetons du theme, copies depuis chrome/tokens/ par scripts/build.ps1. -->
+  <link rel="stylesheet" href="tokens/shapes.css">
+  <link rel="stylesheet" href="tokens/colors-light.css">
+  <link rel="stylesheet" href="tokens/colors-dark.css">
   <link rel="stylesheet" href="chat.css">
 </head>
 <body>
@@ -45,7 +45,11 @@
       <h2>Ce que la vue affiche</h2>
       <p class="hint">Les messages envoyés sont nécessaires pour voir vos propres bulles. Toutes les adresses des comptes cochés comptent comme « vous ».</p>
       <div id="sources-form"></div>
+      <label class="stack">Mes autres adresses <small>(anciennes, alias ; une par ligne)</small>
+        <textarea id="opt-me" rows="2" spellcheck="false"></textarea>
+      </label>
       <label class="row"><input type="checkbox" id="opt-news" checked> Montrer les infolettres (en lecture seule)</label>
+      <label class="row"><input type="checkbox" id="opt-read" checked> Ouvrir une conversation marque ses messages comme lus</label>
       <label class="row">Période
         <select id="opt-period">
           <option value="90">3 derniers mois</option>
@@ -71,11 +75,12 @@
     <symbol id="i-open" viewBox="0 0 24 24"><path d="M6.25 4.5c-.97 0-1.75.78-1.75 1.75v11.5c0 .97.78 1.75 1.75 1.75h11.5c.97 0 1.75-.78 1.75-1.75v-4a.75.75 0 0 1 1.5 0v4c0 1.8-1.46 3.25-3.25 3.25H6.25A3.25 3.25 0 0 1 3 17.75V6.25C3 4.45 4.46 3 6.25 3h4a.75.75 0 0 1 0 1.5h-4ZM13 3.75c0-.41.34-.75.75-.75h6.5c.41 0 .75.34.75.75v6.5a.75.75 0 0 1-1.5 0V5.56l-5.97 5.97a.75.75 0 0 1-1.06-1.06l5.97-5.97h-4.69a.75.75 0 0 1-.75-.75Z"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m4.4 4.55.07-.08a.75.75 0 0 1 .98-.07l.08.07L12 10.94l6.47-6.47a.75.75 0 1 1 1.06 1.06L13.06 12l6.47 6.47c.27.27.3.68.07.98l-.07.08a.75.75 0 0 1-.98.07l-.08-.07L12 13.06l-6.47 6.47a.75.75 0 0 1-1.06-1.06L10.94 12 4.47 5.53a.75.75 0 0 1-.07-.98l.07-.08-.07.08Z"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="M10.3 19.72a.75.75 0 0 0 1.05-1.07L5.11 12.5h15.14a.75.75 0 0 0 0-1.5H5.1l6.25-6.15a.75.75 0 0 0-1.05-1.07l-7.4 7.28a1 1 0 0 0 0 1.42l7.4 7.24Z"/></symbol>
+    <symbol id="i-reply" viewBox="0 0 24 24"><path d="M9.28 4.22a.75.75 0 0 1 0 1.06L5.56 9h6.69a9.75 9.75 0 0 1 9.74 9.33l.01.42a.75.75 0 0 1-1.5 0 8.25 8.25 0 0 0-7.88-8.24l-.37-.01H5.56l3.72 3.72a.75.75 0 1 1-1.06 1.06l-5-5a.75.75 0 0 1 0-1.06l5-5a.75.75 0 0 1 1.06 0Z"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V9.41c0-.4-.16-.78-.44-1.06l-5.91-5.91A1.5 1.5 0 0 0 12.59 2H6Zm-.5 2c0-.28.22-.5.5-.5h6V8c0 1.1.9 2 2 2h4.5v10a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5V4Zm11.88 4.5H14a.5.5 0 0 1-.5-.5V4.62l3.88 3.88Z"/></symbol>
   </svg>
 
+  <script src="../shared/unsubscribe-rules.js"></script>
   <script src="../shared/conversations.js"></script>
-  <script src="mock-data.js"></script>
   <script src="source-thunderbird.js"></script>
   <script src="chat.js"></script>
 </body>

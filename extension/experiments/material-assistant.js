@@ -3108,6 +3108,42 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
           if (win) {
             this._openCustomizerModal(win);
           }
+        },
+        // Vue messagerie : masque la barre d adresse de l onglet de contenu qui
+        // l affiche (Thunderbird la montre pour les pages d extension).
+        hideTabToolbar: async (urlPrefix) => {
+          if (!urlPrefix || !urlPrefix.startsWith(this.extension.baseURL)) return;
+          const windows = Services.wm.getEnumerator("mail:3pane");
+          while (windows.hasMoreElements()) {
+            const tabmail = windows.getNext().document.getElementById("tabmail");
+            for (const tab of (tabmail && tabmail.tabInfo) || []) {
+              const spec = tab.browser && tab.browser.currentURI && tab.browser.currentURI.spec;
+              if (!spec || !spec.startsWith(urlPrefix)) continue;
+              const toolbar = tab.toolbar || (tab.panel && tab.panel.querySelector(".contentTabToolbox"));
+              if (toolbar) toolbar.hidden = true;
+            }
+          }
+        },
+        // Vue messagerie : References de chaque message, lues dans la base des
+        // messages (nsIMsgDBHdr) sans ouvrir les courriels. MessageHeader ne
+        // les donne pas. Lecture seule.
+        getThreadInfo: async (ids) => {
+          const manager = this.extension.messageManager;
+          return (ids || []).map((id) => {
+            const references = [];
+            try {
+              const hdr = manager && manager.get(id);
+              if (hdr) {
+                for (let i = 0; i < hdr.numReferences; i++) {
+                  const ref = hdr.getStringReference(i);
+                  if (ref) references.push(ref);
+                }
+              }
+            } catch (e) {
+              // Message supprime entre la requete et la lecture.
+            }
+            return { id, references };
+          });
         }
       }
     };

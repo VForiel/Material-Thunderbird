@@ -102,6 +102,63 @@ console.log("--- separate threads with the same people form one group ---");
   check("subject lines", convs[0].items.filter((i) => i.type === "subject").map((i) => i.subject), ["Réunion lundi", "Article"]);
 }
 
+console.log("--- reply indicator only when the parent is not the message just above ---");
+{
+  const m1 = msg({ from: A, to: [MEL], subject: "Q1", text: "Première question ?" });
+  const m2 = msg({ from: A, to: [MEL], subject: "Q2", text: "Deuxième question ?" });
+  const m3 = msg({ from: MEL, to: [A], subject: "Re: Q1", inReplyTo: m1.headerMessageId, text: "Réponse à la première." });
+  const m4 = msg({ from: A, to: [MEL], subject: "Re: Q1", inReplyTo: m3.headerMessageId, text: "Merci" });
+  const items = build([m1, m2, m3, m4])[0].items.filter((i) => i.type === "message");
+  check("reply to an older message is shown", items[2].replyTo && items[2].replyTo.text, "Première question ?");
+  check("reply to the message just above is not", items[3].replyTo, undefined);
+}
+{
+  const g1 = msg({ from: A, to: [MEL, B], subject: "Pot", text: "On fait un pot ?" });
+  const p1 = msg({ from: B, to: [MEL], subject: "Re: Pot", inReplyTo: g1.headerMessageId, text: "Entre nous" });
+  const convs = build([g1, p1]);
+  const direct = convs.find((c) => c.kind === "direct");
+  const r = direct.items.find((i) => i.type === "message").replyTo;
+  check("private reply points to the group conversation", r && [r.conv.slice(0, 6), r.text], ["group:", "On fait un pot ?"]);
+}
+
+console.log("--- groups merged by hand ---");
+{
+  const g1 = msg({ from: A, to: [MEL, B], subject: "Un" });
+  const g2 = msg({ from: A, to: [MEL, K], subject: "Deux" });
+  const before = build([g1, g2]);
+  check("two groups", kinds(before), ["group:1", "group:1"]);
+  const merged = build([g1, g2], { groupMerges: { [before[0].key]: before[1].key } });
+  check("one group after merge", kinds(merged), ["group:2"]);
+}
+
+console.log("--- groups ending with the same members are merged ---");
+{
+  const g1 = msg({ from: A, to: [MEL, B], subject: "Un" });
+  const t1 = msg({ from: K, to: [MEL, A, B], subject: "Deux" });
+  const t2 = msg({ from: A, to: [MEL, B], subject: "Re: Deux", inReplyTo: t1.headerMessageId });
+  const t3 = msg({ from: B, to: [MEL, A], subject: "Re: Deux", inReplyTo: t2.headerMessageId });
+  check("one group", kinds(build([g1, t1, t2, t3])), ["group:4"]);
+  check("not merged when disabled", kinds(build([g1, t1, t2, t3], { autoMergeGroups: false })).length, 2);
+}
+
+console.log("--- an address bearing the user's full name is the user ---");
+{
+  const old = { name: "Moi Même", email: "ancienne@mail.example" };
+  check("old address is me", kinds(build([msg({ from: A, to: [MEL, old] })], { meNames: ["Moi Meme"] })), ["direct:1"]);
+  check("a single first name is not enough",
+    kinds(build([msg({ from: A, to: [MEL, { name: "Moi", email: "x@mail.example" }] })], { meNames: ["Moi"] })), ["group:1"]);
+}
+
+console.log("--- the same mail in two folders is shown once ---");
+{
+  const m1 = msg({ from: A, to: [MEL], folder: "inbox" });
+  const copy = Object.assign({}, m1, { id: 999, folder: "all" });
+  check("deduplicated", kinds(build([m1, copy])), ["direct:1"]);
+}
+check("zimbra separator", C.stripQuoted("merci\n----- Mail original -----\nDe: x"), "merci");
+check("list name from bare List-Id",
+  build([msg({ from: A, to: [{ email: "ete@sympa.example" }], listId: "<ete.sympa-n.oca.example>" })])[0].title, "ete");
+
 console.log("--- lists and newsletters ---");
 {
   const convs = build([
