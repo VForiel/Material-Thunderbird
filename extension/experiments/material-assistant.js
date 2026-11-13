@@ -235,7 +235,7 @@ function materialImage(path, color) {
 const EMOJI_ICONS = {
   folder: "📁", account: "📧", inbox: "📥", sent: "📤", drafts: "📝", templates: "📋",
   archive: "🗃️", junk: "🚫", trash: "🗑️", outbox: "📮", virtual: "🔎",
-  mail: "📬", contacts: "📇", calendar: "📆", tasks: "✅", chat: "💬", settings: "⚙️",
+  mail: "📬", contacts: "📇", calendar: "📆", tasks: "✅", chat: "💬", conversations: "💭", settings: "⚙️",
   reply: "↩️", replyAll: "↩️", forward: "➡️", extension: "🧩", sync: "🔄"
 };
 
@@ -261,6 +261,8 @@ const MATERIAL_ICONS = {
   calendar: "M17.75 3C19.55 3 21 4.46 21 6.25v11.5c0 1.8-1.46 3.25-3.25 3.25H6.25A3.25 3.25 0 0 1 3 17.75V6.25C3 4.45 4.46 3 6.25 3h11.5Zm1.75 5.5h-15v9.25c0 .97.78 1.75 1.75 1.75h11.5c.97 0 1.75-.78 1.75-1.75V8.5Zm-11.75 6a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm4.25 0a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm-4.25-4a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm4.25 0a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm4.25 0a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Zm1.5-6H6.25c-.97 0-1.75.78-1.75 1.75V7h15v-.75c0-.97-.78-1.75-1.75-1.75Z",
   tasks: "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Zm-1.25 9.94 4.47-4.47a.75.75 0 0 1 1.13.98l-.07.08-5 5a.75.75 0 0 1-.98.07l-.08-.07-2.5-2.5a.75.75 0 0 1 .98-1.13l.08.07 1.97 1.97 4.47-4.47-4.47 4.47Z",
   chat: "M12 2a10 10 0 1 1-4.59 18.89L3.6 21.96a1.25 1.25 0 0 1-1.54-1.54l1.06-3.83A10 10 0 0 1 12 2Zm0 1.5a8.5 8.5 0 0 0-7.43 12.64l.15.27-1.1 3.98 3.98-1.11.27.15A8.5 8.5 0 1 0 12 3.5ZM8.75 13h4.5a.75.75 0 0 1 .1 1.5h-4.6a.75.75 0 0 1-.1-1.5h4.6-4.5Zm0-3.5h6.5a.75.75 0 0 1 .1 1.5h-6.6a.75.75 0 0 1-.1-1.5h6.6-6.5Z",
+  // Vue Discussions de l extension (chat_multiple) : distincte de la messagerie instantanee.
+  conversations: "M9.56 3a7.5 7.5 0 0 0-6.8 10.67l-.72 2.84c-.23.92.59 1.75 1.5 1.53l2.93-.7q1.44.64 3.1.66a7.5 7.5 0 0 0 0-15m-6 7.5a6 6 0 1 1 3.33 5.37l-.24-.12-.27.07-2.78.66.69-2.7.07-.28-.13-.25a6 6 0 0 1-.67-2.75m11 10.5a7.5 7.5 0 0 1-5.1-2 8 8 0 0 0 2.18-.26 6 6 0 0 0 5.6.13l.24-.12.26.07c.92.22 1.96.44 2.74.6-.18-.74-.41-1.75-.64-2.64l-.07-.28.13-.25a5.97 5.97 0 0 0-2.09-7.8 8 8 0 0 0-.8-2.04 7.5 7.5 0 0 1 4.35 10.26l.67 2.8c.2.9-.57 1.7-1.47 1.5-.72-.15-1.87-.39-2.91-.63q-1.43.64-3.09.66",
   settings: "M12.01 2.25c.74 0 1.47.1 2.18.25.32.07.55.33.59.65l.17 1.53a1.38 1.38 0 0 0 1.92 1.11l1.4-.61c.3-.13.64-.06.85.17a9.8 9.8 0 0 1 2.2 3.8c.1.3 0 .63-.26.82l-1.25.92a1.38 1.38 0 0 0 0 2.22l1.25.92c.26.19.36.52.27.82a9.8 9.8 0 0 1-2.2 3.8.75.75 0 0 1-.85.17l-1.4-.62a1.38 1.38 0 0 0-1.93 1.12l-.17 1.52a.75.75 0 0 1-.58.65 9.52 9.52 0 0 1-4.4 0 .75.75 0 0 1-.57-.65l-.17-1.52a1.38 1.38 0 0 0-1.93-1.11l-1.4.62a.75.75 0 0 1-.85-.18 9.8 9.8 0 0 1-2.2-3.8c-.1-.3 0-.63.26-.82l1.25-.92a1.38 1.38 0 0 0 0-2.22l-1.24-.92a.75.75 0 0 1-.28-.82 9.8 9.8 0 0 1 2.2-3.8c.23-.23.57-.3.86-.17l1.4.62c.4.17.86.15 1.25-.08.38-.22.63-.6.68-1.04l.17-1.53a.75.75 0 0 1 .58-.65c.72-.16 1.45-.24 2.2-.25Zm0 1.5c-.45 0-.9.04-1.35.12l-.11.97a2.89 2.89 0 0 1-4.03 2.33l-.9-.4A8.3 8.3 0 0 0 4.29 9.1l.8.59a2.88 2.88 0 0 1 0 4.64l-.8.59a8.3 8.3 0 0 0 1.35 2.32l.9-.4a2.88 2.88 0 0 1 4.02 2.32l.1.99c.9.15 1.8.15 2.7 0l.1-.99a2.88 2.88 0 0 1 4.02-2.32l.9.4a8.3 8.3 0 0 0 1.35-2.32l-.8-.59a2.88 2.88 0 0 1 0-4.64l.8-.59a8.3 8.3 0 0 0-1.35-2.32l-.9.4a2.88 2.88 0 0 1-4.02-2.32l-.1-.98c-.45-.08-.9-.11-1.34-.12ZM12 8.25a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5Zm0 1.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z",
   reply: "M9.28 6.28a.75.75 0 0 0-1.06-1.06l-5 5c-.3.3-.3.77 0 1.06l5 5a.75.75 0 0 0 1.06-1.06L5.56 11.5h7.69c3.45 0 6.25 2.8 6.25 6.25v.5a.75.75 0 0 0 1.5 0v-.5A7.75 7.75 0 0 0 13.25 10H5.56l3.72-3.72Z",
   replyAll: "M9.28 5.22c.3.3.3.77 0 1.06l-4.47 4.47 4.47 4.47a.75.75 0 1 1-1.06 1.06l-5-5a.75.75 0 0 1 0-1.06l5-5c.3-.3.77-.3 1.06 0Zm4 0c.3.3.3.77 0 1.06L9.56 10h3.69A7.75 7.75 0 0 1 21 17.75v.5a.75.75 0 0 1-1.5 0v-.5c0-3.45-2.8-6.25-6.25-6.25H9.56l3.72 3.72a.75.75 0 1 1-1.06 1.06l-5-5a.75.75 0 0 1 0-1.06l5-5c.3-.3.77-.3 1.06 0Z",
@@ -288,6 +290,7 @@ const MATERIAL_ICONS_FILLED = {
   calendar: "M21 8.5v9.25c0 1.8-1.46 3.25-3.25 3.25H6.25A3.25 3.25 0 0 1 3 17.75V8.5h18ZM7.25 15a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5ZM12 15a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm-4.75-4.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm4.75 0a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm4.75 0a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm1-7.5C19.55 3 21 4.46 21 6.25V7H3v-.75C3 4.45 4.46 3 6.25 3h11.5Z",
   tasks: "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm3.22 6.97-4.47 4.47-1.97-1.97a.75.75 0 0 0-1.06 1.06l2.5 2.5c.3.3.77.3 1.06 0l5-5a.75.75 0 1 0-1.06-1.06Z",
   chat: "M12 2a10 10 0 1 1-4.64 18.86l-4.3 1.12a.85.85 0 0 1-1.03-1.04l1.11-4.29A10 10 0 0 1 12 2Zm1.25 11h-4.6a.75.75 0 0 0 0 1.5H13.35a.75.75 0 0 0 0-1.5h-.1Zm2-3.5h-6.6a.75.75 0 0 0 0 1.5H15.35a.75.75 0 0 0 0-1.5h-.1Z",
+  conversations: "M9.5 3a7.5 7.5 0 0 0-6.8 10.67 68 68 0 0 0-.68 3.15 1 1 0 0 0 1.15 1.17c.63-.11 1.98-.36 3.24-.65q1.43.64 3.09.66a7.5 7.5 0 0 0 0-15m-.04 16a7.5 7.5 0 0 0 8.19 1.34c1.04.24 2.19.48 2.91.64.9.18 1.67-.62 1.47-1.5-.16-.7-.42-1.8-.67-2.8q.69-1.47.7-3.18a7.5 7.5 0 0 0-5.04-7.09q.53.96.8 2.05a6 6 0 0 1 2.08 7.79l-.13.25.07.28c.23.9.46 1.9.64 2.65l-2.74-.61-.26-.07-.25.13a6 6 0 0 1-5.59-.14 9 9 0 0 1-2.18.26",
   settings: "M12.01 2.25c.74 0 1.47.1 2.18.25.32.07.55.33.59.65l.17 1.53a1.38 1.38 0 0 0 1.92 1.11l1.4-.61c.3-.13.64-.06.85.17a9.8 9.8 0 0 1 2.2 3.8c.1.3 0 .63-.26.82l-1.25.92a1.38 1.38 0 0 0 0 2.22l1.25.92c.26.19.36.52.27.82a9.8 9.8 0 0 1-2.2 3.8.75.75 0 0 1-.85.17l-1.4-.62a1.38 1.38 0 0 0-1.93 1.12l-.17 1.52a.75.75 0 0 1-.58.65 9.52 9.52 0 0 1-4.4 0 .75.75 0 0 1-.57-.65l-.17-1.52a1.38 1.38 0 0 0-1.93-1.11l-1.4.62a.75.75 0 0 1-.85-.18 9.8 9.8 0 0 1-2.2-3.8c-.1-.3 0-.63.26-.82l1.25-.92a1.38 1.38 0 0 0 0-2.22l-1.24-.92a.75.75 0 0 1-.28-.82 9.8 9.8 0 0 1 2.2-3.8c.23-.23.57-.3.86-.17l1.4.62c.4.17.86.15 1.25-.08.38-.22.63-.6.68-1.04l.17-1.53a.75.75 0 0 1 .58-.65c.72-.16 1.45-.24 2.2-.25ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z",
   reply: "M9.7 6.7a1 1 0 0 0-1.4-1.4l-5 5a1 1 0 0 0 0 1.4l5 5a1 1 0 0 0 1.4-1.4L6.42 12H13a6 6 0 0 1 6 6 1 1 0 1 0 2 0 8 8 0 0 0-8-8H6.41l3.3-3.3Z",
   replyAll: "M9.7 5.3a1 1 0 0 1 0 1.4L5.42 11l4.3 4.3a1 1 0 0 1-1.42 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.42 0Zm5 0a1 1 0 0 1 0 1.4L11.42 10H13a8 8 0 0 1 8 8 1 1 0 1 1-2 0 6 6 0 0 0-6-6h-1.59l3.3 3.3a1 1 0 0 1-1.42 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.42 0Z",
@@ -349,6 +352,9 @@ function iconRulesCss(imageFor, prefix = "", selectedImageFor = null) {
   for (const [id, role] of SPACES_ICON_ROLES) {
     slots.push([`#${id} > img`, `#${id}.current > img`, role, "content"]);
   }
+  // Bouton de la vue Discussions : son id vient de Thunderbird, on le repere
+  // par la classe que lui pose _placeChatSpaceButton.
+  slots.push([".material-chat-space > img", ".material-chat-space.current > img", "conversations", "content"]);
   // Boutons de l en-tete du message : toolbarbutton XUL, dont l icone est une
   // <image> dessinee par list-style-image. Repondre et Repondre a tous sont des
   // boutons a menu : leur icone est dans un bouton imbrique, pas un enfant direct.
@@ -1640,8 +1646,28 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     state.listeners.push([win, "keydown", onKeyDown, false]);
   }
 
+  /**
+   * Vue Discussions : Thunderbird range les espaces des extensions apres les
+   * siens ; on place le bouton juste sous Courrier, et on le marque pour lui
+   * donner l icone « conversations » des themes d icones.
+   */
+  _placeChatSpaceButton(win) {
+    const doc = win && win.document;
+    if (!doc) return false;
+    const spaces = doc.querySelector(".spaces-toolbar") || doc.getElementById("spacesToolbar");
+    const mail = doc.getElementById("mailButton");
+    if (!spaces || !mail) return false;
+    const button = Array.from(spaces.querySelectorAll("button"))
+      .find((b) => b.id && b.id.includes("material_chat"));
+    if (!button) return false;
+    button.classList.add("material-chat-space");
+    if (mail.nextElementSibling !== button) mail.after(button);
+    return true;
+  }
+
   _ensureCustomizerButtons(win) {
     if (!win || !win.document) return;
+    this._placeChatSpaceButton(win);
     const doc = win.document;
     const spaces = doc.querySelector(".spaces-toolbar") || doc.getElementById("spacesToolbar");
     if (!spaces) return;
@@ -3150,6 +3176,16 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             console.error("[Material-Thunderbird] Desinscription impossible : " + err);
             return "failed";
           }
+        },
+        // Vue messagerie : place le bouton de l espace sous Courrier, dans
+        // toutes les fenetres (appele apres spaces.create).
+        placeChatSpaceButton: async () => {
+          let placed = false;
+          const windows = Services.wm.getEnumerator("mail:3pane");
+          while (windows.hasMoreElements()) {
+            if (this._placeChatSpaceButton(windows.getNext())) placed = true;
+          }
+          return placed;
         },
         // Vue messagerie : masque la barre d adresse de l onglet de contenu qui
         // l affiche (Thunderbird la montre pour les pages d extension).

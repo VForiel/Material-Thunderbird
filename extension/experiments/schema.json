@@ -93,6 +93,13 @@
         ]
       },
       {
+        "name": "placeChatSpaceButton",
+        "type": "function",
+        "async": true,
+        "description": "Vue messagerie : place le bouton de l'espace Discussions juste sous celui du courrier. Renvoie vrai si le bouton a été trouvé.",
+        "parameters": []
+      },
+      {
         "name": "hideTabToolbar",
         "type": "function",
         "async": true,

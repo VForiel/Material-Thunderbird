@@ -210,7 +210,11 @@
       if (plain) message.text = plain.content;
       else if (html) message.text = await htmlToText(html.content);
       if (global.MaterialUnsubscribeRules) {
-        var verdict = global.MaterialUnsubscribeRules.classifyMessage({ headers: h, subject: message.subject, text: message.text });
+        // Comme le bandeau : le lien du corps HTML complete l en-tete List-Unsubscribe.
+        var bodyUrl = html ? global.MaterialUnsubscribeRules.findInHtml(html.content) : null;
+        var verdict = global.MaterialUnsubscribeRules.classifyMessage({
+          headers: h, subject: message.subject, text: message.text, bodyUrl: bodyUrl
+        });
         message.isNewsletter = !!verdict && verdict.kind === "newsletter";
         if (verdict && (verdict.url || verdict.mailto)) {
           message.unsubscribe = { url: verdict.url || "", mailto: verdict.mailto || "", oneClick: !!verdict.oneClick };
@@ -269,7 +273,7 @@
   // ---------- Cache ----------
   // En-tetes et details deja lus, pour afficher la vue tout de suite a la
   // prochaine ouverture ; la vraie lecture suit en tache de fond.
-  var CACHE_VERSION = 1;
+  var CACHE_VERSION = 2; // 2 : lien de desinscription trouve aussi dans le corps
   var TEXT_LIMIT = 20000;
 
   async function loadCache() {

@@ -241,5 +241,12 @@
                  { dark: "chat/icon-dark.svg", light: "chat/icon-light.svg", size: 32 }]
   }).catch(function (err) {
     console.warn("[Material-Thunderbird] Espace Discussions non créé :", err);
+  }).then(function () {
+    // Le bouton est dessine apres coup : quelques essais pour le placer sous Courrier.
+    var api = browser.materialAssistant;
+    if (!api || !api.placeChatSpaceButton) return;
+    [0, 500, 2000, 6000].forEach(function (delay) {
+      setTimeout(function () { api.placeChatSpaceButton().catch(function () {}); }, delay);
+    });
   });
 })();

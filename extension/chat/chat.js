@@ -308,8 +308,10 @@
   var enrichRun = 0;
   async function enrich() {
     var run = ++enrichRun;
+    // Les 400 plus recents, puis ceux d entre eux pas encore lus (et non
+    // l inverse, qui irait chercher toujours plus loin a chaque ouverture).
     var todo = state.messages.slice().sort(function (a, b) { return +b.date - +a.date; })
-      .filter(function (m) { return !m.loaded; }).slice(0, 400);
+      .slice(0, 400).filter(function (m) { return !m.loaded; });
     for (var i = 0; i < todo.length; i += 8) {
       if (run !== enrichRun) return;
       await Promise.all(todo.slice(i, i + 8).map(TB.loadDetails));
@@ -734,7 +736,7 @@
     } else {
       var label = info.url ? (info.oneClick ? "Se désinscrire" : "Ouvrir la page de désinscription") : "Préparer le courriel de désinscription";
       box.append(
-        el("span", { text: "Infolettre de " + host + (info.oneClick ? " · désinscription en un clic" : "") }),
+        el("span", { title: host, text: "Infolettre de " + title(c) + (info.oneClick ? " · désinscription en un clic" : "") }),
         el("button", { class: "btn outlined", text: label, onclick: function () {
           if (info.url && info.oneClick) set({ phase: "confirm" }); else run(info);
         } }));
