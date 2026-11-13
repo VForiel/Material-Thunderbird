@@ -82,10 +82,21 @@ et des pastilles de couleur dans la liste.
 - L'experiment masque la barre d'adresse de l'onglet (`hideTabToolbar`).
 - `build.ps1` copie les jetons dans `chat/tokens/` (ignoré par git) et laisse `mock-data.js` et ce README hors du `.xpi`.
 
+## Cache et suivi
+
+- En-têtes et détails déjà lus sont gardés dans `storage.local` (`chatCache`, texte limité à 20 000 caractères) : la
+  vue s'affiche tout de suite, puis la vraie lecture la met à jour en tâche de fond (seuls les nouveaux courriels sont
+  ouverts). Les identifiants du cache viennent d'une session précédente : ils sont retrouvés par Message-ID avant
+  toute action. Changer les dossiers ou la période invalide le cache.
+- Nouveaux courriels (`onNewMailReceived`), état lu changé ailleurs (`onUpdated`) et suppressions (`onDeleted`)
+  mettent la vue à jour sans recharger.
+
+## Désinscription
+
+Bouton des infolettres relié à l'experiment (`materialAssistant.unsubscribe`), mêmes voies que le bandeau : un clic
+RFC 8058 après confirmation, sinon la page de l'expéditeur dans un onglet, sinon un brouillon mailto (non envoyé).
+
 ## Reste à faire
 
-- Mise en cache de l'index (`storage.local`) et mise à jour par `messages.onNewMailReceived` : aujourd'hui tout est
-  relu à chaque ouverture de l'onglet (environ 10 s pour 9 000 courriels).
-- Envoi non testé sur de vrais courriels (volontairement), marquage lu non testé non plus.
-- Bouton « Se désinscrire » des infolettres pas encore relié au bandeau existant.
+- Envoi, marquage lu et désinscription non testés sur de vrais courriels (volontairement).
 - Repasser `strict_min_version` ou désactiver la vue sous TB 128.

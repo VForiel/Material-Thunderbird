@@ -77,6 +77,36 @@
     return out;
   }
 
+  function toMessage(h, src) {
+    return {
+      id: h.id,
+      headerMessageId: h.headerMessageId,
+      from: parseAddress(h.author),
+      to: (h.recipients || []).map(parseAddress),
+      cc: (h.ccList || []).map(parseAddress),
+      bcc: (h.bccList || []).map(parseAddress),
+      date: h.date,
+      subject: h.subject,
+      account: src.accountId,
+      folder: h.folder && h.folder.id,
+      folderKind: src.kind,
+      read: h.read,
+      references: [], inReplyTo: null, listId: null, isNewsletter: false,
+      text: "", attachments: [], loaded: false
+    };
+  }
+
+  // References depuis la base des messages, par paquets.
+  async function addThreadInfo(list) {
+    if (!api.materialAssistant || !api.materialAssistant.getThreadInfo) return;
+    var byId = {};
+    list.forEach(function (m) { byId[m.id] = m; });
+    for (var i = 0; i < list.length; i += 1000) {
+      var info = await api.materialAssistant.getThreadInfo(list.slice(i, i + 1000).map(function (m) { return m.id; }));
+      info.forEach(function (r) { if (byId[r.id]) byId[r.id].references = r.references; });
+    }
+  }
+
   async function loadHeaders(sources, sinceDate, onProgress) {
     if (!sources.length) return [];
     var byFolder = {};
@@ -87,38 +117,49 @@
     var page = await api.messages.query(query);
     for (;;) {
       page.messages.forEach(function (h) {
-        var src = byFolder[h.folder && h.folder.id] || {};
-        out.push({
-          id: h.id,
-          headerMessageId: h.headerMessageId,
-          from: parseAddress(h.author),
-          to: (h.recipients || []).map(parseAddress),
-          cc: (h.ccList || []).map(parseAddress),
-          bcc: (h.bccList || []).map(parseAddress),
-          date: h.date,
-          subject: h.subject,
-          account: src.accountId,
-          folder: h.folder && h.folder.id,
-          folderKind: src.kind,
-          read: h.read,
-          references: [], inReplyTo: null, listId: null, isNewsletter: false,
-          text: "", attachments: [], loaded: false
-        });
+        out.push(toMessage(h, byFolder[h.folder && h.folder.id] || {}));
       });
       if (onProgress) onProgress(out.length);
       if (!page.id) break;
       page = await api.messages.continueList(page.id);
     }
-    // References depuis la base des messages, par paquets.
-    if (api.materialAssistant && api.materialAssistant.getThreadInfo) {
-      var byId = {};
-      out.forEach(function (m) { byId[m.id] = m; });
-      for (var i = 0; i < out.length; i += 1000) {
-        var info = await api.materialAssistant.getThreadInfo(out.slice(i, i + 1000).map(function (m) { return m.id; }));
-        info.forEach(function (r) { if (byId[r.id]) byId[r.id].references = r.references; });
-      }
-    }
+    await addThreadInfo(out);
     return out;
+  }
+
+  /**
+   * Evenements de Thunderbird : nouveaux courriels, changement d etat (lu),
+   * suppression. sources() renvoie les dossiers affiches a cet instant.
+   */
+  function watch(sources, handlers) {
+    var srcOf = function (folder) {
+      return sources().filter(function (s) { return folder && s.folderId === folder.id; })[0] || null;
+    };
+    if (api.messages.onNewMailReceived) {
+      api.messages.onNewMailReceived.addListener(async function (folder, list) {
+        var src = srcOf(folder);
+        if (!src) return;
+        var added = [];
+        var page = list;
+        for (;;) {
+          (page.messages || []).forEach(function (h) { added.push(toMessage(h, src)); });
+          if (!page.id) break;
+          page = await api.messages.continueList(page.id);
+        }
+        await addThreadInfo(added);
+        handlers.added(added);
+      });
+    }
+    if (api.messages.onUpdated) {
+      api.messages.onUpdated.addListener(function (h, changed) {
+        if (changed && "read" in changed) handlers.updated(h.id, { read: changed.read });
+      });
+    }
+    if (api.messages.onDeleted) {
+      api.messages.onDeleted.addListener(function (list) {
+        handlers.deleted((list.messages || []).map(function (h) { return h.id; }));
+      });
+    }
   }
 
   async function htmlToText(html) {
@@ -131,10 +172,29 @@
     return new DOMParser().parseFromString(html, "text/html").body.textContent;
   }
 
+  /**
+   * Les messages venus du cache portent l identifiant d une session
+   * precedente : on le retrouve par le Message-ID avant toute action.
+   */
+  async function resolve(message) {
+    if (!message.stale) return message;
+    try {
+      var page = await api.messages.query({ headerMessageId: message.headerMessageId });
+      var found = (page.messages || []).filter(function (h) { return h.folder && h.folder.id === message.folder; })[0] ||
+        (page.messages || [])[0];
+      if (found) message.id = found.id;
+    } catch (e) {
+      // Introuvable : on garde l ancien identifiant, l action echouera proprement.
+    }
+    message.stale = false;
+    return message;
+  }
+
   async function loadDetails(message) {
     if (message.loaded) return message;
     message.loaded = true;
     try {
+      await resolve(message);
       var full = await api.messages.getFull(message.id, { decodeContent: false });
       var h = full.headers || {};
       var first = function (k) { return (h[k] || [])[0] || null; };
@@ -152,6 +212,9 @@
       if (global.MaterialUnsubscribeRules) {
         var verdict = global.MaterialUnsubscribeRules.classifyMessage({ headers: h, subject: message.subject, text: message.text });
         message.isNewsletter = !!verdict && verdict.kind === "newsletter";
+        if (verdict && (verdict.url || verdict.mailto)) {
+          message.unsubscribe = { url: verdict.url || "", mailto: verdict.mailto || "", oneClick: !!verdict.oneClick };
+        }
       }
       var atts = await api.messages.listAttachments(message.id);
       message.attachments = atts.map(function (a) {
@@ -173,6 +236,7 @@
     var details = { plainTextBody: text, isPlainText: true };
     if (identityId) details.identityId = identityId;
     if (recipients) { details.to = recipients; details.cc = []; }
+    await resolve(message);
     var tab = await api.compose.beginReply(message.id, replyType || "replyToAll", details);
     return api.compose.sendMessage(tab.id, { mode: "sendNow" });
   }
@@ -180,18 +244,53 @@
   /** Marque des messages comme lus : la seule modification que fait la vue. */
   function markRead(messages) {
     return Promise.all(messages.map(function (m) {
-      return api.messages.update(m.id, { read: true }).catch(function () {});
+      return resolve(m).then(function () { return api.messages.update(m.id, { read: true }); }).catch(function () {});
     }));
   }
 
   /** Vignette d une image jointe : URL locale (blob:) du fichier. */
   async function attachmentUrl(message, attachment) {
+    await resolve(message);
     var file = await api.messages.getAttachmentFile(message.id, attachment.partName);
     return URL.createObjectURL(file);
   }
 
-  function openMessage(message) {
+  async function openMessage(message) {
+    await resolve(message);
     return api.messageDisplay.open({ messageId: message.id, location: "tab" });
+  }
+
+  /** Desinscription d une infolettre, par l experiment (memes voies que le bandeau). */
+  function unsubscribe(details) {
+    if (!api.materialAssistant || !api.materialAssistant.unsubscribe) return Promise.resolve("unavailable");
+    return api.materialAssistant.unsubscribe(details);
+  }
+
+  // ---------- Cache ----------
+  // En-tetes et details deja lus, pour afficher la vue tout de suite a la
+  // prochaine ouverture ; la vraie lecture suit en tache de fond.
+  var CACHE_VERSION = 1;
+  var TEXT_LIMIT = 20000;
+
+  async function loadCache() {
+    try {
+      var c = (await api.storage.local.get("chatCache")).chatCache;
+      if (!c || c.version !== CACHE_VERSION) return null;
+      c.messages.forEach(function (m) { m.date = new Date(m.date); m.stale = true; });
+      return c;
+    } catch (e) { return null; }
+  }
+
+  function saveCache(sourcesKey, messages) {
+    var slim = messages.filter(function (m) { return !m.sendState; }).map(function (m) {
+      var copy = Object.assign({}, m);
+      copy.date = +m.date;
+      if (copy.text && copy.text.length > TEXT_LIMIT) copy.text = copy.text.slice(0, TEXT_LIMIT);
+      delete copy.stale;
+      return copy;
+    });
+    return api.storage.local.set({ chatCache: { version: CACHE_VERSION, sourcesKey: sourcesKey, savedAt: Date.now(), messages: slim } })
+      .catch(function (e) { console.warn("[Material-Thunderbird] Cache de la vue non enregistre :", e); });
   }
 
   async function loadSettings() {
@@ -211,6 +310,10 @@
     markRead: markRead,
     attachmentUrl: attachmentUrl,
     openMessage: openMessage,
+    unsubscribe: unsubscribe,
+    watch: watch,
+    loadCache: loadCache,
+    saveCache: saveCache,
     loadSettings: loadSettings,
     saveSettings: saveSettings
   };

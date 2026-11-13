@@ -3109,6 +3109,48 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
             this._openCustomizerModal(win);
           }
         },
+        // Vue messagerie : bouton « Se desinscrire » d une infolettre. Memes
+        // voies que le bandeau : POST RFC 8058 en un clic, sinon la page de
+        // l expediteur dans un onglet, sinon un brouillon mailto (non envoye).
+        unsubscribe: async (details) => {
+          const rules = UnsubscribeRules;
+          const url = details && rules && rules.isSafeUrl(details.url) ? details.url : "";
+          const mailto = !url && details && isSafeMailto(details.mailto) ? details.mailto.trim() : "";
+          const win = Services.wm.getMostRecentWindow("mail:3pane");
+          if (!win || (!url && !mailto)) return "unavailable";
+          if (url && details.oneClick) {
+            const controller = new win.AbortController();
+            const timer = win.setTimeout(() => controller.abort(), 15000);
+            try {
+              const response = await win.fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "List-Unsubscribe=One-Click",
+                credentials: "omit",
+                redirect: "follow",
+                signal: controller.signal
+              });
+              return response.ok ? "done" : "failed";
+            } catch (err) {
+              console.warn("[Material-Thunderbird] Desinscription en un clic refusee : " + err);
+              return "failed";
+            } finally {
+              win.clearTimeout(timer);
+            }
+          }
+          try {
+            if (url) {
+              if (typeof win.openContentTab === "function") win.openContentTab(url);
+              else win.openURL(url);
+              return "opened";
+            }
+            MailServices.compose.OpenComposeWindowWithURI(null, Services.io.newURI(mailto));
+            return "draft";
+          } catch (err) {
+            console.error("[Material-Thunderbird] Desinscription impossible : " + err);
+            return "failed";
+          }
+        },
         // Vue messagerie : masque la barre d adresse de l onglet de contenu qui
         // l affiche (Thunderbird la montre pour les pages d extension).
         hideTabToolbar: async (urlPrefix) => {

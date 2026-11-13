@@ -190,8 +190,71 @@
         }
       });
     });
-    if (!DEMO) await loadFromThunderbird();
+    if (!DEMO) {
+      // Cache : la vue s affiche tout de suite avec ce qu on savait a la
+      // derniere ouverture, puis se met a jour avec la vraie lecture.
+      var cache = await TB.loadCache();
+      if (cache && cache.sourcesKey === sourcesKey()) {
+        state.messages = cache.messages;
+        state.fromCache = true;
+        rebuild();
+        render();
+      }
+      await loadFromThunderbird();
+      startWatching();
+    }
     rebuild();
+  }
+
+  function currentSources() {
+    var sources = [];
+    state.accounts.forEach(function (a) {
+      a.folders.forEach(function (f) {
+        if (state.sources[f.id]) sources.push({ accountId: a.id, folderId: f.id, kind: f.kind });
+      });
+    });
+    return sources;
+  }
+
+  function sourcesKey() {
+    return currentSources().map(function (s) { return s.folderId; }).sort().join("|") + "#" + state.periodDays;
+  }
+
+  var saveTimer = null;
+  function scheduleSave() {
+    if (DEMO) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () { TB.saveCache(sourcesKey(), state.messages); }, 3000);
+  }
+
+  // Nouveaux courriels, etat lu change ailleurs, suppression : la vue suit.
+  var watching = false;
+  function startWatching() {
+    if (watching || !TB.watch) return;
+    watching = true;
+    TB.watch(currentSources, {
+      added: function (list) {
+        var known = {};
+        state.messages.forEach(function (m) { known[m.id] = true; });
+        var fresh = list.filter(function (m) { return !known[m.id]; });
+        if (!fresh.length) return;
+        state.messages = state.messages.concat(fresh);
+        refresh();
+        Promise.all(fresh.map(TB.loadDetails)).then(function () { refresh(); scheduleSave(); });
+      },
+      updated: function (id, changes) {
+        var m = state.messages.filter(function (x) { return x.id === id && !x.stale; })[0];
+        if (!m) return;
+        Object.assign(m, changes);
+        refresh();
+        scheduleSave();
+      },
+      deleted: function (ids) {
+        var before = state.messages.length;
+        state.messages = state.messages.filter(function (m) { return ids.indexOf(m.id) < 0 || m.stale; });
+        if (state.messages.length !== before) { refresh(); scheduleSave(); }
+      }
+    });
   }
 
   function saveSettings() {
@@ -202,26 +265,41 @@
   }
 
   async function loadFromThunderbird() {
-    var sources = [];
-    state.accounts.forEach(function (a) {
-      a.folders.forEach(function (f) {
-        if (state.sources[f.id]) sources.push({ accountId: a.id, folderId: f.id, kind: f.kind });
-      });
-    });
+    var sources = currentSources();
+    var previous = state.messages;
     var since = state.periodDays ? new Date(Date.now() - state.periodDays * DAY) : undefined;
     // Au demarrage de Thunderbird (onglet restaure), la premiere requete peut
     // ne jamais repondre : on la relance si rien n est arrive en 15 s.
     for (var attempt = 1; ; attempt++) {
-      setStatus(attempt === 1 ? "Lecture des en-têtes…" : "Thunderbird démarre, nouvel essai (" + attempt + ")…");
+      setStatus(attempt > 1 ? "Thunderbird démarre, nouvel essai (" + attempt + ")…"
+        : state.fromCache ? "Mise à jour…" : "Lecture des en-têtes…");
       var progressed = false;
       var timer;
       var timeout = new Promise(function (resolve) { timer = setTimeout(resolve, 15000, null); });
-      var headers = TB.loadHeaders(sources, since, function (n) { progressed = true; setStatus(n + " courriels lus…"); });
+      var headers = TB.loadHeaders(sources, since, function (n) {
+        progressed = true;
+        setStatus((state.fromCache ? "Mise à jour : " : "") + n + " courriels lus…");
+      });
       var result = await Promise.race([headers, timeout.then(function () { return progressed ? headers : null; })]);
       clearTimeout(timer);
-      if (result || attempt >= 4) { state.messages = result || []; break; }
+      if (result || attempt >= 4) { state.messages = result || previous; break; }
     }
+    // Reprend les details deja lus (texte, liste, infolettre, pieces jointes) :
+    // seuls les nouveaux courriels seront ouverts.
+    var known = {};
+    previous.forEach(function (m) { if (m.loaded && m.headerMessageId) known[m.headerMessageId] = m; });
+    state.messages.forEach(function (m) {
+      var old = known[m.headerMessageId];
+      if (!old || m === old) return;
+      ["text", "listId", "listName", "isNewsletter", "unsubscribe", "attachments"].forEach(function (k) {
+        if (old[k] !== undefined) m[k] = old[k];
+      });
+      m.loaded = true;
+    });
+    state.fromCache = false;
     setStatus("");
+    refresh();
+    scheduleSave();
     enrich();
   }
 
@@ -241,6 +319,7 @@
       }
     }
     setStatus("");
+    scheduleSave();
   }
 
   async function loadConversationDetails(c) {
@@ -249,6 +328,7 @@
     if (!todo.length) return;
     for (var i = 0; i < todo.length; i += 8) await Promise.all(todo.slice(i, i + 8).map(TB.loadDetails));
     refresh();
+    scheduleSave();
   }
 
   // Reconstruit et redessine en gardant la position de lecture.
@@ -544,19 +624,19 @@
   }
 
   function renderComposer(c) {
-    if (c.kind === "newsletter") {
-      return el("div", { class: "readonly" }, [
-        el("span", { text: "Infolettre : pas de réponse depuis la vue." }),
-        el("button", { class: "btn outlined", text: "Se désinscrire", title: "Même mécanisme que le bandeau de désinscription" })
-      ]);
-    }
+    if (c.kind === "newsletter") return renderUnsubscribe(c);
     var target = state.replyTarget && state.replyTarget.conv === c.key ? state.replyTarget.item : null;
     var last = target || lastMessage(c);
     var reSubject = /^re\s*:/i.test(last.message.subject) ? last.message.subject : "Re: " + C.normalizeSubject(last.message.subject);
     var identity = el("select", { title: "Adresse d’envoi" }, myAddresses().map(function (a) {
       return el("option", { value: a, text: a });
     }));
-    identity.value = identityFor(c);
+    // L adresse du courriel peut differer de l identite par la casse, ou etre
+    // une ancienne adresse : on retombe sur l identite du compte.
+    var wanted = C.normalizeEmail(identityFor(c));
+    var lastAccount = state.accounts[accountIndex(lastMessage(c).message.account)];
+    identity.value = myAddresses().filter(function (a) { return C.normalizeEmail(a) === wanted; })[0] ||
+      (lastAccount && lastAccount.email) || myAddresses()[0];
     var mode = c.kind === "group" || c.kind === "list"
       ? el("select", { title: "Destinataires" }, [
           el("option", { value: "replyToAll", text: c.kind === "list" ? "À la liste" : "À tout le groupe" }),
@@ -592,6 +672,74 @@
       ]),
       el("div", { class: "composer-box" }, [area, send])
     ]);
+  }
+
+  // ---------- Desinscription (infolettres) ----------
+  // Memes voies que le bandeau : un clic (RFC 8058) apres confirmation, sinon
+  // la page de l expediteur, sinon un brouillon mailto que l utilisateur envoie.
+
+  var UNSUB_RESULTS = {
+    done: "Désinscription envoyée. Les prochains envois peuvent mettre quelques jours à s’arrêter.",
+    opened: "Page de désinscription ouverte dans un onglet.",
+    draft: "Brouillon de désinscription ouvert : relisez-le puis envoyez-le.",
+    failed: "La désinscription a échoué.",
+    unavailable: "Aucun moyen de désinscription trouvé dans ces courriels."
+  };
+
+  function unsubscribeInfo(c) {
+    for (var i = c.items.length - 1; i >= 0; i--) {
+      var it = c.items[i];
+      if (it.type === "message" && it.message.unsubscribe) return it.message.unsubscribe;
+    }
+    return null;
+  }
+
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return ""; }
+  }
+
+  function renderUnsubscribe(c) {
+    state.unsub = state.unsub || {};
+    var st = state.unsub[c.key] || { phase: "idle" };
+    var info = unsubscribeInfo(c);
+    var box = el("div", { class: "readonly" });
+    var set = function (next) { state.unsub[c.key] = next; renderThread(); };
+    var run = async function (details) {
+      set({ phase: "busy" });
+      var result = DEMO ? (details.oneClick ? "done" : "opened") : await TB.unsubscribe(details);
+      set({ phase: "result", result: result, details: details });
+    };
+
+    if (!info) {
+      var loading = c.items.some(function (it) { return it.type === "message" && it.message.loaded === false; });
+      box.append(el("span", { text: loading ? "Recherche du lien de désinscription…" : UNSUB_RESULTS.unavailable }));
+      return box;
+    }
+    var host = hostOf(info.url) || (info.mailto || "").replace(/^mailto:/i, "").split("?")[0];
+
+    if (st.phase === "busy") {
+      box.append(el("span", { text: "Désinscription en cours…" }));
+    } else if (st.phase === "confirm") {
+      box.append(
+        el("span", { text: "Se désinscrire immédiatement auprès de " + host + " ?" }),
+        el("button", { class: "btn text", text: "Annuler", onclick: function () { set({ phase: "idle" }); } }),
+        el("button", { class: "btn filled", text: "Confirmer", onclick: function () { run(info); } }));
+    } else if (st.phase === "result") {
+      box.append(el("span", { class: st.result === "failed" ? "send-failed" : "", text: UNSUB_RESULTS[st.result] || st.result }));
+      if (st.result === "failed" && info.url) {
+        box.append(el("button", { class: "btn outlined", text: "Ouvrir la page", onclick: function () {
+          run({ url: info.url, oneClick: false });
+        } }));
+      }
+    } else {
+      var label = info.url ? (info.oneClick ? "Se désinscrire" : "Ouvrir la page de désinscription") : "Préparer le courriel de désinscription";
+      box.append(
+        el("span", { text: "Infolettre de " + host + (info.oneClick ? " · désinscription en un clic" : "") }),
+        el("button", { class: "btn outlined", text: label, onclick: function () {
+          if (info.url && info.oneClick) set({ phase: "confirm" }); else run(info);
+        } }));
+    }
+    return box;
   }
 
   function chooseReply(it) {

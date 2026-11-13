@@ -76,6 +76,23 @@
         "parameters": []
       },
       {
+        "name": "unsubscribe",
+        "type": "function",
+        "async": true,
+        "description": "Vue messagerie : se désinscrire d'une infolettre (un clic RFC 8058, page de l'expéditeur ou brouillon mailto). Renvoie done, failed, opened, draft ou unavailable.",
+        "parameters": [
+          {
+            "name": "details",
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "optional": true },
+              "mailto": { "type": "string", "optional": true },
+              "oneClick": { "type": "boolean", "optional": true }
+            }
+          }
+        ]
+      },
+      {
         "name": "hideTabToolbar",
         "type": "function",
         "async": true,

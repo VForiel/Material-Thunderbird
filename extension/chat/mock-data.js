@@ -154,9 +154,11 @@
 
   // --- Infolettres ---
   add({ from: P.news, to: [P.me_p], date: at(3, 7, 0), account: "perso", folder: "perso/inbox", isNewsletter: true,
+    unsubscribe: { url: "https://courrier-etoiles.example/desinscription", oneClick: true },
     subject: "Novembre : les Léonides et une comète tardive",
     text: "Ce mois-ci, le pic des Léonides tombe la nuit du 17. Nous vous expliquons où regarder et à quelle heure." });
   add({ from: P.shop, to: [P.me_p], date: at(0, 6, 12), account: "perso", folder: "perso/promos", isNewsletter: true,
+    unsubscribe: { url: "https://www.veloplus.example/preferences", oneClick: false },
     subject: "-30 % sur les éclairages", text: "Les nuits raccourcissent : profitez de -30 % sur tous les éclairages." });
 
   // --- Notes a soi ---
