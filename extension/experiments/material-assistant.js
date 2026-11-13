@@ -479,11 +479,17 @@ function iconThemeCss(settings, pal) {
  * l emportent ainsi sur celles de chrome/tokens/ quel que soit l ordre des
  * feuilles.
  */
-function generateCustomizerCss(settings) {
+function generateCustomizerCss(settings, chatUrl) {
   const pal = PALETTES_CONFIG[settings.palette] || PALETTES_CONFIG.blue;
-  const body = paletteCss(pal).replace(/:root/g, ":root:root") + "\n" +
-    iconThemeCss(settings, pal);
-  return `@-moz-document ${CHROME_DOCUMENTS} {\n${body}\n}\n`;
+  const palette = paletteCss(pal).replace(/:root/g, ":root:root");
+  const body = palette + "\n" + iconThemeCss(settings, pal);
+  let css = `@-moz-document ${CHROME_DOCUMENTS} {\n${body}\n}\n`;
+  // La vue Discussions est une page de l extension, pas un document de
+  // l interface : elle recoit la palette seule, pour suivre le choix fait dans
+  // la palette en bas a gauche. Le clair / sombre la suit deja via
+  // prefers-color-scheme.
+  if (chatUrl) css += `@-moz-document url-prefix("${chatUrl}") {\n${palette}\n}\n`;
+  return css;
 }
 
 /**
@@ -1781,7 +1787,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
   _applyCustomizerSheet() {
     const previous = this._customizerSheet;
     try {
-      const css = generateCustomizerCss(getCustomizerSettings());
+      const css = generateCustomizerCss(getCustomizerSettings(), this.extension.baseURL + "chat/");
       this._customizerSheet = registerUserSheet("data:text/css;charset=utf-8," + encodeURIComponent(css));
     } catch (e) {
       console.error("[Material-Thunderbird] Personnalisation non appliquee :", e);

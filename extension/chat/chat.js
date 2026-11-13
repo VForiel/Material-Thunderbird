@@ -982,12 +982,6 @@
     this.querySelectorAll("[data-filter]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
     renderList();
   });
-  $("#theme-btn").addEventListener("click", function () {
-    var root = document.documentElement;
-    var dark = root.getAttribute("lwt-theme-brighttext") === "true" ||
-      (!root.hasAttribute("lwt-theme-brighttext") && matchMedia("(prefers-color-scheme: dark)").matches);
-    root.setAttribute("lwt-theme-brighttext", dark ? "false" : "true");
-  });
 
   if (!DEMO && browser.materialAssistant && browser.materialAssistant.hideTabToolbar) {
     browser.materialAssistant.hideTabToolbar(location.href.split("?")[0]).catch(function () {});
