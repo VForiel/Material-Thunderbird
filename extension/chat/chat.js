@@ -234,8 +234,8 @@
         state.extraMe = saved.extraMe || [];
       }
       setStatus("Lecture des comptes…");
-      state.accounts = await TB.listAccounts();
-      state.contacts = await TB.listContacts();
+      state.accounts = await retryWhileStarting(TB.listAccounts, "Lecture des comptes");
+      state.contacts = await retryWhileStarting(TB.listContacts, "Lecture des contacts").catch(function () { return []; });
     }
     state.accounts.forEach(function (a) {
       a.folders.forEach(function (f) {
@@ -309,6 +309,20 @@
         if (state.messages.length !== before) { refresh(); scheduleSave(); }
       }
     });
+  }
+
+  // Juste apres le demarrage de Thunderbird, une requete peut ne jamais
+  // repondre : on la relance (jusqu a 4 fois, 10 s chacune).
+  async function retryWhileStarting(fn, label) {
+    for (var attempt = 1; ; attempt++) {
+      if (attempt > 1) setStatus("Thunderbird démarre : " + label.toLowerCase() + ", nouvel essai (" + attempt + ")…");
+      var timer;
+      var timeout = new Promise(function (resolve) { timer = setTimeout(resolve, 10000, "timeout"); });
+      var result = await Promise.race([fn(), timeout]);
+      clearTimeout(timer);
+      if (result !== "timeout") return result;
+      if (attempt >= 4) throw new Error(label + " : pas de réponse de Thunderbird");
+    }
   }
 
   function saveSettings() {
