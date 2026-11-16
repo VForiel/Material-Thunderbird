@@ -1198,6 +1198,37 @@ function resolveAvatarInfo(win, rawString, onGravatarResolved) {
  */
 var UnsubscribeRules = null;
 
+/**
+ * Brouillon de desinscription par mailto, depuis l identite qui a recu le
+ * message (celle que Thunderbird choisirait pour Repondre) : une liste Sympa
+ * n accepte la desinscription que de l adresse abonnee. Sans message connu ou
+ * sans identite trouvee, Thunderbird prend l identite par defaut, comme avant.
+ * Rien n est envoye.
+ */
+function openUnsubscribeDraft(mailto, hdr) {
+  const uri = Services.io.newURI(mailto);
+  let identity = null;
+  if (hdr) {
+    try {
+      const { MailUtils } = ChromeUtils.importESModule("resource:///modules/MailUtils.sys.mjs");
+      [identity] = MailUtils.getIdentityForHeader(hdr, Ci.nsIMsgCompType.Reply);
+    } catch (e) {
+      console.warn("[Material-Thunderbird] Identite du message introuvable : " + e);
+    }
+  }
+  if (identity) {
+    try {
+      const params = MailServices.compose.getParamsForMailto(uri);
+      params.identity = identity;
+      MailServices.compose.OpenComposeWindowWithParams(null, params);
+      return;
+    } catch (e) {
+      console.warn("[Material-Thunderbird] Brouillon avec identite impossible, repli : " + e);
+    }
+  }
+  MailServices.compose.OpenComposeWindowWithURI(null, uri);
+}
+
 function readExtensionFile(url) {
   const { NetUtil } = ChromeUtils.importESModule("resource://gre/modules/NetUtil.sys.mjs");
   const channel = NetUtil.newChannel({ uri: url, loadUsingSystemPrincipal: true });
@@ -2362,6 +2393,9 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const win = this._aboutMessageWindow(chromeWin);
     if (!win) return;
     const doc = win.document;
+    // Message auquel appartient le bandeau, pour l identite du brouillon.
+    let messageHdr = null;
+    try { messageHdr = win.gMessage || null; } catch (e) {}
     const isList = details.kind === "list";
     let banner = doc.getElementById("material-unsubscribe-banner");
     if (!banner) {
@@ -2496,7 +2530,7 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
     const openDraft = () => {
       if (!mailto || !MailServices || !MailServices.compose) return false;
       try {
-        MailServices.compose.OpenComposeWindowWithURI(null, Services.io.newURI(mailto));
+        openUnsubscribeDraft(mailto, messageHdr);
         return true;
       } catch (err) {
         console.error("[Material-Thunderbird] Brouillon de desinscription impossible : " + err);
@@ -3179,7 +3213,11 @@ this.materialAssistant = class extends ExtensionCommon.ExtensionAPI {
               else win.openURL(url);
               return "opened";
             }
-            MailServices.compose.OpenComposeWindowWithURI(null, Services.io.newURI(mailto));
+            let hdr = null;
+            try {
+              if (details.messageId) hdr = this.extension.messageManager.get(details.messageId);
+            } catch (e) {}
+            openUnsubscribeDraft(mailto, hdr);
             return "draft";
           } catch (err) {
             console.error("[Material-Thunderbird] Desinscription impossible : " + err);

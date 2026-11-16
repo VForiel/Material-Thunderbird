@@ -763,10 +763,11 @@
     unavailable: "Aucun moyen de désinscription trouvé dans ces courriels."
   };
 
-  function unsubscribeInfo(c) {
+  // Dernier message de la conversation qui porte un moyen de desinscription.
+  function unsubscribeSource(c) {
     for (var i = c.items.length - 1; i >= 0; i--) {
       var it = c.items[i];
-      if (it.type === "message" && it.message.unsubscribe) return it.message.unsubscribe;
+      if (it.type === "message" && it.message.unsubscribe) return it.message;
     }
     return null;
   }
@@ -778,12 +779,15 @@
   function renderUnsubscribe(c) {
     state.unsub = state.unsub || {};
     var st = state.unsub[c.key] || { phase: "idle" };
-    var info = unsubscribeInfo(c);
+    var source = unsubscribeSource(c);
+    var info = source && source.unsubscribe;
     var box = el("div", { class: "readonly" });
     var set = function (next) { state.unsub[c.key] = next; renderThread(); };
     var run = async function (details) {
       set({ phase: "busy" });
-      var result = DEMO ? (details.oneClick ? "done" : "opened") : await TB.unsubscribe(details);
+      // Le message part avec la demande : un brouillon mailto s ecrit depuis
+      // l identite qui l a recu.
+      var result = DEMO ? (details.oneClick ? "done" : "opened") : await TB.unsubscribe(details, source);
       set({ phase: "result", result: result, details: details });
     };
 

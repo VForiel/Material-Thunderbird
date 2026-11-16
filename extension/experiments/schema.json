@@ -87,7 +87,8 @@
             "properties": {
               "url": { "type": "string", "optional": true },
               "mailto": { "type": "string", "optional": true },
-              "oneClick": { "type": "boolean", "optional": true }
+              "oneClick": { "type": "boolean", "optional": true },
+              "messageId": { "type": "integer", "optional": true, "description": "Message de l'infolettre, pour écrire depuis l'identité qui l'a reçu." }
             }
           }
         ]

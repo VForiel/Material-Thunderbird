@@ -265,9 +265,14 @@
   }
 
   /** Desinscription d une infolettre, par l experiment (memes voies que le bandeau). */
-  function unsubscribe(details) {
-    if (!api.materialAssistant || !api.materialAssistant.unsubscribe) return Promise.resolve("unavailable");
-    return api.materialAssistant.unsubscribe(details);
+  async function unsubscribe(details, message) {
+    if (!api.materialAssistant || !api.materialAssistant.unsubscribe) return "unavailable";
+    var withMessage = Object.assign({}, details);
+    if (message) {
+      await resolve(message);
+      withMessage.messageId = message.id;
+    }
+    return api.materialAssistant.unsubscribe(withMessage);
   }
 
   // ---------- Cache ----------
